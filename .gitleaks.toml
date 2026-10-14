@@ -1,0 +1,13 @@
+# Herda as regras padrão do gitleaks e libera só valores sabidamente fictícios.
+# Libera por valor (regex), não por arquivo: um segredo real em .env.example ou num teste ainda é barrado.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Valores fictícios de exemplo e de teste"
+regexTarget = "match"
+regexes = [
+  '''troque-por-um-segredo-com-32-caracteres-ou-mais''',
+  '''segredo-de-teste-com-mais-de-32-caracteres''',
+  '''outro-segredo-com-mais-de-32-caracteres''',
+]

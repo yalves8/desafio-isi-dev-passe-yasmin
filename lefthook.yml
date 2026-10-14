@@ -1,0 +1,38 @@
+# Hooks de Git (Lefthook). Instalados por `npm install` na raiz.
+# O CI repete tudo isso no projeto inteiro; aqui roda só nos arquivos staged, para ser rápido.
+
+pre-commit:
+  parallel: true
+  commands:
+    gitleaks:
+      run: |
+        if ! command -v gitleaks >/dev/null 2>&1; then
+          echo "gitleaks não encontrado. Instale: https://github.com/gitleaks/gitleaks#installing"
+          exit 1
+        fi
+        gitleaks git --pre-commit --staged --redact --no-banner
+    backend-format:
+      root: backend/
+      glob: '*.ts'
+      run: npx prettier --write {staged_files}
+      stage_fixed: true
+    backend-lint:
+      root: backend/
+      glob: '*.ts'
+      run: npx oxlint --deny-warnings --no-error-on-unmatched-pattern {staged_files}
+    frontend-format:
+      root: frontend/
+      glob: '*.{ts,tsx,css}'
+      exclude:
+        - frontend/src/components/ui/**
+      run: npx prettier --write {staged_files}
+      stage_fixed: true
+    frontend-lint:
+      root: frontend/
+      glob: '*.{ts,tsx}'
+      run: npx oxlint --deny-warnings --no-error-on-unmatched-pattern {staged_files}
+
+commit-msg:
+  commands:
+    commitlint:
+      run: npx commitlint --edit {1}

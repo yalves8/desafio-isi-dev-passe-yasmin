@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app
+      TZ: America/Sao_Paulo
+    ports:
+      - '${DB_PORT:-5433}:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d app']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./backend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/app?schema=public
+      JWT_SECRET: ${JWT_SECRET:-troque-por-um-segredo-com-32-caracteres-ou-mais}
+      JWT_EXPIRES_IN: 1d
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      TZ: America/Sao_Paulo
+    ports:
+      - '${API_PORT:-3000}:3000'
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+    ports:
+      - '${WEB_PORT:-5173}:80'
+    depends_on:
+      - api
+
+volumes:
+  db-data:

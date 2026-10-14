@@ -1,0 +1,43 @@
+generator client {
+  provider               = "prisma-client"
+  output                 = "../src/generated/prisma"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id           Int      @id(map: "users_pk") @default(autoincrement())
+  name         String   @db.VarChar(120)
+  // único só entre ativos: índice parcial users_email_uk criado na migration
+  email        String   @db.VarChar(160)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  role         Role     @default(USER)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("users")
+}
+
+// Recurso de exemplo: copie este padrão para as entidades do enunciado
+model Room {
+  id        Int      @id(map: "rooms_pk") @default(autoincrement())
+  name      String   @db.VarChar(80)
+  capacity  Int
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([active], map: "rooms_active_idx")
+  @@map("rooms")
+}

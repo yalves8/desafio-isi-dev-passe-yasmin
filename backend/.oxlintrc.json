@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": [
+    "src/generated/**"
+  ],
+  "rules": {
+    "typescript/no-explicit-any": "off",
+    "typescript/no-floating-promises": "error",
+    "no-console": "warn",
+    "no-debugger": "error"
+  },
+  "env": {
+    "node": true
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.spec.ts",
+        "**/*.e2e-spec.ts"
+      ],
+      "rules": {
+        "typescript/unbound-method": "off"
+      }
+    }
+  ]
+}
