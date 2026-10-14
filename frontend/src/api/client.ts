@@ -3,25 +3,16 @@ import type { ApiError } from './types'
 
 export const TOKEN_KEY = 'token'
 
-export const api = axios.create({ baseURL: import.meta.env.VITE_API_URL })
+const rawBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const normalizedBaseUrl = rawBaseUrl.endsWith('/api/v1')
+  ? rawBaseUrl
+  : `${rawBaseUrl.replace(/\/$/, '')}/api/v1`
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem(TOKEN_KEY)
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+export const api = axios.create({ baseURL: normalizedBaseUrl })
 
 api.interceptors.response.use(
   (res) => res,
-  (error) => {
-    // No login, o 401 é "senha errada": a tela mostra a mensagem em vez de redirecionar
-    const isLogin = error.config?.url?.includes('/auth/login')
-    if (error.response?.status === 401 && !isLogin) {
-      localStorage.removeItem(TOKEN_KEY)
-      window.location.href = '/login'
-    }
-    return Promise.reject(error)
-  },
+  (error) => Promise.reject(error),
 )
 
 export function getErrorMessage(error: unknown): string {

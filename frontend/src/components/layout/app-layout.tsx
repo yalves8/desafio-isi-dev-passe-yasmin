@@ -1,15 +1,13 @@
-import { LogOut, Menu, UserRound } from 'lucide-react'
-import { Link, NavLink, Outlet, useNavigate } from 'react-router'
+import { Menu } from 'lucide-react'
+import { useState } from 'react'
+import { Link, NavLink, Outlet } from 'react-router'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useAuth } from '@/hooks/use-auth'
 import { useBrasiliaClock } from '@/hooks/use-brasilia-clock'
 import { cn } from '@/lib/utils'
 import { Brand } from './brand'
@@ -17,42 +15,40 @@ import { Brand } from './brand'
 interface NavItem {
   to: string
   label: string
-  adminOnly?: boolean
 }
 
 const NAV: NavItem[] = [
-  { to: '/salas', label: 'Salas' },
-  { to: '/usuarios', label: 'Usuários', adminOnly: true },
+  { to: '/jogadores', label: 'Jogadores' },
+  { to: '/clubes', label: 'Clubes' },
+  { to: '/partidas', label: 'Partidas' },
+  { to: '/classificacao', label: 'Classificação' },
 ]
 
 export function AppLayout() {
-  const { user, isAdmin, logout } = useAuth()
-  const navigate = useNavigate()
   const clock = useBrasiliaClock()
-  const items = NAV.filter((item) => !item.adminOnly || isAdmin)
-
-  const handleLogout = () => {
-    logout()
-    void navigate('/login', { replace: true })
-  }
+  const [open, setOpen] = useState(false)
 
   return (
-    <div className="min-h-dvh">
-      <header className="sticky top-0 z-30 border-b bg-card/95 backdrop-blur">
+    <div className="flex min-h-dvh flex-col bg-background text-foreground">
+      <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4">
-          <Link to="/" className="rounded-md">
+          <Link
+            to="/"
+            className="rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            aria-label="Passe, página inicial"
+          >
             <Brand />
           </Link>
 
           <nav aria-label="Principal" className="hidden items-center gap-1 sm:flex">
-            {items.map((item) => (
+            {NAV.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
                   cn(
                     'rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground',
-                    isActive && 'bg-accent text-accent-foreground',
+                    isActive && 'bg-accent font-semibold text-accent-foreground',
                   )
                 }
               >
@@ -63,43 +59,41 @@ export function AppLayout() {
 
           <div className="ml-auto flex items-center gap-3">
             <span
-              className="hidden font-mono text-xs text-muted-foreground tabular-nums md:inline"
-              title="Horário de Brasília"
+              className="font-mono text-xs text-muted-foreground tabular-nums"
+              title="Horário de Brasília (UTC−3)"
             >
               {clock}
             </span>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" aria-label="Menu do usuário">
-                  <Menu className="sm:hidden" />
-                  <UserRound className="hidden sm:block" />
-                  <span className="hidden max-w-32 truncate sm:inline">{user?.name}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="font-normal">
-                  <p className="truncate text-sm font-medium">{user?.name}</p>
-                  <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator className="sm:hidden" />
-                {items.map((item) => (
-                  <DropdownMenuItem key={item.to} asChild className="sm:hidden">
-                    <Link to={item.to}>{item.label}</Link>
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={handleLogout}>
-                  <LogOut /> Sair
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+
+            <div className="sm:hidden">
+              <DropdownMenu open={open} onOpenChange={setOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" aria-label="Abrir menu de navegação">
+                    <Menu className="size-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {NAV.map((item) => (
+                    <DropdownMenuItem key={item.to} asChild onSelect={() => setOpen(false)}>
+                      <Link to={item.to} className="w-full">
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-8">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
         <Outlet />
       </main>
+
+      <footer className="border-t border-border bg-card py-4 text-center text-xs text-muted-foreground">
+        Liga Fictícia 2026 · Horário de Brasília (UTC−3)
+      </footer>
     </div>
   )
 }

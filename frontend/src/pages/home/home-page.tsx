@@ -1,0 +1,200 @@
+import { Fragment } from 'react'
+import {
+  ArrowRight,
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  HandCoins,
+  History,
+  Shield,
+  ShoppingCart,
+  Swords,
+  Trophy,
+  UserRound,
+  Users,
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useHomePage } from './home-page.hook'
+
+const STEPS = [
+  {
+    number: '01',
+    title: 'Jogadores',
+    description: 'Nascem livres e Apto; o valor de mercado vem da condição, agilidade e idade.',
+    icon: Users,
+  },
+  {
+    number: '02',
+    title: 'Clubes',
+    description: 'Começam com 300,00 em caixa e sem jogadores.',
+    icon: Shield,
+  },
+  {
+    number: '03',
+    title: 'Compra',
+    description: 'Valor + taxa, até 50% do caixa, com contrato de fidelidade.',
+    icon: ShoppingCart,
+  },
+  {
+    number: '04',
+    title: 'Venda',
+    description: 'Multa antes do fim da fidelidade e comissão sobre o lucro.',
+    icon: HandCoins,
+  },
+  {
+    number: '05',
+    title: 'Histórico',
+    description: 'Toda compra e venda fica registrada, com totais e CSV.',
+    icon: History,
+  },
+  {
+    number: '06',
+    title: 'Liga',
+    description: 'Escale 5 titulares e jogue partidas que entram na classificação.',
+    icon: Trophy,
+  },
+]
+
+export function HomePage() {
+  const { stats, startNavigation } = useHomePage()
+
+  return (
+    <div className="flex min-h-screen w-full items-center justify-center bg-white p-3 sm:p-6 lg:p-8">
+      {/* Container principal que coincide com o campo de futebol */}
+      <div className="relative flex w-full max-w-[1234px] flex-col items-center justify-between rounded-3xl border border-zinc-200/90 bg-white px-4 py-8 sm:px-8 lg:min-h-[702px] lg:border-transparent lg:px-12 lg:py-10">
+        {/* Decoração estilizada de campo de futebol (Figma SVG) envolvendo todo o conteúdo */}
+        <img
+          src="/assets/campo-decoracao.svg"
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 hidden size-full select-none lg:block"
+        />
+
+        {/* Bloco Superior: Conteúdo Central */}
+        <div className="relative z-10 flex w-full max-w-[720px] flex-col items-center text-center">
+          {/* Logo e Nome */}
+          <div className="flex items-center gap-4">
+            <img
+              src="/assets/logo-passe.svg"
+              alt="Passe"
+              className="size-14 rounded-2xl shadow-xs"
+            />
+            <span className="font-heading text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl">
+              Passe
+            </span>
+          </div>
+
+          {/* Selo Liga Fictícia */}
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs text-zinc-600 shadow-2xs">
+            <span className="size-2 rounded-full bg-[#00813A]" />
+            <span className="font-medium text-zinc-900">Liga Fictícia 2026</span>
+            <span className="text-zinc-400">·</span>
+            <span className="text-[#686872]">
+              {stats.leader
+                ? `líder: ${stats.leader.name}, ${stats.leader.points} pontos`
+                : 'nenhuma partida ainda'}
+            </span>
+          </div>
+
+          {/* Headline e Descrição */}
+          <h1 className="mt-5 font-heading text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl sm:leading-tight">
+            Gestão da liga, do mercado à classificação
+          </h1>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-[#686872] sm:text-base">
+            Cadastre jogadores, monte os clubes e negocie com contrato de fidelidade. Depois, escale
+            os titulares e jogue partidas com placar calculado pelos atributos.
+          </p>
+
+          {/* Ação Principal: Botão Iniciar + Tecla Enter */}
+          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:gap-3.5">
+            <Button
+              type="button"
+              size="lg"
+              onClick={startNavigation}
+              className="h-10 w-48 gap-2 rounded-lg bg-[#155DFC] font-medium text-white shadow-xs hover:bg-blue-700 sm:w-[200px]"
+            >
+              Iniciar
+              <ArrowRight className="size-4" />
+            </Button>
+            <span className="flex items-center gap-1.5 text-sm text-[#686872]">
+              ou tecle
+              <kbd className="rounded border border-zinc-200 bg-[#F4F4F5] px-1.5 py-0.5 font-mono text-xs font-medium text-[#686872]">
+                Enter
+              </kbd>
+            </span>
+          </div>
+
+          {/* Faixa de Números da Liga */}
+          <div className="mt-6 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-[#686872]">
+            <div className="flex items-center gap-1.5">
+              <Users className="size-3.5 text-zinc-400" />
+              <span className="font-medium text-zinc-900">{stats.totalPlayers}</span>
+              <span>jogadores</span>
+            </div>
+            <span className="size-1 rounded-full bg-zinc-300" />
+            <div className="flex items-center gap-1.5">
+              <UserRound className="size-3.5 text-zinc-400" />
+              <span className="font-medium text-zinc-900">{stats.freePlayers}</span>
+              <span>livres</span>
+            </div>
+            <span className="size-1 rounded-full bg-zinc-300" />
+            <div className="flex items-center gap-1.5">
+              <Shield className="size-3.5 text-zinc-400" />
+              <span className="font-medium text-zinc-900">{stats.totalClubs}</span>
+              <span>clubes</span>
+            </div>
+            <span className="size-1 rounded-full bg-zinc-300" />
+            <div className="flex items-center gap-1.5">
+              <Swords className="size-3.5 text-zinc-400" />
+              <span className="font-medium text-zinc-900">{stats.totalMatches}</span>
+              <span>partidas</span>
+            </div>
+            <span className="size-1 rounded-full bg-zinc-300" />
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="size-3.5 text-zinc-400" />
+              <span>Não precisa de login</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bloco Inferior: Como o sistema funciona (6 etapas + setinhas) */}
+        <div className="relative z-10 mt-8 w-full">
+          <div className="flex flex-col items-center justify-center gap-2 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-row lg:items-center lg:justify-between lg:gap-1.5 xl:gap-2">
+            {STEPS.map((step, index) => {
+              const Icon = step.icon
+              return (
+                <Fragment key={step.number}>
+                  <div className="flex h-[158px] w-full max-w-[280px] flex-col justify-between rounded-[14px] border border-zinc-200/90 bg-white p-3.5 text-left shadow-2xs transition-shadow hover:shadow-xs lg:w-[172px] lg:shrink-0">
+                    <div className="flex items-center justify-between">
+                      <div className="flex size-8 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#155DFC]">
+                        <Icon className="size-4" />
+                      </div>
+                      <span className="font-mono text-xs font-normal text-[#686872]">
+                        {step.number}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-zinc-950">{step.title}</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-[#686872]">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                  {index < STEPS.length - 1 && (
+                    <ChevronRight className="hidden size-4 shrink-0 text-zinc-400 lg:block" />
+                  )}
+                </Fragment>
+              )
+            })}
+          </div>
+
+          {/* Rodapé: Horário de Brasília */}
+          <div className="mt-6 flex items-center justify-center gap-1.5 text-xs text-[#686872]">
+            <Clock className="size-3.5 text-zinc-400" />
+            <span>Liga Fictícia 2026 · Horário de Brasília (UTC−3)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

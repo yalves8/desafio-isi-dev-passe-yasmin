@@ -1,42 +1,53 @@
-import { createBrowserRouter, Navigate } from 'react-router'
+import { createBrowserRouter } from 'react-router'
 import { AppLayout } from '@/components/layout/app-layout'
-import { LoginPage } from '@/pages/login/login-page'
+import { HomePage } from '@/pages/home/home-page'
 import { NotFoundPage } from '@/pages/not-found/not-found-page'
-import { RegisterPage } from '@/pages/register/register-page'
-import { RoomFormPage } from '@/pages/room-form/room-form-page'
-import { RoomsPage } from '@/pages/rooms/rooms-page'
-import { UserFormPage } from '@/pages/user-form/user-form-page'
-import { UsersPage } from '@/pages/users/users-page'
-import { PrivateRoute, PublicOnlyRoute } from './private-route'
 
 export const router = createBrowserRouter([
   {
-    element: <PublicOnlyRoute />,
-    children: [
-      { path: '/login', element: <LoginPage /> },
-      { path: '/cadastro', element: <RegisterPage /> },
-    ],
+    path: '/',
+    element: <HomePage />,
   },
   {
-    element: <PrivateRoute />,
+    element: <AppLayout />,
     children: [
       {
-        element: <AppLayout />,
-        children: [
-          { index: true, element: <Navigate to="/salas" replace /> },
-          { path: '/salas', element: <RoomsPage /> },
-          {
-            element: <PrivateRoute roles={['ADMIN']} />,
-            children: [
-              { path: '/salas/nova', element: <RoomFormPage /> },
-              { path: '/salas/:id/editar', element: <RoomFormPage /> },
-              { path: '/usuarios', element: <UsersPage /> },
-              { path: '/usuarios/novo', element: <UserFormPage /> },
-            ],
-          },
-          { path: '*', element: <NotFoundPage /> },
-        ],
+        path: '/jogadores',
+        element: (
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-xs">
+            <h1 className="font-heading text-2xl font-bold">Mercado de Jogadores</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Módulo em desenvolvimento.</p>
+          </div>
+        ),
       },
+      {
+        path: '/clubes',
+        element: (
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-xs">
+            <h1 className="font-heading text-2xl font-bold">Clubes da Liga</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Módulo em desenvolvimento.</p>
+          </div>
+        ),
+      },
+      {
+        path: '/partidas',
+        element: (
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-xs">
+            <h1 className="font-heading text-2xl font-bold">Partidas</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Módulo em desenvolvimento.</p>
+          </div>
+        ),
+      },
+      {
+        path: '/classificacao',
+        element: (
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-xs">
+            <h1 className="font-heading text-2xl font-bold">Classificação</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Módulo em desenvolvimento.</p>
+          </div>
+        ),
+      },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ])
