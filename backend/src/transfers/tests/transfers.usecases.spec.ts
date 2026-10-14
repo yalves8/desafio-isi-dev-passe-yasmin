@@ -9,8 +9,11 @@ import {
   ITransferRepository,
   PurchaseRecord,
   PurchaseState,
+  SaleRecord,
+  SaleState,
 } from '../application/interfaces/repositories/transfer.repository.interface.js';
 import { BuyPlayerUseCase } from '../application/usecases/buy-player/buy-player.usecase.js';
+import { SellPlayerUseCase } from '../application/usecases/sell-player/sell-player.usecase.js';
 
 // 02/11/2026 10:15 em Brasília (exemplo 2.3.1 do desafio)
 const NOW = new Date('2026-11-02T10:15:00-03:00');
@@ -205,6 +208,141 @@ describe('BuyPlayerUseCase', () => {
     ).rejects.toThrow(
       new ValidationError(
         'O fim da fidelidade pode ser no máximo 1.095 dias depois da compra',
+      ),
+    );
+  });
+});
+
+describe('SellPlayerUseCase', () => {
+  // 05/11/2026 16:40 em Brasília (exemplo 2.3.2 do desafio)
+  const SALE_NOW = new Date('2026-11-05T16:40:00-03:00');
+  const DAY = 24 * 60 * 60 * 1000;
+
+  function saleState(overrides: Partial<SaleState> = {}): SaleState {
+    return {
+      player: player(40, 1),
+      club: { id: 1, name: 'Águias FC', cash: 26115 },
+      contract: { id: 7, purchaseValue: 3700, loyaltyUntil: LOYALTY },
+      ...overrides,
+    };
+  }
+
+  function sell(current: SaleState) {
+    const repository = {
+      sale: vi.fn(
+        async (_playerId: number, decide: (s: SaleState) => SaleRecord) => ({
+          record: decide(current),
+          transactionId: 11,
+        }),
+      ),
+    };
+    const useCase = new SellPlayerUseCase(
+      repository as unknown as ITransferRepository,
+    );
+    return { repository, result: useCase.execute({ playerId: 2 }, SALE_NOW) };
+  }
+
+  it('deve vender pelo valor de mercado com multa, lucro, comissão e novo caixa (2.3.2)', async () => {
+    const { repository, result } = sell(saleState());
+
+    await expect(result).resolves.toEqual({
+      id: 11,
+      club_id: 1,
+      player_id: 2,
+      player_name: 'Meia Lua',
+      type: 'VENDA',
+      value: 40,
+      fee: 0.3,
+      penalty: 4,
+      profit: 3,
+      cash_change: 35.7,
+      created_at: '2026-11-05T16:40:00-03:00',
+      purchase_value: 37,
+      remaining_days: 117,
+      penalty_rate: 10,
+      contract_status: 'RESCINDIDO',
+      club_cash: 296.85,
+    });
+    expect(repository.sale).toHaveBeenCalledWith(2, expect.any(Function));
+  });
+
+  it.each([
+    // compra, venda, dias até o fim da fidelidade, multa, lucro, comissão, crédito, situação (RN16)
+    [3700, 40, 100, 4, 3, 0.3, 35.7, 'RESCINDIDO'],
+    [5000, 42.5, 200, 8.5, -7.5, 0, 34, 'RESCINDIDO'],
+    [2615, 30, 10, 1.5, 3.85, 0.39, 28.11, 'RESCINDIDO'],
+    [2500, 25, -1, 0, 0, 0, 25, 'ENCERRADO'],
+    [6000, 75, 200, 10, 15, 2, 63, 'RESCINDIDO'],
+  ])(
+    'deve calcular a venda de %i centavos por %d com fidelidade a %i dias',
+    async (
+      purchase,
+      marketValue,
+      days,
+      penalty,
+      profit,
+      fee,
+      credit,
+      status,
+    ) => {
+      const { result } = sell(
+        saleState({
+          player: player(marketValue, 1),
+          contract: {
+            id: 7,
+            purchaseValue: purchase,
+            loyaltyUntil: new Date(SALE_NOW.getTime() + days * DAY),
+          },
+        }),
+      );
+      const output = await result;
+      expect(output.penalty).toBe(penalty);
+      expect(output.profit).toBe(profit);
+      expect(output.fee).toBe(fee);
+      expect(output.cash_change).toBe(credit);
+      expect(output.contract_status).toBe(status);
+    },
+  );
+
+  it.each([
+    // tempo até o fim da fidelidade, dias restantes, percentual (tabela da RN15)
+    [10 * DAY + 2 * 60 * 60 * 1000, 11, 5],
+    [30 * DAY, 30, 5],
+    [30 * DAY + 60_000, 31, 10],
+    [180 * DAY, 180, 10],
+    [180 * DAY + 60_000, 181, 20],
+    [0, 0, 0],
+  ])(
+    'deve contar %i ms como %i dias restantes e %i% de multa',
+    async (ms, remaining, rate) => {
+      const { result } = sell(
+        saleState({
+          contract: {
+            id: 7,
+            purchaseValue: 3700,
+            loyaltyUntil: new Date(SALE_NOW.getTime() + ms),
+          },
+        }),
+      );
+      const output = await result;
+      expect(output.remaining_days).toBe(remaining);
+      expect(output.penalty_rate).toBe(rate);
+    },
+  );
+
+  it('deve recusar jogador inexistente com 404', async () => {
+    await expect(sell(saleState({ player: null })).result).rejects.toThrow(
+      new NotFoundError('Jogador não encontrado'),
+    );
+  });
+
+  it('deve recusar jogador livre com 409 (RN16)', async () => {
+    await expect(
+      sell(saleState({ player: player(40, null), club: null, contract: null }))
+        .result,
+    ).rejects.toThrow(
+      new ConflictError(
+        'Meia Lua está livre: só jogador de um clube pode ser vendido.',
       ),
     );
   });

@@ -9,6 +9,7 @@ import {
 import { ParseIdPipe } from '../../../common/pipes/parse-id.pipe.js';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe.js';
 import { BuyPlayerUseCase } from '../../application/usecases/buy-player/buy-player.usecase.js';
+import { SellPlayerUseCase } from '../../application/usecases/sell-player/sell-player.usecase.js';
 import type { BuyPlayerDto } from '../dtos/buy-player.dto.js';
 import { buyPlayerSchema } from '../dtos/buy-player.dto.js';
 
@@ -27,8 +28,12 @@ export class TransfersController {
    * Construtor do `TransfersController`.
    *
    * @param {BuyPlayerUseCase} buyPlayerUseCase - Caso de uso de compra.
+   * @param {SellPlayerUseCase} sellPlayerUseCase - Caso de uso de venda.
    */
-  constructor(private readonly buyPlayerUseCase: BuyPlayerUseCase) {}
+  constructor(
+    private readonly buyPlayerUseCase: BuyPlayerUseCase,
+    private readonly sellPlayerUseCase: SellPlayerUseCase,
+  ) {}
 
   /**
    * Compra um jogador livre e cria o contrato de fidelidade (RN12 a RN14).
@@ -48,5 +53,18 @@ export class TransfersController {
       clubId: dto.club_id,
       loyaltyUntil: dto.loyalty_until,
     });
+  }
+
+  /**
+   * Vende o jogador pelo clube atual dele (RN15 e RN16). A venda não tem corpo: um corpo
+   * enviado é ignorado (V1).
+   *
+   * @param {number} id - Jogador da URL, validado pelo ParseIdPipe (inválido → 404).
+   * @returns {Promise<SellPlayerOutput>} 200 com a transação, os cálculos e o novo caixa.
+   */
+  @Post(':id/sell')
+  @HttpCode(HttpStatus.OK)
+  async sell(@Param('id', ParseIdPipe) id: number) {
+    return this.sellPlayerUseCase.execute({ playerId: id });
   }
 }

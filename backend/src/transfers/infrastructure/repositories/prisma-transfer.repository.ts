@@ -6,6 +6,8 @@ import {
   ITransferRepository,
   PurchaseRecord,
   PurchaseState,
+  SaleRecord,
+  SaleState,
 } from '../../application/interfaces/repositories/transfer.repository.interface.js';
 
 /** Centavos no formato decimal das colunas (ex.: -3885 → "-38.85"), sem ponto flutuante */
@@ -97,6 +99,90 @@ export class PrismaTransferRepository implements ITransferRepository {
           multa: toDecimal(0),
           lucro: null,
           variacao_caixa: toDecimal(-(record.value + record.fee)),
+          criado_em: record.now,
+        },
+      });
+
+      return { record, transactionId: transaction.id };
+    });
+  }
+
+  /**
+   * Trava o jogador e o clube dele, lê o contrato ativo, aplica a decisão e grava a venda:
+   * caixa, jogador livre, contrato encerrado, saída da escalação e transação (RN15, RN16, RN19).
+   *
+   * @param {number} playerId - Jogador da URL.
+   * @param {(state: SaleState) => SaleRecord} decide - Regras da venda.
+   * @returns {Promise<{ record: SaleRecord; transactionId: number }>} O que foi gravado.
+   */
+  async sale(
+    playerId: number,
+    decide: (state: SaleState) => SaleRecord,
+  ): Promise<{ record: SaleRecord; transactionId: number }> {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM jogadores WHERE id = ${playerId} FOR UPDATE`;
+      const playerRow = await tx.jogador.findFirst({
+        where: { id: playerId, excluido_em: null },
+      });
+
+      // O clube só é conhecido depois de ler o jogador: a ordem de trava continua jogador → clube
+      const clubId = playerRow?.clube_id ?? null;
+      if (clubId !== null) {
+        await tx.$queryRaw`SELECT id FROM clubes WHERE id = ${clubId} FOR UPDATE`;
+      }
+      const [clubRow, contractRow] =
+        clubId === null
+          ? [null, null]
+          : await Promise.all([
+              tx.clube.findUnique({ where: { id: clubId } }),
+              tx.contrato.findFirst({
+                where: {
+                  jogador_id: playerId,
+                  clube_id: clubId,
+                  situacao: 'ATIVO',
+                },
+              }),
+            ]);
+
+      const record = decide({
+        player: playerRow ? playerFromRow(playerRow) : null,
+        club: clubRow
+          ? { id: clubRow.id, name: clubRow.nome, cash: toCents(clubRow.caixa) }
+          : null,
+        contract: contractRow
+          ? {
+              id: contractRow.id,
+              purchaseValue: toCents(contractRow.valor_compra),
+              loyaltyUntil: contractRow.fidelidade_ate,
+            }
+          : null,
+      });
+
+      await tx.clube.update({
+        where: { id: record.clubId },
+        data: { caixa: toDecimal(record.newCash) },
+      });
+      await tx.jogador.update({
+        where: { id: record.playerId },
+        data: { clube_id: null },
+      });
+      await tx.contrato.update({
+        where: { id: record.contractId },
+        data: { situacao: record.contractStatus, encerrado_em: record.now },
+      });
+      // Titular vendido sai da escalação; a formação do clube continua gravada (RN19)
+      await tx.escalacao.deleteMany({ where: { jogador_id: record.playerId } });
+      const transaction = await tx.transacao.create({
+        data: {
+          clube_id: record.clubId,
+          jogador_id: record.playerId,
+          nome_jogador: record.playerName,
+          tipo: 'VENDA',
+          valor: toDecimal(record.value),
+          taxa: toDecimal(record.commission),
+          multa: toDecimal(record.penalty),
+          lucro: toDecimal(record.profit),
+          variacao_caixa: toDecimal(record.credit),
           criado_em: record.now,
         },
       });
