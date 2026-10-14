@@ -24,3 +24,9 @@ dist-ssr
 *.sw?
 .env
 coverage
+
+# Playwright MCP & Screenshots
+.playwright/
+.playwright-mcp/
+screenshot*.png
+

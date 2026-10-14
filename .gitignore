@@ -4,3 +4,9 @@ coverage/
 .env
 *.log
 .DS_Store
+
+# Playwright MCP & Screenshots
+.playwright/
+.playwright-mcp/
+screenshot*.png
+
