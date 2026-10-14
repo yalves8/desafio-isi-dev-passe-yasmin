@@ -104,9 +104,17 @@ export function playMatch(
     ...attacksOf('home', home, away, 1),
     ...attacksOf('away', away, home, 4),
   ];
-  const homeGoals = duels.filter((d) => d.attackingSide === 'home' && d.goal).length;
-  const awayGoals = duels.filter((d) => d.attackingSide === 'away' && d.goal).length;
+  const homeGoals = duels.filter(
+    (d) => d.attackingSide === 'home' && d.goal,
+  ).length;
+  const awayGoals = duels.filter(
+    (d) => d.attackingSide === 'away' && d.goal,
+  ).length;
   const result: MatchResult =
-    homeGoals === awayGoals ? 'EMPATE' : homeGoals > awayGoals ? 'MANDANTE' : 'VISITANTE';
+    homeGoals === awayGoals
+      ? 'EMPATE'
+      : homeGoals > awayGoals
+        ? 'MANDANTE'
+        : 'VISITANTE';
   return { duels, homeGoals, awayGoals, result };
 }

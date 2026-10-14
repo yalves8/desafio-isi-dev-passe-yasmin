@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { baseValue, overall } from './player-rating.js';
 import { marketValue } from './market-value.js';
 import { formatCents, roundDiv, toCents } from './money.js';
-import { isWithinCashLimit, loyaltyPenalty, purchaseFee, saleCommission } from './trade.js';
+import {
+  isWithinCashLimit,
+  loyaltyPenalty,
+  purchaseFee,
+  saleCommission,
+} from './trade.js';
 
 describe('money', () => {
   it('arredonda o meio para longe do zero', () => {
@@ -30,16 +35,46 @@ describe('marketValue (RN02 a RN05)', () => {
     [8200, 'DOENTE', 10, 40, 4920],
     [950, 'MAL_CONDICIONADO', 85, 25, 879],
     [100, 'MAL_CONDICIONADO', 50, 35, 100],
-  ] as const)('base %i %s agil %i idade %i => %i', (base, condition, agility, age, expected) => {
-    expect(marketValue(base, condition, agility, age)).toBe(expected);
-  });
+  ] as const)(
+    'base %i %s agil %i idade %i => %i',
+    (base, condition, agility, age, expected) => {
+      expect(marketValue(base, condition, agility, age)).toBe(expected);
+    },
+  );
 });
 
 describe('overall e valor base (RN06)', () => {
   it('calcula o overall pelos pesos da posição', () => {
-    expect(overall('MEI', { pace: 68, shooting: 65, passing: 80, dribbling: 78, defending: 52, physical: 60 })).toBe(73);
-    expect(overall('ZAG', { pace: 50, shooting: 90, passing: 60, dribbling: 40, defending: 80, physical: 75 })).toBe(73);
-    expect(overall('GOL', { pace: 55, shooting: 30, passing: 65, dribbling: 40, defending: 72, physical: 68 })).toBe(68);
+    expect(
+      overall('MEI', {
+        pace: 68,
+        shooting: 65,
+        passing: 80,
+        dribbling: 78,
+        defending: 52,
+        physical: 60,
+      }),
+    ).toBe(73);
+    expect(
+      overall('ZAG', {
+        pace: 50,
+        shooting: 90,
+        passing: 60,
+        dribbling: 40,
+        defending: 80,
+        physical: 75,
+      }),
+    ).toBe(73);
+    expect(
+      overall('GOL', {
+        pace: 55,
+        shooting: 30,
+        passing: 65,
+        dribbling: 40,
+        defending: 72,
+        physical: 68,
+      }),
+    ).toBe(68);
   });
   it.each([
     [75, 86, 25, 4000],
@@ -51,9 +86,12 @@ describe('overall e valor base (RN06)', () => {
     [70, 84, 22, 3000],
     [45, 90, 18, 363],
     [40, 66, 36, 100],
-  ])('overall %i potencial %i idade %i => %i', (rating, potential, age, expected) => {
-    expect(baseValue(rating, potential, age)).toBe(expected);
-  });
+  ])(
+    'overall %i potencial %i idade %i => %i',
+    (rating, potential, age, expected) => {
+      expect(baseValue(rating, potential, age)).toBe(expected);
+    },
+  );
 });
 
 describe('compra e venda (RN13, RN15, RN16)', () => {
@@ -74,13 +112,16 @@ describe('compra e venda (RN13, RN15, RN16)', () => {
     [30 * 24 * 60 + 1, 31, 10],
     [180 * 24 * 60, 180, 10],
     [180 * 24 * 60 + 1, 181, 20],
-  ])('multa com %i min restantes => %i dias, %i%%', (minutes, days, percent) => {
-    const now = new Date('2026-11-05T12:00:00Z');
-    const until = new Date(now.getTime() + minutes * 60_000);
-    const penalty = loyaltyPenalty(30000, until, now);
-    expect(penalty.daysRemaining).toBe(days);
-    expect(penalty.percent).toBe(percent);
-  });
+  ])(
+    'multa com %i min restantes => %i dias, %i%%',
+    (minutes, days, percent) => {
+      const now = new Date('2026-11-05T12:00:00Z');
+      const until = new Date(now.getTime() + minutes * 60_000);
+      const penalty = loyaltyPenalty(30000, until, now);
+      expect(penalty.daysRemaining).toBe(days);
+      expect(penalty.percent).toBe(percent);
+    },
+  );
   it('não cobra multa quando a fidelidade já passou', () => {
     const now = new Date('2026-11-05T12:00:00Z');
     const penalty = loyaltyPenalty(30000, new Date(now.getTime() - 1000), now);
