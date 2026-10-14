@@ -1,10 +1,12 @@
 import { api } from './client'
 import type {
+  BuyPlayerInput,
   Condition,
   CreatePlayerInput,
   PaginatedPlayers,
   Player,
   PlayerSort,
+  PurchaseResult,
   SaleResult,
   Position,
   UpdatePlayerInput,
@@ -49,6 +51,11 @@ export const playersService = {
   },
   async delete(id: number): Promise<void> {
     await api.delete(`/players/${id}`)
+  },
+  /** Compra jogador livre; a API calcula taxa, custo e novo caixa e cria o contrato (RN12/RN13) */
+  async buy(id: number, input: BuyPlayerInput): Promise<PurchaseResult> {
+    const { data } = await api.post<PurchaseResult>(`/players/${id}/buy`, input)
+    return data
   },
   /** Vende pelo clube atual; a API calcula multa, comissão e crédito (RN15/RN16) */
   async sell(id: number): Promise<SaleResult> {

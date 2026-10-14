@@ -113,6 +113,23 @@ export interface TransactionFilters {
   player_id?: number
 }
 
+/** Corpo de `POST /players/{id}/buy`: clube comprador e fim da fidelidade (RN01) */
+export interface BuyPlayerInput {
+  club_id: number
+  /** `AAAA-MM-DDTHH:MM-03:00` */
+  loyalty_until: string
+}
+
+/** `POST /players/{id}/buy` (RN12 e RN13): transação COMPRA, contrato criado e novo caixa */
+export interface PurchaseResult extends Transaction {
+  contract: {
+    purchase_value: number
+    loyalty_until: string
+    status: 'ATIVO'
+  }
+  club_cash: number
+}
+
 /** `POST /players/{id}/sell` (RN15 e RN16) */
 export interface SaleResult extends Transaction {
   purchase_value: number
