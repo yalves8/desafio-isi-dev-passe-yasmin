@@ -55,39 +55,43 @@ const STEPS = [
   },
 ]
 
+const STAT_DIVIDER = <span aria-hidden="true" className="size-[3px] rounded-full bg-zinc-300" />
+
 export function HomePage() {
   const { stats, startNavigation } = useHomePage()
 
+  const statItems = [
+    { icon: Users, value: stats.totalPlayers, label: 'jogadores' },
+    { icon: UserRound, value: stats.freePlayers, label: 'livres' },
+    { icon: Shield, value: stats.totalClubs, label: 'clubes' },
+    { icon: Swords, value: stats.totalMatches, label: 'partidas' },
+  ]
+
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-white p-2 sm:p-4 md:p-6 lg:p-8">
-      {/* Moldura do Campo (Ocupa ~83% da viewport, proporcional ao Figma 1200/1440 e 700/900 em 1440p e 1080p) */}
-      <div className="relative flex w-full max-w-[1240px] flex-col items-center justify-between rounded-3xl bg-white px-2 py-6 sm:px-4 lg:h-[720px] lg:px-6 lg:py-8 2xl:h-[840px] 2xl:max-w-[1580px] 2xl:px-12">
-        {/* SVG do Campo de Futebol */}
+    <div className="flex min-h-dvh w-full items-center justify-center bg-white px-4 py-8 xl:p-0">
+      {/* Moldura do campo (Figma: campo 1200x700 + traves = 1234x702, tamanho nativo do SVG) */}
+      <div className="relative flex w-full max-w-[1234px] flex-col items-center min-[1800px]:[zoom:1.2] xl:h-[702px] xl:w-[1234px] xl:shrink-0">
         <img
           src="/assets/campo-decoracao.svg"
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 hidden size-full object-fill select-none lg:block"
+          className="pointer-events-none absolute inset-0 hidden size-full select-none xl:block"
         />
 
-        {/* Bloco Superior: Conteúdo Central (Figma: bg white para não sobrepor linha central) */}
-        <div className="relative z-10 flex w-full max-w-[760px] flex-col items-center rounded-3xl bg-white px-4 py-4 text-center sm:px-8 sm:py-6 xl:max-w-[960px] 2xl:max-w-[1040px] 2xl:py-7">
-          {/* Logo e Nome */}
-          <div className="flex items-center gap-4">
-            <img
-              src="/assets/logo-passe.svg"
-              alt="Passe"
-              className="size-14 rounded-2xl shadow-xs 2xl:size-16"
-            />
-            <span className="font-heading text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl 2xl:text-5xl">
+        {/* Conteúdo central (Figma: padding 32px 48px, gap 22px, radius 24px) — cobre a linha do meio-campo */}
+        <div className="relative z-10 flex flex-col items-center gap-[22px] rounded-[24px] bg-white px-4 py-8 text-center sm:px-12 xl:mt-8 xl:w-[720px]">
+          {/* Marca (Figma: gap 20px, logo 56x56 r16, Passe 32px tracking -0.03em) */}
+          <div className="flex items-center gap-5">
+            <img src="/assets/logo-passe.svg" alt="" className="size-14 rounded-2xl" />
+            <span className="font-heading text-[32px] leading-10 font-semibold tracking-[-0.03em] text-[#09090B]">
               Passe
             </span>
           </div>
 
-          {/* Selo Liga Fictícia (Ponto 1: Espaçamento maior conforme Figma gap 22px) */}
-          <div className="mt-5.5 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3.5 py-1 text-xs text-zinc-600 shadow-2xs 2xl:mt-6 2xl:text-sm">
+          {/* Selo da liga (Figma: padding 5px 12px 5px 10px, gap 8px, pill) */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white py-[5px] pr-3 pl-[10px] text-xs leading-4 shadow-2xs">
             <span className="size-2 rounded-full bg-[#00813A]" />
-            <span className="font-medium text-zinc-900">Liga Fictícia 2026</span>
+            <span className="font-medium text-[#09090B]">Liga Fictícia 2026</span>
             <span className="text-zinc-400">·</span>
             <span className="text-[#686872]">
               {stats.leader
@@ -96,106 +100,87 @@ export function HomePage() {
             </span>
           </div>
 
-          {/* Headline (Ponto 2: Em UMA única linha no desktop conforme Figma) e Descrição */}
-          <h1 className="mt-4 font-heading text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl lg:text-[34px] xl:text-[38px] xl:whitespace-nowrap 2xl:text-[40px] 2xl:whitespace-nowrap">
-            Gestão da liga, do mercado à classificação
-          </h1>
-          <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-[#686872] sm:text-base 2xl:max-w-2xl 2xl:text-lg">
-            Cadastre jogadores, monte os clubes e negocie com contrato de fidelidade. Depois, escale
-            os titulares e jogue partidas com placar calculado pelos atributos.
-          </p>
+          {/* Título e descrição (Figma: gap 12px, h1 40/48 tracking -0.025em, p 16/24) */}
+          <div className="flex flex-col items-center gap-3">
+            <h1 className="font-heading text-[28px] leading-9 font-semibold tracking-[-0.025em] text-[#09090B] sm:text-4xl sm:leading-[44px] xl:text-[40px] xl:leading-[48px] xl:whitespace-nowrap">
+              Gestão da liga, do mercado à classificação
+            </h1>
+            <p className="max-w-[624px] text-base leading-6 text-[#686872]">
+              Cadastre jogadores, monte os clubes e negocie com contrato de fidelidade. Depois,
+              escale os titulares e jogue partidas com placar calculado pelos atributos.
+            </p>
+          </div>
 
-          {/* Ação Principal: Botão Iniciar + Tecla Enter */}
-          <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:gap-3.5 2xl:mt-6">
+          {/* Ação principal (Figma: gap 14px, botão 200x40 r8) */}
+          <div className="flex flex-col items-center gap-3.5 sm:flex-row">
             <Button
               type="button"
-              size="lg"
               onClick={startNavigation}
-              className="h-10 w-48 gap-2 rounded-lg bg-[#155DFC] font-medium text-white shadow-xs hover:bg-blue-700 sm:w-[200px] 2xl:h-12 2xl:w-[220px] 2xl:text-base"
+              className="h-10 w-[200px] gap-2 rounded-lg bg-[#155DFC] text-sm font-medium text-white shadow-xs hover:bg-[#155DFC]/90"
             >
               Iniciar
-              <ArrowRight className="size-4 2xl:size-5" />
+              <ArrowRight className="size-4" />
             </Button>
-            <span className="flex items-center gap-1.5 text-sm text-[#686872] 2xl:text-base">
+            <span className="flex items-center gap-1.5 text-sm text-[#686872]">
               ou tecle
-              <kbd className="rounded border border-zinc-200 bg-[#F4F4F5] px-1.5 py-0.5 font-mono text-xs font-medium text-[#686872] 2xl:text-sm">
+              <kbd className="inline-flex h-5 items-center rounded border border-zinc-200 bg-[#F4F4F5] px-1.5 font-sans text-xs text-[#686872]">
                 Enter
               </kbd>
             </span>
           </div>
 
-          {/* Faixa de Números da Liga */}
-          <div className="mt-5 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-[#686872] 2xl:mt-6 2xl:gap-x-6 2xl:text-sm">
-            <div className="flex items-center gap-1.5">
-              <Users className="size-3.5 text-zinc-400 2xl:size-4" />
-              <span className="font-medium text-zinc-900">{stats.totalPlayers}</span>
-              <span>jogadores</span>
-            </div>
-            <span className="size-1 rounded-full bg-zinc-300" />
-            <div className="flex items-center gap-1.5">
-              <UserRound className="size-3.5 text-zinc-400 2xl:size-4" />
-              <span className="font-medium text-zinc-900">{stats.freePlayers}</span>
-              <span>livres</span>
-            </div>
-            <span className="size-1 rounded-full bg-zinc-300" />
-            <div className="flex items-center gap-1.5">
-              <Shield className="size-3.5 text-zinc-400 2xl:size-4" />
-              <span className="font-medium text-zinc-900">{stats.totalClubs}</span>
-              <span>clubes</span>
-            </div>
-            <span className="size-1 rounded-full bg-zinc-300" />
-            <div className="flex items-center gap-1.5">
-              <Swords className="size-3.5 text-zinc-400 2xl:size-4" />
-              <span className="font-medium text-zinc-900">{stats.totalMatches}</span>
-              <span>partidas</span>
-            </div>
-            <span className="size-1 rounded-full bg-zinc-300" />
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="size-3.5 text-zinc-400 2xl:size-4" />
-              <span>Não precisa de login</span>
-            </div>
+          {/* Números da liga (Figma: gap 16px, separador 3x3) */}
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs leading-4 text-[#686872]">
+            {statItems.map(({ icon: Icon, value, label }) => (
+              <Fragment key={label}>
+                <span className="flex items-center gap-1.5">
+                  <Icon className="size-3.5 text-[#686872]" />
+                  <span className="font-medium text-[#09090B]">{value}</span>
+                  {label}
+                </span>
+                {STAT_DIVIDER}
+              </Fragment>
+            ))}
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="size-3.5 text-[#686872]" />
+              Não precisa de login
+            </span>
           </div>
         </div>
 
-        {/* Bloco Inferior: Como o sistema funciona (Ponto 3: cards preenchendo o campo até as bordas internas conforme Figma) */}
-        <div className="relative z-10 w-full max-w-[1170px] 2xl:max-w-[1480px]">
-          <div className="flex flex-col items-center justify-center gap-2 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-row lg:items-center lg:justify-between lg:gap-1.5 2xl:gap-2">
-            {STEPS.map((step, index) => {
-              const Icon = step.icon
-              return (
-                <Fragment key={step.number}>
-                  <div className="flex h-[158px] w-full max-w-[280px] flex-col justify-between rounded-[14px] border border-zinc-200/90 bg-white p-3 text-left shadow-2xs transition-shadow hover:shadow-xs lg:w-[168px] lg:shrink 2xl:h-[168px] 2xl:w-[214px] 2xl:p-3.5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex size-8 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#155DFC] 2xl:size-9">
-                        <Icon className="size-4 2xl:size-5" />
-                      </div>
-                      <span className="font-mono text-xs font-normal text-[#686872] 2xl:text-sm">
-                        {step.number}
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-zinc-950 2xl:text-base">
-                        {step.title}
-                      </h3>
-                      <p className="mt-1 text-xs leading-relaxed text-[#686872] 2xl:text-[13px]">
-                        {step.description}
-                      </p>
-                    </div>
+        {/* Como funciona (Figma: 6 cards 172x157, 32px entre eles, 4px das linhas laterais) */}
+        <ol className="relative z-10 mt-6 grid w-full grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:mt-8 xl:flex xl:w-[1192px] xl:items-center xl:gap-0">
+          {STEPS.map((step, index) => {
+            const Icon = step.icon
+            return (
+              <Fragment key={step.number}>
+                <li className="flex flex-col rounded-xl border border-zinc-200 bg-white p-3.5 text-left xl:h-[157px] xl:w-[172px] xl:shrink-0">
+                  <div className="flex items-center gap-2">
+                    <span className="flex size-8 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#155DFC]">
+                      <Icon className="size-4" />
+                    </span>
+                    <span className="font-mono text-xs text-[#686872]">{step.number}</span>
                   </div>
-                  {index < STEPS.length - 1 && (
-                    <ChevronRight className="hidden size-4 shrink-0 text-zinc-400 lg:block 2xl:size-5" />
-                  )}
-                </Fragment>
-              )
-            })}
-          </div>
+                  <h3 className="mt-2.5 text-sm leading-5 font-medium text-[#09090B]">
+                    {step.title}
+                  </h3>
+                  <p className="mt-0.5 text-xs leading-4 text-[#686872]">{step.description}</p>
+                </li>
+                {index < STEPS.length - 1 && (
+                  <li aria-hidden="true" className="hidden w-8 shrink-0 justify-center xl:flex">
+                    <ChevronRight className="size-4 text-zinc-500" />
+                  </li>
+                )}
+              </Fragment>
+            )
+          })}
+        </ol>
 
-          {/* Rodapé: Horário de Brasília */}
-          <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-[#686872] 2xl:mt-5 2xl:text-sm">
-            <Clock className="size-3.5 text-zinc-400 2xl:size-4" />
-            <span>Liga Fictícia 2026 · Horário de Brasília (UTC−3)</span>
-          </div>
-        </div>
+        {/* Rodapé */}
+        <p className="relative z-10 mt-6 flex items-center gap-1.5 text-xs leading-4 text-[#686872] xl:mt-8">
+          <Clock className="size-3.5" />
+          Liga Fictícia 2026 · Horário de Brasília (UTC−3)
+        </p>
       </div>
     </div>
   )

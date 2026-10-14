@@ -7,11 +7,20 @@ interface FetchResult<T> {
   error?: string
 }
 
+interface FetchOptions {
+  /** Mantém o último dado enquanto a nova chave carrega (evita piscar a tela ao recarregar) */
+  keepPreviousData?: boolean
+}
+
 /**
  * Busca dados quando `key` muda. O carregamento é derivado (resultado de outra chave = carregando),
  * então não há setState síncrono no efeito e respostas antigas são descartadas com `ignore`.
  */
-export function useFetch<T>(key: string, fetcher: () => Promise<T>) {
+export function useFetch<T>(
+  key: string,
+  fetcher: () => Promise<T>,
+  { keepPreviousData = false }: FetchOptions = {},
+) {
   const [result, setResult] = useState<FetchResult<T>>()
 
   useEffect(() => {
@@ -28,7 +37,7 @@ export function useFetch<T>(key: string, fetcher: () => Promise<T>) {
 
   const loading = result?.key !== key
   return {
-    data: loading ? undefined : result?.data,
+    data: loading && !keepPreviousData ? undefined : result?.data,
     error: loading ? null : (result?.error ?? null),
     loading,
   }

@@ -6,6 +6,9 @@ export interface ApiError {
 export type Position = 'GOL' | 'ZAG' | 'LAT' | 'MEI' | 'ATA'
 export type Condition = 'APTO' | 'MAL_CONDICIONADO' | 'DOENTE'
 
+/** Ordenações aceitas por `GET /players?sort=` */
+export type PlayerSort = 'name' | 'value_desc' | 'value_asc' | 'age_desc' | 'age_asc' | 'position'
+
 export interface ContractDetails {
   purchase_value: number
   loyalty_until: string
@@ -33,6 +36,23 @@ export interface Player {
   club_id: number | null
   contract?: ContractDetails | null
 }
+
+export interface CreatePlayerInput {
+  name: string
+  position: Position
+  agility: number
+  age: number
+  pace: number
+  shooting: number
+  passing: number
+  dribbling: number
+  defending: number
+  physical: number
+  potential: number
+}
+
+/** RN08: a edição só altera nome, posição, agilidade e idade */
+export type UpdatePlayerInput = Pick<CreatePlayerInput, 'name' | 'position' | 'agility' | 'age'>
 
 export interface Club {
   id: number

@@ -54,43 +54,43 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Paleta: verde-lousa (primária), âmbar sinal (ocupado/destaque) sobre cinza-frio */
+/* Paleta do Figma (Passe): zinc neutro com azul de ação (#155DFC) */
 :root {
-  --background: #f3f5f7;
-  --foreground: #17202b;
+  --background: #fafafa;
+  --foreground: #09090b;
   --card: #ffffff;
-  --card-foreground: #17202b;
+  --card-foreground: #09090b;
   --popover: #ffffff;
-  --popover-foreground: #17202b;
-  --primary: #1f5e5b;
-  --primary-foreground: #f4faf9;
-  --secondary: #e6ecec;
-  --secondary-foreground: #17202b;
-  --muted: #eceff2;
-  --muted-foreground: #5b6670;
-  --accent: #e3efed;
-  --accent-foreground: #133b39;
-  --destructive: #b4382a;
-  --border: #d9dee3;
-  --input: #c9d0d6;
-  --ring: #1f5e5b;
+  --popover-foreground: #09090b;
+  --primary: #155dfc;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #09090b;
+  --muted: #f4f4f5;
+  --muted-foreground: #686872;
+  --accent: #eff6ff;
+  --accent-foreground: #155dfc;
+  --destructive: #e40014;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #155dfc;
   --signal: #f2b33d;
   --signal-foreground: #3d2a05;
-  --success: #2f7d4f;
-  --chart-1: #1f5e5b;
-  --chart-2: #f2b33d;
-  --chart-3: #5b6670;
-  --chart-4: #8fb8b4;
-  --chart-5: #17202b;
+  --success: #00813a;
+  --chart-1: #155dfc;
+  --chart-2: #bedbff;
+  --chart-3: #686872;
+  --chart-4: #00813a;
+  --chart-5: #09090b;
   --radius: 0.5rem;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #17202b;
-  --sidebar-primary: #1f5e5b;
-  --sidebar-primary-foreground: #f4faf9;
-  --sidebar-accent: #e3efed;
-  --sidebar-accent-foreground: #133b39;
-  --sidebar-border: #d9dee3;
-  --sidebar-ring: #1f5e5b;
+  --sidebar: #fafafa;
+  --sidebar-foreground: #09090b;
+  --sidebar-primary: #155dfc;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ffffff;
+  --sidebar-accent-foreground: #09090b;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #155dfc;
 }
 
 @layer base {
@@ -123,4 +123,11 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+/* Toast do Figma: botão de fechar no canto superior direito */
+[data-sonner-toast] {
+  --toast-close-button-start: auto;
+  --toast-close-button-end: 0;
+  --toast-close-button-transform: translate(35%, -35%);
 }

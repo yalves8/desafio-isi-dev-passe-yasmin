@@ -1,13 +1,22 @@
 import { api } from './client'
-import type { PaginatedPlayers, Player, Position } from './types'
+import type {
+  Condition,
+  CreatePlayerInput,
+  PaginatedPlayers,
+  Player,
+  PlayerSort,
+  Position,
+  UpdatePlayerInput,
+} from './types'
 
+/** Query params de `GET /players`, com os nomes da API */
 export interface PlayerFilters {
   page?: number
   limit?: number
   search?: string
-  sort?: string
+  sort?: PlayerSort
   position?: Position
-  condition?: string
+  condition?: Condition
   free?: boolean
   club_id?: number
   min_age?: number
@@ -25,35 +34,15 @@ export const playersService = {
     const { data } = await api.get<Player>(`/players/${id}`)
     return data
   },
-  async create(input: {
-    name: string
-    position: Position
-    agility: number
-    age: number
-    pace: number
-    shooting: number
-    passing: number
-    dribbling: number
-    defending: number
-    physical: number
-    potential: number
-  }): Promise<Player> {
+  async create(input: CreatePlayerInput): Promise<Player> {
     const { data } = await api.post<Player>('/players', input)
     return data
   },
-  async update(
-    id: number,
-    input: {
-      name: string
-      position: Position
-      agility: number
-      age: number
-    },
-  ): Promise<Player> {
+  async update(id: number, input: UpdatePlayerInput): Promise<Player> {
     const { data } = await api.put<Player>(`/players/${id}`, input)
     return data
   },
-  async updateCondition(id: number, condition: string): Promise<Player> {
+  async updateCondition(id: number, condition: Condition): Promise<Player> {
     const { data } = await api.patch<Player>(`/players/${id}/condition`, { condition })
     return data
   },

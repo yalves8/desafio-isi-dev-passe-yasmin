@@ -1,99 +1,77 @@
-import { Menu } from 'lucide-react'
-import { useState } from 'react'
-import { Link, NavLink, Outlet } from 'react-router'
+import { ChevronRight, PanelLeft, RefreshCw } from 'lucide-react'
+import { Outlet } from 'react-router'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { useBrasiliaClock } from '@/hooks/use-brasilia-clock'
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet'
+import { TooltipProvider } from '@/components/ui/tooltip'
+import { LeagueDataProvider } from '@/contexts/league-data-provider'
 import { cn } from '@/lib/utils'
-import { Brand } from './brand'
+import { useAppLayout } from './app-layout.hook'
+import { AppSidebar } from './app-sidebar'
 
-interface NavItem {
-  to: string
-  label: string
-}
-
-const NAV: NavItem[] = [
-  { to: '/jogadores', label: 'Jogadores' },
-  { to: '/clubes', label: 'Clubes' },
-  { to: '/partidas', label: 'Partidas' },
-  { to: '/classificacao', label: 'Classificação' },
-]
-
-export function AppLayout() {
-  const clock = useBrasiliaClock()
-  const [open, setOpen] = useState(false)
+function AppShell() {
+  const { breadcrumb, refresh, sidebar } = useAppLayout()
 
   return (
-    <div className="flex min-h-dvh flex-col bg-background text-foreground">
-      <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4">
-          <Link
-            to="/"
-            className="rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-            aria-label="Passe, página inicial"
-          >
-            <Brand />
-          </Link>
+    <div className="flex min-h-dvh bg-sidebar text-foreground">
+      <aside
+        className={cn('sticky top-0 hidden h-dvh w-64 shrink-0', sidebar.desktopOpen && 'lg:block')}
+      >
+        <AppSidebar />
+      </aside>
 
-          <nav aria-label="Principal" className="hidden items-center gap-1 sm:flex">
-            {NAV.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  cn(
-                    'rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground',
-                    isActive && 'bg-accent font-semibold text-accent-foreground',
-                  )
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
+      <Sheet open={sidebar.mobileOpen} onOpenChange={sidebar.setMobileOpen}>
+        <SheetContent side="left" className="w-64 bg-sidebar p-0">
+          <SheetTitle className="sr-only">Navegação</SheetTitle>
+          <SheetDescription className="sr-only">Telas e clubes da liga</SheetDescription>
+          <AppSidebar onNavigate={sidebar.closeMobile} />
+        </SheetContent>
+      </Sheet>
 
-          <div className="ml-auto flex items-center gap-3">
-            <span
-              className="font-mono text-xs text-muted-foreground tabular-nums"
-              title="Horário de Brasília (UTC−3)"
+      <div className={cn('flex min-w-0 flex-1 p-2', sidebar.desktopOpen && 'lg:pl-0')}>
+        <div className="flex min-w-0 flex-1 flex-col rounded-xl border bg-card shadow-2xs">
+          <header className="flex h-14 shrink-0 items-center gap-3 border-b px-4 sm:px-6">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={sidebar.toggle}
+              aria-label="Alternar menu lateral"
             >
-              {clock}
-            </span>
+              <PanelLeft />
+            </Button>
+            <span className="h-4 w-px bg-border" aria-hidden />
+            {breadcrumb && (
+              <nav aria-label="Trilha" className="flex items-center gap-2 text-sm">
+                <span className="text-muted-foreground">{breadcrumb.group}</span>
+                <ChevronRight className="size-3.5 text-muted-foreground" aria-hidden />
+                <span aria-current="page">{breadcrumb.page}</span>
+              </nav>
+            )}
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="ml-auto"
+              onClick={refresh}
+              aria-label="Atualizar dados"
+            >
+              <RefreshCw />
+            </Button>
+          </header>
 
-            <div className="sm:hidden">
-              <DropdownMenu open={open} onOpenChange={setOpen}>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" aria-label="Abrir menu de navegação">
-                    <Menu className="size-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  {NAV.map((item) => (
-                    <DropdownMenuItem key={item.to} asChild onSelect={() => setOpen(false)}>
-                      <Link to={item.to} className="w-full">
-                        {item.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
+          <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8">
+            <Outlet />
+          </main>
         </div>
-      </header>
-
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
-        <Outlet />
-      </main>
-
-      <footer className="border-t border-border bg-card py-4 text-center text-xs text-muted-foreground">
-        Liga Fictícia 2026 · Horário de Brasília (UTC−3)
-      </footer>
+      </div>
     </div>
+  )
+}
+
+export function AppLayout() {
+  return (
+    <LeagueDataProvider>
+      <TooltipProvider delayDuration={200}>
+        <AppShell />
+      </TooltipProvider>
+    </LeagueDataProvider>
   )
 }
