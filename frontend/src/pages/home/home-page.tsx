@@ -59,19 +59,19 @@ export function HomePage() {
   const { stats, startNavigation } = useHomePage()
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-white p-3 sm:p-6 lg:p-8">
-      {/* Container principal que coincide com o campo de futebol */}
-      <div className="relative flex w-full max-w-[1234px] flex-col items-center justify-between rounded-3xl border border-zinc-200/90 bg-white px-4 py-8 sm:px-8 lg:min-h-[702px] lg:border-transparent lg:px-12 lg:py-10">
-        {/* Decoração estilizada de campo de futebol (Figma SVG) envolvendo todo o conteúdo */}
+    <div className="flex min-h-screen w-full items-center justify-center bg-white p-2 sm:p-4 md:p-6 lg:p-8">
+      {/* Moldura do Campo (1234x702 no Figma, envolvendo os itens) */}
+      <div className="relative flex w-full max-w-[1234px] flex-col items-center justify-between rounded-3xl bg-white px-2 py-6 sm:px-4 lg:h-[720px] lg:px-6 lg:py-8">
+        {/* SVG do Campo de Futebol */}
         <img
           src="/assets/campo-decoracao.svg"
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 hidden size-full select-none lg:block"
+          className="pointer-events-none absolute inset-0 hidden size-full object-fill select-none lg:block"
         />
 
-        {/* Bloco Superior: Conteúdo Central */}
-        <div className="relative z-10 flex w-full max-w-[720px] flex-col items-center text-center">
+        {/* Bloco Superior: Conteúdo Central (Figma: width 720px, bg white para não sobrepor linha central) */}
+        <div className="relative z-10 flex w-full max-w-[720px] flex-col items-center rounded-3xl bg-white px-6 py-4 text-center sm:px-10 sm:py-6">
           {/* Logo e Nome */}
           <div className="flex items-center gap-4">
             <img
@@ -85,7 +85,7 @@ export function HomePage() {
           </div>
 
           {/* Selo Liga Fictícia */}
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs text-zinc-600 shadow-2xs">
+          <div className="mt-3.5 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs text-zinc-600 shadow-2xs">
             <span className="size-2 rounded-full bg-[#00813A]" />
             <span className="font-medium text-zinc-900">Liga Fictícia 2026</span>
             <span className="text-zinc-400">·</span>
@@ -97,16 +97,16 @@ export function HomePage() {
           </div>
 
           {/* Headline e Descrição */}
-          <h1 className="mt-5 font-heading text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl sm:leading-tight">
+          <h1 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl sm:leading-tight">
             Gestão da liga, do mercado à classificação
           </h1>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-[#686872] sm:text-base">
+          <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-[#686872] sm:text-base">
             Cadastre jogadores, monte os clubes e negocie com contrato de fidelidade. Depois, escale
             os titulares e jogue partidas com placar calculado pelos atributos.
           </p>
 
           {/* Ação Principal: Botão Iniciar + Tecla Enter */}
-          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:gap-3.5">
+          <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:gap-3.5">
             <Button
               type="button"
               size="lg"
@@ -125,7 +125,7 @@ export function HomePage() {
           </div>
 
           {/* Faixa de Números da Liga */}
-          <div className="mt-6 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-[#686872]">
+          <div className="mt-5 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-[#686872]">
             <div className="flex items-center gap-1.5">
               <Users className="size-3.5 text-zinc-400" />
               <span className="font-medium text-zinc-900">{stats.totalPlayers}</span>
@@ -157,9 +157,9 @@ export function HomePage() {
           </div>
         </div>
 
-        {/* Bloco Inferior: Como o sistema funciona (6 etapas + setinhas) */}
-        <div className="relative z-10 mt-8 w-full">
-          <div className="flex flex-col items-center justify-center gap-2 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-row lg:items-center lg:justify-between lg:gap-1.5 xl:gap-2">
+        {/* Bloco Inferior: Como o sistema funciona (6 etapas contidas dentro do campo) */}
+        <div className="relative z-10 w-full max-w-[1192px]">
+          <div className="flex flex-col items-center justify-center gap-2 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-row lg:items-center lg:justify-center lg:gap-2">
             {STEPS.map((step, index) => {
               const Icon = step.icon
               return (
@@ -189,7 +189,7 @@ export function HomePage() {
           </div>
 
           {/* Rodapé: Horário de Brasília */}
-          <div className="mt-6 flex items-center justify-center gap-1.5 text-xs text-[#686872]">
+          <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-[#686872]">
             <Clock className="size-3.5 text-zinc-400" />
             <span>Liga Fictícia 2026 · Horário de Brasília (UTC−3)</span>
           </div>
