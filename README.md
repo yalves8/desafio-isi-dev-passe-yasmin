@@ -109,7 +109,7 @@ Prefixo `/api/v1`, exceto `/health`. A documentação completa está no Swagger 
 | GET | `/clubs/:id` | Detalhe do clube com elenco |
 | GET/PUT | `/clubs/:id/lineup` | Escalação do clube (RN19) — *usado pelo frontend; ainda não implementado na API* |
 | GET | `/clubs/:id/transactions`, `/clubs/:id/transactions/export` | Histórico e CSV (RN17 e RN18) — *usado pelo frontend; ainda não implementado na API* |
-| POST | `/players/:id/buy` | Compra jogador livre e cria o contrato (RN12 a RN14) — *usado pelo frontend; ainda não implementado na API* |
+| POST | `/players/:id/buy` | Compra jogador livre: desconta o caixa, cria o contrato `ATIVO` e grava a transação `COMPRA` numa única operação (RN12 a RN14) |
 | POST | `/players/:id/sell` | Venda pelo clube atual (RN15 e RN16) — *usado pelo frontend; ainda não implementado na API* |
 
 Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro global de erros.
@@ -221,9 +221,11 @@ Os ADRs completos estão em [`docs/adr/`](docs/adr).
 - Valores em moedas são calculados em centavos e devolvidos com 2 casas.
 - Exclusão de jogador é lógica: ele sai das listagens, mas o histórico fica.
 - O horário de referência é `America/Sao_Paulo`.
+- Compra (e, depois, venda) roda numa transação que trava o jogador e o clube (`SELECT ... FOR UPDATE`, sempre nessa ordem): pedidos simultâneos são atendidos um de cada vez, então o mesmo jogador não é comprado duas vezes e o caixa e o limite de 12 jogadores não são ultrapassados. A regra fica no caso de uso; o repositório só garante o "tudo ou nada".
+- A recusa pelo limite de 50% do caixa mostra o limite exato, sem arredondar (caixa 261,15 → limite 130,575), como a RN13 define.
 
 ## Funcionalidades não implementadas
-- **API de compra, venda, escalação e histórico** (`POST /players/:id/buy`, `POST /players/:id/sell`, `GET/PUT /clubs/:id/lineup`, `GET /clubs/:id/transactions[/export]`). As telas de jogadores e de clubes já chamam esses endpoints exatamente como o desafio especifica e tratam `400`/`404`/`409`; até a API existir, a compra mostra a recusa devolvida, as abas Escalação e Histórico mostram o erro, e nenhum clube tem jogadores.
+- **API de venda, escalação e histórico** (`POST /players/:id/sell`, `GET/PUT /clubs/:id/lineup`, `GET /clubs/:id/transactions[/export]`). A tela de clubes já chama esses endpoints exatamente como o desafio especifica e trata `400`/`404`/`409`; até a API existir, Vender mostra a recusa devolvida e as abas Escalação e Histórico mostram o erro.
 - **Partidas e classificação**: o card "Última partida" e o contador de partidas mostram um placeholder.
 
 ## Uso de inteligência artificial
