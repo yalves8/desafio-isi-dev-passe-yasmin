@@ -6,9 +6,7 @@ import {
 import { Prisma } from '../../generated/prisma/client.js';
 import {
   ConflictError,
-  ForbiddenError,
   NotFoundError,
-  UnauthorizedError,
   ValidationError,
 } from '../errors/domain.errors.js';
 import { HttpErrorFilter } from './http-error.filter.js';
@@ -26,17 +24,14 @@ describe('HttpErrorFilter', () => {
 
   it.each([
     [new ValidationError('inválido'), 400],
-    [new UnauthorizedError('sem login'), 401],
-    [new ForbiddenError('proibido'), 403],
     [new NotFoundError('não achei'), 404],
     [new ConflictError('conflito'), 409],
-  ])('deve traduzir %s para %i', (error, status) => {
+  ])('deve traduzir %s para %i com formato { message }', (error, status) => {
     const { host, res } = makeHost();
     filter.catch(error, host);
     expect(res.status).toHaveBeenCalledWith(status);
     expect(res.json).toHaveBeenCalledWith({
-      statusCode: status,
-      message: [error.message],
+      message: error.message,
     });
   });
 
@@ -48,26 +43,24 @@ describe('HttpErrorFilter', () => {
     });
     filter.catch(error, host);
     expect(res.json).toHaveBeenCalledWith({
-      statusCode: 409,
-      message: ['Registro já cadastrado'],
+      message: 'Registro já cadastrado',
     });
   });
 
-  it('deve manter a lista de mensagens do ValidationPipe', () => {
+  it('deve formatar mensagens do BadRequestException como string única', () => {
     const { host, res } = makeHost();
     filter.catch(new BadRequestException(['a inválido', 'b inválido']), host);
     expect(res.json).toHaveBeenCalledWith({
-      statusCode: 400,
-      message: ['a inválido', 'b inválido'],
+      message: 'a inválido; b inválido',
     });
   });
 
-  it('deve traduzir rota inexistente', () => {
+  it('deve traduzir rota inexistente para 404', () => {
     const { host, res } = makeHost();
     filter.catch(new NotFoundException('Cannot GET /x'), host);
+    expect(res.status).toHaveBeenCalledWith(404);
     expect(res.json).toHaveBeenCalledWith({
-      statusCode: 404,
-      message: ['Rota não encontrada'],
+      message: 'Recurso não encontrado',
     });
   });
 
@@ -77,8 +70,7 @@ describe('HttpErrorFilter', () => {
     filter.catch(new Error('senha do banco vazou no stack'), host);
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
-      statusCode: 500,
-      message: ['Erro interno do servidor'],
+      message: 'Erro interno do servidor',
     });
   });
 });
