@@ -1,15 +1,11 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
 import { LoggerModule } from 'nestjs-pino';
-import { AuthModule } from './auth/auth.module.js';
+import { ClubsModule } from './clubs/clubs.module.js';
 import { EnvModule } from './common/config/env.module.js';
 import { EnvService } from './common/config/env.service.js';
-import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
-import { RolesGuard } from './common/guards/roles.guard.js';
 import { PrismaModule } from './common/prisma/prisma.module.js';
 import { HealthModule } from './health/health.module.js';
-import { RoomsModule } from './rooms/rooms.module.js';
-import { UsersModule } from './users/users.module.js';
+import { PlayersModule } from './players/players.module.js';
 
 @Module({
   imports: [
@@ -29,14 +25,8 @@ import { UsersModule } from './users/users.module.js';
     }),
     PrismaModule,
     HealthModule,
-    AuthModule,
-    UsersModule,
-    RoomsModule,
-  ],
-  providers: [
-    // A ordem importa: JWT antes de Roles. Rotas abertas usam @Public().
-    { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: RolesGuard },
+    PlayersModule,
+    ClubsModule,
   ],
 })
 export class AppModule {}
