@@ -157,14 +157,14 @@ export function HomePage() {
           </div>
         </div>
 
-        {/* Bloco Inferior: Como o sistema funciona (6 etapas perfeitamente contidas no campo) */}
-        <div className="relative z-10 w-full max-w-[1192px] 2xl:max-w-[1510px]">
-          <div className="flex flex-col items-center justify-center gap-2 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-row lg:items-center lg:justify-between lg:gap-1.5 2xl:gap-2.5">
+        {/* Bloco Inferior: Como o sistema funciona (6 etapas perfeitamente contidas dentro do campo com margem segura) */}
+        <div className="relative z-10 w-full max-w-[1100px] 2xl:max-w-[1380px]">
+          <div className="flex flex-col items-center justify-center gap-2 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-row lg:items-center lg:justify-between lg:gap-1.5 2xl:gap-2">
             {STEPS.map((step, index) => {
               const Icon = step.icon
               return (
                 <Fragment key={step.number}>
-                  <div className="flex h-[158px] w-full max-w-[280px] flex-col justify-between rounded-[14px] border border-zinc-200/90 bg-white p-3.5 text-left shadow-2xs transition-shadow hover:shadow-xs lg:w-[172px] lg:shrink 2xl:h-[168px] 2xl:w-[220px]">
+                  <div className="flex h-[158px] w-full max-w-[280px] flex-col justify-between rounded-[14px] border border-zinc-200/90 bg-white p-3 text-left shadow-2xs transition-shadow hover:shadow-xs lg:w-[158px] lg:shrink 2xl:h-[168px] 2xl:w-[200px] 2xl:p-3.5">
                     <div className="flex items-center justify-between">
                       <div className="flex size-8 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#155DFC] 2xl:size-9">
                         <Icon className="size-4 2xl:size-5" />
