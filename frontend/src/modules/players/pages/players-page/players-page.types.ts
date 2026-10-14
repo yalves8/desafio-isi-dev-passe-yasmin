@@ -1,4 +1,4 @@
-import type { Condition, Player, PlayerSort, Position } from '@/api/types'
+import type { Condition, Player, PlayerSort, Position, PurchaseResult } from '@/api/types'
 import type { PlayersTab } from '../../players.types'
 
 /** Estado da tela guardado na URL (filtros, aba, ordenação e página) */
@@ -18,5 +18,6 @@ export interface PlayersParams {
 
 export type PlayerDialog =
   | { type: 'create' }
-  | { type: 'created' | 'details' | 'edit' | 'condition' | 'delete'; player: Player }
+  | { type: 'created' | 'details' | 'edit' | 'condition' | 'delete' | 'buy'; player: Player }
+  | { type: 'bought'; purchase: PurchaseResult }
   | null

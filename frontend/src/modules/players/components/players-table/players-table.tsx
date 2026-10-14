@@ -151,7 +151,13 @@ export function PlayersTable({ tabs, sort, list, actions, pagination }: PlayersT
                       </TableCell>
                       <TableCell className="pr-4 pl-2">
                         <div className="flex items-center justify-end gap-2">
-                          {player.club_id === null && <BuyButton size="sm" />}
+                          {player.club_id === null && (
+                            <BuyButton
+                              size="sm"
+                              onClick={() => actions.onBuy(player)}
+                              disabledReason={actions.buyDisabledReason}
+                            />
+                          )}
                           <PlayerRowMenu player={player} actions={actions} />
                         </div>
                       </TableCell>

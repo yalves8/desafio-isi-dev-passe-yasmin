@@ -19,6 +19,8 @@ export function PlayerDetailsSheet({
   onClose,
   onEdit,
   onCondition,
+  onBuy,
+  buyDisabledReason,
 }: PlayerDetailsSheetProps) {
   return (
     <Sheet open onOpenChange={(open) => !open && onClose()}>
@@ -110,7 +112,9 @@ export function PlayerDetailsSheet({
           <Button variant="outline" size="md" onClick={onCondition}>
             <HeartPulse /> Alterar condição
           </Button>
-          {player.club_id === null && <BuyButton className="ml-auto" />}
+          {player.club_id === null && (
+            <BuyButton className="ml-auto" onClick={onBuy} disabledReason={buyDisabledReason} />
+          )}
         </div>
       </SheetContent>
     </Sheet>

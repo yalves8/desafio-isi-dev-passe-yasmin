@@ -6,4 +6,7 @@ export interface PlayerDetailsSheetProps {
   onClose: () => void
   onEdit: () => void
   onCondition: () => void
+  onBuy: () => void
+  /** Motivo de a compra estar indisponível (ex.: liga sem clubes) */
+  buyDisabledReason?: string
 }

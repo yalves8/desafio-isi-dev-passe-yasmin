@@ -12,6 +12,7 @@ interface Options {
 const STUB_ROUTES = [
   { path: '/jogadores', text: 'tela de jogadores' },
   { path: '/clubes', text: 'tela de clubes' },
+  { path: '/clubes/:id', text: 'tela do clube' },
 ]
 
 /** Renderiza a página dentro de MemoryRouter configurado para testes. */

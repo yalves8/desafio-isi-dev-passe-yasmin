@@ -3,7 +3,13 @@ import userEvent from '@testing-library/user-event'
 import { playerFixture } from '../../players.fixtures'
 import { PlayerRowMenu } from './player-row-menu'
 
-const actions = { onDetails: vi.fn(), onEdit: vi.fn(), onCondition: vi.fn(), onDelete: vi.fn() }
+const actions = {
+  onDetails: vi.fn(),
+  onEdit: vi.fn(),
+  onCondition: vi.fn(),
+  onDelete: vi.fn(),
+  onBuy: vi.fn(),
+}
 
 describe('PlayerRowMenu', () => {
   beforeEach(() => vi.clearAllMocks())
@@ -30,5 +36,34 @@ describe('PlayerRowMenu', () => {
       'true',
     )
     expect(screen.getByText('Só jogador livre pode ser excluído.')).toBeInTheDocument()
+  })
+
+  it('deve abrir a compra do jogador livre', async () => {
+    const user = userEvent.setup()
+    const player = playerFixture({ club_id: null })
+    render(<PlayerRowMenu player={player} actions={actions} />)
+
+    await user.click(screen.getByRole('button', { name: 'Ações de André Lacerda' }))
+    await user.click(screen.getByRole('menuitem', { name: /comprar/i }))
+
+    expect(actions.onBuy).toHaveBeenCalledWith(player)
+  })
+
+  it('deve desabilitar a compra explicando o motivo', async () => {
+    const user = userEvent.setup()
+    render(
+      <PlayerRowMenu
+        player={playerFixture({ club_id: null })}
+        actions={{ ...actions, buyDisabledReason: 'Cadastre um clube para comprar.' }}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Ações de André Lacerda' }))
+
+    expect(screen.getByRole('menuitem', { name: /comprar/i })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    )
+    expect(screen.getByText('Cadastre um clube para comprar.')).toBeInTheDocument()
   })
 })

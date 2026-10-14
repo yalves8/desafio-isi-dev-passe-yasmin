@@ -2,6 +2,7 @@ import { Plus, Users } from 'lucide-react'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { ActiveFilters } from '../../components/active-filters/active-filters'
+import { BuyPlayerDialog } from '../../components/buy-player-dialog/buy-player-dialog'
 import { PlayerFilters } from '../../components/player-filters/player-filters'
 import { PlayerConditionDialog } from '../../components/player-condition-dialog/player-condition-dialog'
 import { PlayerCreateDialog } from '../../components/player-create-dialog/player-create-dialog'
@@ -10,6 +11,7 @@ import { PlayerDeleteDialog } from '../../components/player-delete-dialog/player
 import { PlayerDetailsSheet } from '../../components/player-details-sheet/player-details-sheet'
 import { PlayerEditDialog } from '../../components/player-edit-dialog/player-edit-dialog'
 import { PlayersTable } from '../../components/players-table/players-table'
+import { PurchaseResultDialog } from '../../components/purchase-result-dialog/purchase-result-dialog'
 import { usePlayersPage } from './players-page.hook'
 
 export function PlayersPage() {
@@ -55,6 +57,26 @@ export function PlayersPage() {
           onClose={dialog.close}
           onEdit={() => dialog.open('edit')(current.player)}
           onCondition={() => dialog.open('condition')(current.player)}
+          onBuy={() => dialog.open('buy')(current.player)}
+          buyDisabledReason={dialog.buyDisabledReason}
+        />
+      )}
+      {current?.type === 'buy' && (
+        <BuyPlayerDialog
+          player={current.player}
+          clubs={dialog.clubs}
+          onClose={dialog.close}
+          onBought={(purchase) => dialog.onBought(current.player, purchase)}
+        />
+      )}
+      {current?.type === 'bought' && (
+        <PurchaseResultDialog
+          purchase={current.purchase}
+          clubName={
+            dialog.clubs.find((c) => c.id === current.purchase.club_id)?.name ?? 'clube comprador'
+          }
+          onClose={dialog.close}
+          onViewClub={() => dialog.viewClub(current.purchase.club_id)}
         />
       )}
       {current?.type === 'edit' && (

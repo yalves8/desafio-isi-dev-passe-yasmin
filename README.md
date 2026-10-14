@@ -73,6 +73,7 @@ Apresenta a liga sobre um campo de futebol, com números da liga (jogadores, liv
 - **Alteração de condição física**. De Doente não se passa direto para Apto. Se um jogador com clube for marcado como Doente, a tela avisa que, caso seja titular, ele sai da escalação.
 - **Detalhes** do jogador num painel lateral: valores, overall, potencial e indicadores técnicos.
 - **Exclusão** só de jogador livre, com confirmação. A exclusão é lógica: transações e partidas antigas continuam gravadas.
+- **Compra** de jogador livre (na linha, no menu "…" e no painel de detalhes): escolhe o clube comprador (com o caixa atual) e o fim da fidelidade, sugerido para um ano depois e validado antes de enviar (depois de agora e até 1.095 dias, enviado com `-03:00`). Caixa, elenco cheio e recompra só a API decide: a recusa (`409`) aparece no diálogo, e uma falha de rede oferece "Tentar de novo". Concluída, mostra valor, taxa, custo, fim da fidelidade, contrato e novo caixa como a API devolveu, com atalho para o clube. Sem clube cadastrado, "Comprar" fica desabilitado.
 
 ### Clubes (`/clubes` e `/clubes/:id`)
 - **Lista** com caixa, valor do elenco e patrimônio, ordenada por nome ou por patrimônio (nos dois sentidos), com a ordenação na URL e o uso do limite da liga ("6 de 20").
@@ -108,6 +109,7 @@ Prefixo `/api/v1`, exceto `/health`. A documentação completa está no Swagger 
 | GET | `/clubs/:id` | Detalhe do clube com elenco |
 | GET/PUT | `/clubs/:id/lineup` | Escalação do clube (RN19) — *usado pelo frontend; ainda não implementado na API* |
 | GET | `/clubs/:id/transactions`, `/clubs/:id/transactions/export` | Histórico e CSV (RN17 e RN18) — *usado pelo frontend; ainda não implementado na API* |
+| POST | `/players/:id/buy` | Compra jogador livre e cria o contrato (RN12 a RN14) — *usado pelo frontend; ainda não implementado na API* |
 | POST | `/players/:id/sell` | Venda pelo clube atual (RN15 e RN16) — *usado pelo frontend; ainda não implementado na API* |
 
 Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro global de erros.
@@ -221,8 +223,7 @@ Os ADRs completos estão em [`docs/adr/`](docs/adr).
 - O horário de referência é `America/Sao_Paulo`.
 
 ## Funcionalidades não implementadas
-- **API de compra, venda, escalação e histórico** (`POST /players/:id/buy`, `POST /players/:id/sell`, `GET/PUT /clubs/:id/lineup`, `GET /clubs/:id/transactions[/export]`). As telas de clubes já chamam esses endpoints exatamente como o desafio especifica e tratam `404`/`409`; até a API existir, as abas Escalação e Histórico mostram o erro devolvido, e sem compra nenhum clube tem jogadores.
-- **Compra de jogadores na tela**: o botão "Comprar" aparece desabilitado, à espera da API de compra.
+- **API de compra, venda, escalação e histórico** (`POST /players/:id/buy`, `POST /players/:id/sell`, `GET/PUT /clubs/:id/lineup`, `GET /clubs/:id/transactions[/export]`). As telas de jogadores e de clubes já chamam esses endpoints exatamente como o desafio especifica e tratam `400`/`404`/`409`; até a API existir, a compra mostra a recusa devolvida, as abas Escalação e Histórico mostram o erro, e nenhum clube tem jogadores.
 - **Partidas e classificação**: o card "Última partida" e o contador de partidas mostram um placeholder.
 
 ## Uso de inteligência artificial

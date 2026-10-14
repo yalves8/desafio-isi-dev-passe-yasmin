@@ -14,6 +14,7 @@ vi.mock('@/api/players.service', () => ({
     update: vi.fn(),
     updateCondition: vi.fn(),
     delete: vi.fn(),
+    buy: vi.fn(),
   },
 }))
 vi.mock('@/api/clubs.service', () => ({ clubsService: { list: vi.fn() } }))
@@ -66,7 +67,7 @@ describe('PlayersPage', () => {
     const freeRow = screen.getByText('Ícaro Mendes').closest('tr')!
     expect(within(freeRow).getByText('14,40')).toBeInTheDocument()
     expect(within(freeRow).getByText('Livre')).toBeInTheDocument()
-    expect(within(freeRow).getByRole('button', { name: /comprar/i })).toBeDisabled()
+    expect(within(freeRow).getByRole('button', { name: /comprar/i })).toBeEnabled()
 
     expect(screen.getByText('Mostrando 1–10 de 23 jogadores')).toBeInTheDocument()
     expect(await screen.findByRole('tab', { name: /todos\s*23/i })).toBeInTheDocument()
@@ -212,5 +213,53 @@ describe('PlayersPage', () => {
     await waitFor(() =>
       expect(vi.mocked(playersService.list).mock.calls.length).toBeGreaterThan(callsBefore),
     )
+  })
+
+  it('deve comprar o jogador livre, mostrar o resultado da API e levar ao clube', async () => {
+    const user = userEvent.setup()
+    vi.mocked(playersService.buy).mockResolvedValue({
+      id: 10,
+      club_id: 2,
+      player_id: 10,
+      player_name: 'Ícaro Mendes',
+      type: 'COMPRA',
+      value: 14.4,
+      fee: 0,
+      penalty: 0,
+      profit: null,
+      cash_change: -14.4,
+      created_at: '2026-11-12T15:00:00-03:00',
+      contract: {
+        purchase_value: 14.4,
+        loyalty_until: '2027-11-12T15:00:00-03:00',
+        status: 'ATIVO',
+      },
+      club_cash: 285.6,
+    })
+    renderPlayers()
+
+    const freeRow = (await screen.findByText('Ícaro Mendes')).closest('tr')!
+    await user.click(within(freeRow).getByRole('button', { name: /comprar/i }))
+    await user.click(screen.getByRole('combobox', { name: 'Clube comprador' }))
+    await user.click(await screen.findByRole('option', { name: /Delta FC/ }))
+    await user.click(screen.getByRole('button', { name: 'Confirmar compra' }))
+
+    expect(playersService.buy).toHaveBeenCalledWith(10, expect.objectContaining({ club_id: 2 }))
+    expect(await screen.findByText('Ícaro Mendes agora é do Delta FC.')).toBeInTheDocument()
+    expect(screen.getByText('285,60')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Ver clube/ }))
+    expect(await screen.findByText('tela do clube')).toBeInTheDocument()
+  })
+
+  it('deve desabilitar a compra enquanto a liga não tem clubes', async () => {
+    vi.mocked(clubsService.list).mockResolvedValue([])
+    renderPlayers()
+
+    const freeRow = (await screen.findByText('Ícaro Mendes')).closest('tr')!
+    await waitFor(() =>
+      expect(within(freeRow).getByRole('button', { name: /comprar/i })).toBeDisabled(),
+    )
+    expect(within(freeRow).getByLabelText('Cadastre um clube para comprar.')).toBeInTheDocument()
   })
 })

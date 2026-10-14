@@ -8,6 +8,7 @@ describe('PlayerDetailsSheet', () => {
   it('deve mostrar valores, indicadores e ações do jogador livre', async () => {
     const user = userEvent.setup()
     const onEdit = vi.fn()
+    const onBuy = vi.fn()
     render(
       <TooltipProvider>
         <PlayerDetailsSheet
@@ -20,6 +21,7 @@ describe('PlayerDetailsSheet', () => {
           onClose={vi.fn()}
           onEdit={onEdit}
           onCondition={vi.fn()}
+          onBuy={onBuy}
         />
       </TooltipProvider>,
     )
@@ -28,7 +30,8 @@ describe('PlayerDetailsSheet', () => {
     expect(screen.getByText('46,00')).toBeInTheDocument()
     expect(screen.getAllByRole('listitem')).toHaveLength(6)
     expect(screen.getByText('Até o potencial (86), que nenhum atributo passa')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /comprar/i })).toBeDisabled()
+    await user.click(screen.getByRole('button', { name: /comprar/i }))
+    expect(onBuy).toHaveBeenCalledOnce()
     await user.click(screen.getByRole('button', { name: /editar/i }))
     expect(onEdit).toHaveBeenCalledOnce()
   })

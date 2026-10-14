@@ -20,7 +20,13 @@ function renderTable(list: Partial<PlayersTableProps['list']> = {}) {
       empty: { hasFilters: false, onClear: vi.fn(), onCreate: vi.fn() },
       ...list,
     },
-    actions: { onDetails: vi.fn(), onEdit: vi.fn(), onCondition: vi.fn(), onDelete: vi.fn() },
+    actions: {
+      onDetails: vi.fn(),
+      onEdit: vi.fn(),
+      onCondition: vi.fn(),
+      onDelete: vi.fn(),
+      onBuy: vi.fn(),
+    },
     pagination: {
       page: 1,
       totalPages: 1,

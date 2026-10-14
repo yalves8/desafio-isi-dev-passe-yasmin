@@ -1,15 +1,20 @@
 import { ShoppingCart } from 'lucide-react'
 import { DisabledHint } from '@/components/feedback/disabled-hint/disabled-hint'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import type { BuyButtonProps } from './buy-button.types'
 
-export const BUY_DISABLED_REASON = 'Compra disponível em breve'
-
-/** A compra entra em outra entrega: o botão aparece como no Figma, desabilitado */
-export function BuyButton({ size = 'md', className }: BuyButtonProps) {
+/** "Comprar" de jogador livre; com motivo, fica desabilitado e explica por quê */
+export function BuyButton({ onClick, disabledReason, size = 'md', className }: BuyButtonProps) {
   return (
-    <DisabledHint reason={BUY_DISABLED_REASON} className={className}>
-      <Button variant="outline" size={size} disabled className="px-3">
+    <DisabledHint reason={disabledReason} className={className}>
+      <Button
+        variant="outline"
+        size={size}
+        disabled={!!disabledReason}
+        onClick={onClick}
+        className={cn('px-3', !disabledReason && className)}
+      >
         <ShoppingCart />
         Comprar
       </Button>

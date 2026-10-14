@@ -1,9 +1,9 @@
 import { useMemo, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { clubsService } from '@/api/clubs.service'
 import { playersService } from '@/api/players.service'
-import type { Club, Condition, Player } from '@/api/types'
+import type { Club, Condition, Player, PurchaseResult } from '@/api/types'
 import { useAction } from '@/hooks/use-action'
 import { useFetch } from '@/hooks/use-fetch'
 import { useLeagueData } from '@/hooks/use-league-data'
@@ -31,9 +31,11 @@ import {
 
 const SEARCH_DEBOUNCE_MS = 300
 const FREE_WITH_CLUB_REASON = '“Livres” não combina com o filtro por clube.'
+const NO_CLUBS_REASON = 'Cadastre um clube para comprar.'
 
 export function usePlayersPage() {
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const params = useMemo(() => parsePlayersParams(searchParams), [searchParams])
   const { version, refresh } = useLeagueData()
 
@@ -109,8 +111,9 @@ export function usePlayersPage() {
     updateParams({ ...CLEARED_FILTERS, ...extra })
   }
 
-  const open = (type: Exclude<NonNullable<PlayerDialog>['type'], 'create'>) => (player: Player) =>
-    setDialog({ type, player })
+  const open =
+    (type: Exclude<NonNullable<PlayerDialog>['type'], 'create' | 'bought'>) => (player: Player) =>
+      setDialog({ type, player })
   const closeDialog = () => setDialog(null)
 
   /** Após uma ação: recarrega lista e sidebar e destaca a linha alterada */
@@ -126,6 +129,15 @@ export function usePlayersPage() {
   const deleteAction = useAction((player: Player) => playersService.delete(player.id), {
     errorTitle: 'Não foi possível excluir',
   })
+
+  // A compra só faz sentido com clube cadastrado; o resto (caixa, elenco, recompra) a API decide
+  const buyDisabledReason = clubs.data && clubList.length === 0 ? NO_CLUBS_REASON : undefined
+
+  /** Compra confirmada pela API: recarrega lista e sidebar e mostra o resultado (M05) */
+  const onBought = (player: Player, purchase: PurchaseResult) => {
+    afterChange(player)
+    setDialog({ type: 'bought', purchase })
+  }
 
   const changeCondition = async (player: Player, condition: Condition) => {
     const result = await conditionAction.run(player, condition)
@@ -232,6 +244,8 @@ export function usePlayersPage() {
         onEdit: open('edit'),
         onCondition: open('condition'),
         onDelete: open('delete'),
+        onBuy: open('buy'),
+        buyDisabledReason,
       },
       pagination: {
         page: params.page,
@@ -244,6 +258,13 @@ export function usePlayersPage() {
     dialog: {
       current: dialog,
       clubOf,
+      clubs: clubList,
+      buyDisabledReason,
+      onBought,
+      viewClub: (clubId: number) => {
+        closeDialog()
+        void navigate(`/clubes/${clubId}`)
+      },
       close: closeDialog,
       open,
       onCreated: (player: Player) => {

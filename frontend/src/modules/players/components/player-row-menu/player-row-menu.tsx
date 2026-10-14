@@ -36,9 +36,19 @@ export function PlayerRowMenu({ player, actions }: PlayerRowMenuProps) {
         {isFree && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem disabled>
-              <ShoppingCart /> Comprar
-              <span className="ml-auto text-xs">em breve</span>
+            <DropdownMenuItem
+              disabled={!!actions.buyDisabledReason}
+              onSelect={() => actions.onBuy(player)}
+              className="flex-col items-start gap-0.5"
+            >
+              <span className="flex items-center gap-2">
+                <ShoppingCart /> Comprar
+              </span>
+              {actions.buyDisabledReason && (
+                <span className="pl-6 text-xs text-muted-foreground">
+                  {actions.buyDisabledReason}
+                </span>
+              )}
             </DropdownMenuItem>
           </>
         )}
