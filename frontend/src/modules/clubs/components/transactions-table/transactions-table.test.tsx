@@ -1,0 +1,46 @@
+import { render, screen, within } from '@testing-library/react'
+import { TransactionsTable } from './transactions-table'
+
+describe('TransactionsTable', () => {
+  it('deve mostrar compra e venda com a variação do caixa sinalizada', () => {
+    render(
+      <TransactionsTable
+        transactions={[
+          {
+            id: 11,
+            club_id: 1,
+            player_id: 2,
+            player_name: 'Meia Lua',
+            type: 'VENDA',
+            value: 40,
+            fee: 0.3,
+            penalty: 4,
+            profit: 3,
+            cash_change: 35.7,
+            created_at: '2026-11-05T16:40:00-03:00',
+          },
+          {
+            id: 10,
+            club_id: 1,
+            player_id: 2,
+            player_name: 'Meia Lua',
+            type: 'COMPRA',
+            value: 37,
+            fee: 1.85,
+            penalty: 0,
+            profit: null,
+            cash_change: -38.85,
+            created_at: '2026-11-02T10:15:00-03:00',
+          },
+        ]}
+      />,
+    )
+
+    const [sale, buy] = screen.getAllByRole('row').slice(1)
+    expect(within(sale).getByText('Venda')).toBeInTheDocument()
+    expect(within(sale).getByText('+35,70')).toHaveClass('text-green-700')
+    expect(within(sale).getByText('16:40')).toBeInTheDocument()
+    expect(within(buy).getByText('-38,85')).toHaveClass('text-red-600')
+    expect(within(buy).getByText('—')).toBeInTheDocument()
+  })
+})

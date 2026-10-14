@@ -74,6 +74,15 @@ Apresenta a liga sobre um campo de futebol, com números da liga (jogadores, liv
 - **Detalhes** do jogador num painel lateral: valores, overall, potencial e indicadores técnicos.
 - **Exclusão** só de jogador livre, com confirmação. A exclusão é lógica: transações e partidas antigas continuam gravadas.
 
+### Clubes (`/clubes` e `/clubes/:id`)
+- **Lista** com caixa, valor do elenco e patrimônio, ordenada por nome ou por patrimônio (nos dois sentidos), com a ordenação na URL e o uso do limite da liga ("6 de 20").
+- **Novo clube**: valida nome e sigla antes de enviar (3 letras do nome, nessa ordem, começando pela inicial). Nome ou sigla repetidos e o limite de 20 clubes chegam como `409` e aparecem dentro do diálogo. O "+" da sidebar abre o mesmo diálogo (`/clubes?novo=1`).
+- **Detalhe do clube**: caixa, valor do elenco, patrimônio e lotação do elenco, como a API calcula. A trilha mostra o nome do clube.
+  - **Elenco**: ordem da RN11, com valor de compra, fim da fidelidade, dias restantes e % de multa de cada contrato. **Vender** pede confirmação e mostra o resultado devolvido pela API (multa, lucro, comissão, crédito e novo caixa).
+  - **Escalação**: formação (3-1, 2-2, 2-1-1 ou 1-2-1), um titular por vaga (sem jogador `DOENTE`), atributos usados na partida pela RN20, prévia no campo e reservas. Mostra quando a escalação está incompleta e por quê, avisa sobre titulares mal condicionados e exibe a recusa da API (`409`) no próprio card, recarregando o que ficou gravado.
+  - **Histórico**: compras e vendas com os totais do `summary`, filtros por tipo e por jogador e exportação CSV com os mesmos filtros.
+- **Comprar jogadores** e **Ver jogadores livres** levam para a aba "Livres" da tela de jogadores.
+
 ### Em toda ação
 - Mostra sucesso ou o `message` devolvido pela API.
 - O botão fica desabilitado durante o envio, e a mesma ação não é enviada duas vezes.
@@ -97,6 +106,9 @@ Prefixo `/api/v1`, exceto `/health`. A documentação completa está no Swagger 
 | POST | `/clubs` | Cadastra clube (nome e sigla de 3 letras) |
 | GET | `/clubs` | Lista clubes. Query: `sort` (`name`, `net_worth_asc`, `net_worth_desc`) |
 | GET | `/clubs/:id` | Detalhe do clube com elenco |
+| GET/PUT | `/clubs/:id/lineup` | Escalação do clube (RN19) — *usado pelo frontend; ainda não implementado na API* |
+| GET | `/clubs/:id/transactions`, `/clubs/:id/transactions/export` | Histórico e CSV (RN17 e RN18) — *usado pelo frontend; ainda não implementado na API* |
+| POST | `/players/:id/sell` | Venda pelo clube atual (RN15 e RN16) — *usado pelo frontend; ainda não implementado na API* |
 
 Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro global de erros.
 
@@ -126,6 +138,7 @@ Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro glo
 │  │  │  └─ data-display/     (Tag, InfoList, StatCard)
 │  │  ├─ contexts/            (LeagueData: recarrega lista e sidebar após cada ação)
 │  │  ├─ hooks/               (useFetch, useAction, useDebouncedValue, useLeagueData)
+│  │  ├─ modules/clubs/            (lista, detalhe, elenco, venda, escalação e histórico)
 │  │  ├─ modules/players/
 │  │  │  ├─ components/<componente>/   (.tsx, .types.ts, .test.tsx e, quando há lógica, .hook.ts/.utils.ts)
 │  │  │  ├─ pages/players-page/        (.tsx só renderiza; .hook.ts tem a lógica)
@@ -208,12 +221,10 @@ Os ADRs completos estão em [`docs/adr/`](docs/adr).
 - O horário de referência é `America/Sao_Paulo`.
 
 ## Funcionalidades não implementadas
-- **Compra e venda de jogadores** (contrato de fidelidade, taxa, multa e comissão). O botão "Comprar" aparece desabilitado, à espera da API de compra.
-- **Histórico de transações** com totais e exportação CSV.
-- **Escalação e partidas**: o card "Última partida" e o contador de partidas mostram um placeholder.
-- **Classificação** da liga.
-- **Tela de clubes**: `/clubes` ainda é um placeholder; a API de clubes já existe.
+- **API de compra, venda, escalação e histórico** (`POST /players/:id/buy`, `POST /players/:id/sell`, `GET/PUT /clubs/:id/lineup`, `GET /clubs/:id/transactions[/export]`). As telas de clubes já chamam esses endpoints exatamente como o desafio especifica e tratam `404`/`409`; até a API existir, as abas Escalação e Histórico mostram o erro devolvido, e sem compra nenhum clube tem jogadores.
+- **Compra de jogadores na tela**: o botão "Comprar" aparece desabilitado, à espera da API de compra.
+- **Partidas e classificação**: o card "Última partida" e o contador de partidas mostram um placeholder.
 
 ## Uso de inteligência artificial
-- **Claude Code:** usado no frontend, na tela inicial e na tela de jogadores (layout a partir do Figma, componentização no padrão FCx e testes). Também foi usado na verificação visual com Playwright e na redação deste README. Todo o código gerado foi revisado e validado com testes, lint e typecheck.
+- **Claude Code:** usado no frontend, nas telas inicial, de jogadores e de clubes (layout a partir do Figma, componentização no padrão FCx e testes). Também foi usado na verificação visual com Playwright e na redação deste README. Todo o código gerado foi revisado e validado com testes, lint e typecheck.
 - _(complementar com as demais partes em que a IA ajudou e o que foi alterado manualmente)_
