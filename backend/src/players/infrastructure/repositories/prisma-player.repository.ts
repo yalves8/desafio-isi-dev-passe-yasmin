@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service.js';
-import { Condition } from '../../../domain/market-value.js';
 import { Position } from '../../../domain/player-rating.js';
 import {
   IPlayerRepository,
@@ -10,6 +9,7 @@ import {
   PlayerEntity,
   PlayerTechnicalAttributes,
 } from '../../domain/entities/player.entity.js';
+import { playerFromRow } from '../mappers/player.mapper.js';
 
 /**
  * Implementação concreta de persistência do IPlayerRepository utilizando Prisma ORM.
@@ -29,48 +29,6 @@ export class PrismaPlayerRepository implements IPlayerRepository {
    */
   constructor(private readonly prisma: PrismaService) {}
 
-  private toDomain(raw: {
-    id: number;
-    nome: string;
-    posicao: string;
-    agilidade: number;
-    idade: number;
-    valor_base: { toString(): string } | number | string;
-    condicao: string;
-    clube_id: number | null;
-    velocidade: number;
-    finalizacao: number;
-    passe: number;
-    drible: number;
-    defesa: number;
-    fisico: number;
-    potencial: number;
-    excluido_em: Date | null;
-    criado_em: Date;
-  }): PlayerEntity {
-    return new PlayerEntity(
-      raw.id,
-      raw.nome,
-      raw.posicao as Position,
-      raw.agilidade,
-      raw.idade,
-      Number(raw.valor_base),
-      raw.condicao as Condition,
-      raw.clube_id,
-      {
-        pace: raw.velocidade,
-        shooting: raw.finalizacao,
-        passing: raw.passe,
-        dribbling: raw.drible,
-        defending: raw.defesa,
-        physical: raw.fisico,
-      },
-      raw.potencial,
-      raw.excluido_em,
-      raw.criado_em,
-    );
-  }
-
   /**
    * Busca um atleta ativo pelo ID.
    *
@@ -82,7 +40,7 @@ export class PrismaPlayerRepository implements IPlayerRepository {
       where: { id, excluido_em: null },
     });
     if (!raw) return null;
-    return this.toDomain(raw);
+    return playerFromRow(raw);
   }
 
   /**
@@ -119,7 +77,7 @@ export class PrismaPlayerRepository implements IPlayerRepository {
       },
     });
 
-    return this.toDomain(created);
+    return playerFromRow(created);
   }
 
   /**
@@ -139,7 +97,7 @@ export class PrismaPlayerRepository implements IPlayerRepository {
       },
     });
 
-    return this.toDomain(updated);
+    return playerFromRow(updated);
   }
 
   /**
@@ -162,7 +120,7 @@ export class PrismaPlayerRepository implements IPlayerRepository {
           data: { condicao: 'DOENTE' },
         });
       });
-      return this.toDomain(updated);
+      return playerFromRow(updated);
     }
 
     const updated = await this.prisma.jogador.update({
@@ -170,7 +128,7 @@ export class PrismaPlayerRepository implements IPlayerRepository {
       data: { condicao: newCondition },
     });
 
-    return this.toDomain(updated);
+    return playerFromRow(updated);
   }
 
   /**
@@ -226,7 +184,7 @@ export class PrismaPlayerRepository implements IPlayerRepository {
     }
 
     const rawList = await this.prisma.jogador.findMany({ where });
-    return rawList.map((r) => this.toDomain(r));
+    return rawList.map((r) => playerFromRow(r));
   }
 
   /**
