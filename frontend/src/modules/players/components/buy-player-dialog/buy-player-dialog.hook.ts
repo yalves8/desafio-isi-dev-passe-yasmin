@@ -7,6 +7,7 @@ import { useAction } from '@/hooks/use-action'
 import {
   buildBuyPlayerSchema,
   defaultLoyaltyUntil,
+  loyaltyDateRange,
   type BuyPlayerFormInput,
 } from '../../player-buy.validation'
 import type { BuyError } from './buy-player-dialog.types'
@@ -23,8 +24,11 @@ export function useBuyPlayerDialog({
   onBought: (purchase: PurchaseResult) => void
 }) {
   const schema = useMemo(() => buildBuyPlayerSchema(), [])
-  // Sugestão de fidelidade calculada uma vez, ao abrir o diálogo
-  const [defaultLoyalty] = useState(() => defaultLoyaltyUntil(new Date()))
+  // Sugestão e datas do calendário calculadas uma vez, ao abrir o diálogo
+  const [{ defaultLoyalty, dateRange }] = useState(() => {
+    const now = new Date()
+    return { defaultLoyalty: defaultLoyaltyUntil(now), dateRange: loyaltyDateRange(now) }
+  })
   const form = useForm<BuyPlayerFormInput, unknown, BuyPlayerInput>({
     resolver: zodResolver(schema),
     mode: 'onTouched',
@@ -54,6 +58,7 @@ export function useBuyPlayerDialog({
     errors: form.formState.errors,
     isSubmitting: form.formState.isSubmitting || buy.isPending,
     club,
+    dateRange,
     error,
     onSubmit,
   }

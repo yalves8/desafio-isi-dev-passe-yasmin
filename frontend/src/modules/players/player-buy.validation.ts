@@ -47,6 +47,17 @@ export function defaultLoyaltyUntil(now: Date) {
   return { date: `${next}-${monthDay}`, time }
 }
 
+/**
+ * Datas que o calendário oferece: de hoje (um horário mais tarde hoje ainda vale) até o dia
+ * em que se completam 1.095 dias. Nos dois extremos o horário decide, e quem avisa é a validação.
+ */
+export function loyaltyDateRange(now: Date) {
+  return {
+    min: brasiliaDateTime(now).date,
+    max: brasiliaDateTime(new Date(now.getTime() + MAX_LOYALTY_DAYS * DAY_MS)).date,
+  }
+}
+
 /** Instante da data e hora informadas, ou null se não existem (ex.: 30/02): nunca ajusta */
 function parseLoyalty(date: string, time: string) {
   const instant = new Date(toLoyaltyUntil(date, time))

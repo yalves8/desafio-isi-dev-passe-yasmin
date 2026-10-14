@@ -1,6 +1,7 @@
 import {
   buildBuyPlayerSchema,
   defaultLoyaltyUntil,
+  loyaltyDateRange,
   MAX_LOYALTY_DAYS,
   toLoyaltyUntil,
 } from './player-buy.validation'
@@ -32,6 +33,18 @@ describe('defaultLoyaltyUntil', () => {
       date: '2029-02-28',
       time: '09:30',
     })
+  })
+})
+
+describe('loyaltyDateRange', () => {
+  it('deve ir de hoje até 1.095 dias depois, no horário de Brasília', () => {
+    // Hoje fica liberado: um horário mais tarde hoje ainda é depois da compra
+    expect(loyaltyDateRange(NOW)).toEqual({ min: '2026-11-12', max: '2029-11-11' })
+  })
+
+  it('deve usar o dia de Brasília, não o do navegador, perto da meia-noite', () => {
+    // 01:30 UTC de 13/11 ainda é 12/11 às 22:30 em Brasília
+    expect(loyaltyDateRange(new Date('2026-11-13T01:30:00Z')).min).toBe('2026-11-12')
   })
 })
 

@@ -77,6 +77,9 @@ describe('BuyPlayerDialog', () => {
     expect(screen.getByText('46,00')).toBeInTheDocument()
     expect(screen.getByLabelText('Fim da fidelidade')).toHaveValue('2027-11-12')
     expect(screen.getByLabelText('Hora do fim da fidelidade')).toHaveValue('15:00')
+    // O calendário só oferece de hoje até 1.095 dias depois
+    expect(screen.getByLabelText('Fim da fidelidade')).toHaveAttribute('min', '2026-11-12')
+    expect(screen.getByLabelText('Fim da fidelidade')).toHaveAttribute('max', '2029-11-11')
 
     await chooseClub(user, /Tubarões EC \(TUB\) · caixa 300,00/)
     expect(

@@ -38,7 +38,7 @@ function openPicker(event: MouseEvent<HTMLInputElement>) {
 }
 
 export function BuyPlayerDialog({ player, clubs, onClose, onBought }: BuyPlayerDialogProps) {
-  const { form, errors, isSubmitting, club, error, onSubmit } = useBuyPlayerDialog({
+  const { form, errors, isSubmitting, club, dateRange, error, onSubmit } = useBuyPlayerDialog({
     player,
     clubs,
     onBought,
@@ -140,6 +140,8 @@ export function BuyPlayerDialog({ player, clubs, onClose, onBought }: BuyPlayerD
               icon={Calendar}
               id="buy-date"
               type="date"
+              min={dateRange.min}
+              max={dateRange.max}
               className={PICKER_INPUT}
               onClick={openPicker}
               containerClassName="flex-1"
