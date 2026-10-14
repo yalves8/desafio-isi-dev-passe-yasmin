@@ -1,16 +1,15 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
-@import '@fontsource-variable/public-sans';
-@import '@fontsource-variable/schibsted-grotesk';
-@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: 'Schibsted Grotesk Variable', 'Public Sans Variable', sans-serif;
-  --font-sans: 'Public Sans Variable', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --font-heading: 'Geist Variable', system-ui, sans-serif;
+  --font-sans: 'Geist Variable', system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
   --color-signal: var(--signal);
   --color-signal-foreground: var(--signal-foreground);
   --color-success: var(--success);
