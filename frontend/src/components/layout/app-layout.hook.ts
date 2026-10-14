@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useLocation } from 'react-router'
+import { useBreadcrumbContext } from '@/hooks/use-breadcrumb-detail'
 import { useLeagueData } from '@/hooks/use-league-data'
 import { getBreadcrumb } from './layout.constants'
 
@@ -8,6 +9,7 @@ const DESKTOP_QUERY = '(min-width: 1024px)'
 export function useAppLayout() {
   const { pathname } = useLocation()
   const { refresh } = useLeagueData()
+  const { detail } = useBreadcrumbContext()
   const [desktopOpen, setDesktopOpen] = useState(true)
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -19,6 +21,7 @@ export function useAppLayout() {
 
   return {
     breadcrumb: getBreadcrumb(pathname),
+    breadcrumbDetail: detail,
     refresh,
     sidebar: {
       desktopOpen,

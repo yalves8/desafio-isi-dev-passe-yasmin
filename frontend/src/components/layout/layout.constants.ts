@@ -33,7 +33,7 @@ export function getBreadcrumb(pathname: string) {
   const base = `/${pathname.split('/')[1] ?? ''}`
   for (const group of NAV_GROUPS) {
     const item = group.items.find((i) => i.to === base)
-    if (item) return { group: group.label, page: item.label }
+    if (item) return { group: group.label, page: item.label, to: item.to }
   }
   return null
 }

@@ -1,15 +1,16 @@
 import { ChevronRight, PanelLeft, RefreshCw } from 'lucide-react'
-import { Outlet } from 'react-router'
+import { Link, Outlet } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { BreadcrumbProvider } from '@/contexts/breadcrumb-provider'
 import { LeagueDataProvider } from '@/contexts/league-data-provider'
 import { cn } from '@/lib/utils'
 import { useAppLayout } from './app-layout.hook'
 import { AppSidebar } from './app-sidebar'
 
 function AppShell() {
-  const { breadcrumb, refresh, sidebar } = useAppLayout()
+  const { breadcrumb, breadcrumbDetail, refresh, sidebar } = useAppLayout()
 
   return (
     <div className="flex min-h-dvh bg-sidebar text-foreground">
@@ -40,10 +41,25 @@ function AppShell() {
             </Button>
             <span className="h-4 w-px bg-border" aria-hidden />
             {breadcrumb && (
-              <nav aria-label="Trilha" className="flex items-center gap-2 text-sm">
+              <nav aria-label="Trilha" className="flex min-w-0 items-center gap-2 text-sm">
                 <span className="text-muted-foreground">{breadcrumb.group}</span>
-                <ChevronRight className="size-3.5 text-muted-foreground" aria-hidden />
-                <span aria-current="page">{breadcrumb.page}</span>
+                <ChevronRight className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+                {breadcrumbDetail ? (
+                  <>
+                    <Link
+                      to={breadcrumb.to}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      {breadcrumb.page}
+                    </Link>
+                    <ChevronRight className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+                    <span aria-current="page" className="truncate">
+                      {breadcrumbDetail}
+                    </span>
+                  </>
+                ) : (
+                  <span aria-current="page">{breadcrumb.page}</span>
+                )}
               </nav>
             )}
             <Button
@@ -57,7 +73,7 @@ function AppShell() {
             </Button>
           </header>
 
-          <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8">
+          <main className="flex-1 px-4 py-6 sm:px-8 sm:pt-7 sm:pb-10">
             <Outlet />
           </main>
         </div>
@@ -69,9 +85,11 @@ function AppShell() {
 export function AppLayout() {
   return (
     <LeagueDataProvider>
-      <TooltipProvider delayDuration={200}>
-        <AppShell />
-      </TooltipProvider>
+      <BreadcrumbProvider>
+        <TooltipProvider delayDuration={200}>
+          <AppShell />
+        </TooltipProvider>
+      </BreadcrumbProvider>
     </LeagueDataProvider>
   )
 }

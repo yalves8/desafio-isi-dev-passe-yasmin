@@ -120,6 +120,7 @@ describe('PlayersPage', () => {
     expect(screen.getAllByRole('button', { name: 'Limpar filtros' }).length).toBeGreaterThan(0)
   })
 
+  // Digita os 9 campos do cadastro: com cobertura e a suíte em paralelo passa dos 5 s padrão
   it('deve validar o cadastro antes de enviar e mostrar os valores calculados pela API', async () => {
     const user = userEvent.setup()
     vi.mocked(playersService.create).mockResolvedValue({
@@ -163,7 +164,7 @@ describe('PlayersPage', () => {
       expect.objectContaining({ name: 'Davi Melo', position: 'MEI', age: 23, potential: 82 }),
     )
     expect(screen.getByText(/Davi Melo entrou livre e Apto/)).toBeInTheDocument()
-  })
+  }, 15_000)
 
   it('não deve deixar um jogador Doente passar direto para Apto', async () => {
     const user = userEvent.setup()

@@ -29,10 +29,28 @@ describe('useAction', () => {
       outcome = await result.current.run()
     })
 
-    expect(outcome).toEqual({ ok: false })
+    expect(outcome).toEqual({
+      ok: false,
+      error: 'Erro inesperado. Tente novamente.',
+      status: undefined,
+    })
     expect(toast.error).toHaveBeenCalledWith('Não foi possível salvar', {
       description: 'Erro inesperado. Tente novamente.',
     })
+  })
+
+  it('deve devolver o erro sem toast quando a tela mostra a mensagem', async () => {
+    const { result } = renderHook(() =>
+      useAction(() => Promise.reject(new Error('x')), { errorTitle: 'x', toastOnError: false }),
+    )
+
+    let outcome
+    await act(async () => {
+      outcome = await result.current.run()
+    })
+
+    expect(outcome).toMatchObject({ ok: false, error: 'Erro inesperado. Tente novamente.' })
+    expect(toast.error).not.toHaveBeenCalled()
   })
 
   it('não deve enviar a mesma ação duas vezes enquanto a primeira não termina', async () => {

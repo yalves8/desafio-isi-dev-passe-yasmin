@@ -64,6 +64,64 @@ export interface Club {
   players?: Player[]
 }
 
+export type ClubSort = 'name' | 'net_worth_asc' | 'net_worth_desc'
+
+/** Formações aceitas (RN19): jogadores de linha por setor, de trás para frente */
+export type Formation = '3-1' | '2-2' | '2-1-1' | '1-2-1'
+
+/** `GET/PUT /clubs/{id}/lineup` */
+export interface Lineup {
+  club_id: number
+  formation: Formation | null
+  complete: boolean
+  players: Player[]
+}
+
+export type TransactionType = 'COMPRA' | 'VENDA'
+
+/** Transação gravada no momento da compra/venda (RN17); nunca é recalculada */
+export interface Transaction {
+  id: number
+  club_id: number
+  player_id: number
+  player_name: string
+  type: TransactionType
+  value: number
+  fee: number
+  penalty: number
+  profit: number | null
+  cash_change: number
+  created_at: string
+}
+
+export interface TransactionsSummary {
+  total_spent: number
+  total_received: number
+  total_fees: number
+  total_penalties: number
+  total_profit: number
+}
+
+/** `GET /clubs/{id}/transactions` */
+export interface TransactionsResponse {
+  data: Transaction[]
+  summary: TransactionsSummary
+}
+
+export interface TransactionFilters {
+  type?: TransactionType
+  player_id?: number
+}
+
+/** `POST /players/{id}/sell` (RN15 e RN16) */
+export interface SaleResult extends Transaction {
+  purchase_value: number
+  remaining_days: number
+  penalty_rate: number
+  contract_status: 'ENCERRADO' | 'RESCINDIDO'
+  club_cash: number
+}
+
 export interface PaginatedPlayers {
   data: Player[]
   meta: {

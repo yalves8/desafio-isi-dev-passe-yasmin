@@ -1,9 +1,11 @@
-import { screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
+import { MemoryRouter, Route, Routes } from 'react-router'
 import userEvent from '@testing-library/user-event'
 import { clubsService } from '@/api/clubs.service'
 import { playersService } from '@/api/players.service'
 import { renderPage } from '@/test/render'
 import { AppLayout } from './app-layout'
+import { useBreadcrumbDetail } from '@/hooks/use-breadcrumb-detail'
 import { getBreadcrumb } from './layout.constants'
 
 vi.mock('@/api/players.service', () => ({ playersService: { list: vi.fn() } }))
@@ -55,10 +57,37 @@ describe('AppLayout', () => {
   })
 })
 
+describe('trilha com o item da tela', () => {
+  function ClubScreen() {
+    useBreadcrumbDetail('Águias FC')
+    return <p>tela do clube</p>
+  }
+
+  it('deve mostrar o nome definido pela tela, com link para a lista', async () => {
+    render(
+      <MemoryRouter initialEntries={['/clubes/1']}>
+        <Routes>
+          <Route element={<AppLayout />}>
+            <Route path="/clubes/:id" element={<ClubScreen />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    const trail = screen.getByRole('navigation', { name: 'Trilha' })
+    expect(await within(trail).findByText('Águias FC')).toHaveAttribute('aria-current', 'page')
+    expect(within(trail).getByRole('link', { name: 'Clubes' })).toHaveAttribute('href', '/clubes')
+  })
+})
+
 describe('getBreadcrumb', () => {
   it('deve achar grupo e tela pelo primeiro segmento da URL', () => {
-    expect(getBreadcrumb('/clubes/3')).toEqual({ group: 'Mercado', page: 'Clubes' })
-    expect(getBreadcrumb('/classificacao')).toEqual({ group: 'Liga', page: 'Classificação' })
+    expect(getBreadcrumb('/clubes/3')).toEqual({ group: 'Mercado', page: 'Clubes', to: '/clubes' })
+    expect(getBreadcrumb('/classificacao')).toEqual({
+      group: 'Liga',
+      page: 'Classificação',
+      to: '/classificacao',
+    })
     expect(getBreadcrumb('/inexistente')).toBeNull()
   })
 })

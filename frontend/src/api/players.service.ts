@@ -5,6 +5,7 @@ import type {
   PaginatedPlayers,
   Player,
   PlayerSort,
+  SaleResult,
   Position,
   UpdatePlayerInput,
 } from './types'
@@ -48,5 +49,10 @@ export const playersService = {
   },
   async delete(id: number): Promise<void> {
     await api.delete(`/players/${id}`)
+  },
+  /** Vende pelo clube atual; a API calcula multa, comissão e crédito (RN15/RN16) */
+  async sell(id: number): Promise<SaleResult> {
+    const { data } = await api.post<SaleResult>(`/players/${id}/sell`)
+    return data
   },
 }

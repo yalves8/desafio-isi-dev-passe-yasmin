@@ -18,7 +18,7 @@ function SidebarSection({ title, children }: { title: string; children: React.Re
 
 /** Navegação lateral do Passe (Figma: 256px, fundo zinc-50) */
 export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
-  const { clubs, counts, summary } = useAppSidebar()
+  const { clubs, clubsLoaded, counts, summary } = useAppSidebar()
 
   return (
     <div className="flex h-full flex-col gap-4 py-2">
@@ -62,7 +62,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         <div className="flex h-8 items-center justify-between px-2">
           <p className="text-xs text-muted-foreground">Clubes</p>
           <Link
-            to="/clubes"
+            to="/clubes?novo=1"
             onClick={onNavigate}
             aria-label="Novo clube"
             className="rounded-sm text-muted-foreground hover:text-foreground"
@@ -70,6 +70,9 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
             <Plus className="size-4" />
           </Link>
         </div>
+        {clubsLoaded && clubs.length === 0 && (
+          <p className="px-2 text-xs text-muted-foreground">Nenhum clube ainda.</p>
+        )}
         {clubs.map((club) => (
           <NavLink
             key={club.id}
@@ -79,13 +82,20 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
               cn(navItemClass, isActive && 'border-border bg-white font-medium shadow-xs')
             }
           >
-            <span
-              aria-hidden
-              className="flex size-5 items-center justify-center rounded-sm border bg-white text-[11px] font-medium"
-            >
-              {club.name[0].normalize('NFD')[0]}
-            </span>
-            <span className="truncate">{club.name}</span>
+            {({ isActive }) => (
+              <>
+                <span
+                  aria-hidden
+                  className={cn(
+                    'flex size-5 items-center justify-center rounded-sm border bg-white text-[11px] font-medium',
+                    isActive && 'border-primary bg-primary text-primary-foreground',
+                  )}
+                >
+                  {club.name[0].normalize('NFD')[0]}
+                </span>
+                <span className="truncate">{club.name}</span>
+              </>
+            )}
           </NavLink>
         ))}
       </div>

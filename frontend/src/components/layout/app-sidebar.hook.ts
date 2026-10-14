@@ -20,6 +20,7 @@ export function useAppSidebar() {
 
   return {
     clubs: data?.clubs ?? [],
+    clubsLoaded: data !== undefined,
     counts: {
       '/jogadores': data?.totalPlayers,
       '/clubes': data?.clubs.length,
