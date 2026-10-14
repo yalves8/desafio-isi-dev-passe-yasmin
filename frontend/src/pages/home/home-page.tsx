@@ -70,8 +70,8 @@ export function HomePage() {
           className="pointer-events-none absolute inset-0 hidden size-full object-fill select-none lg:block"
         />
 
-        {/* Bloco Superior: Conteúdo Central (Figma: width 720px+, bg white para não sobrepor linha central) */}
-        <div className="relative z-10 flex w-full max-w-[720px] flex-col items-center rounded-3xl bg-white px-6 py-4 text-center sm:px-10 sm:py-6 2xl:max-w-[820px] 2xl:py-7">
+        {/* Bloco Superior: Conteúdo Central (Figma: bg white para não sobrepor linha central) */}
+        <div className="relative z-10 flex w-full max-w-[760px] flex-col items-center rounded-3xl bg-white px-4 py-4 text-center sm:px-8 sm:py-6 xl:max-w-[960px] 2xl:max-w-[1040px] 2xl:py-7">
           {/* Logo e Nome */}
           <div className="flex items-center gap-4">
             <img
@@ -84,8 +84,8 @@ export function HomePage() {
             </span>
           </div>
 
-          {/* Selo Liga Fictícia */}
-          <div className="mt-3.5 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3.5 py-1 text-xs text-zinc-600 shadow-2xs 2xl:text-sm">
+          {/* Selo Liga Fictícia (Ponto 1: Espaçamento maior conforme Figma gap 22px) */}
+          <div className="mt-5.5 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3.5 py-1 text-xs text-zinc-600 shadow-2xs 2xl:mt-6 2xl:text-sm">
             <span className="size-2 rounded-full bg-[#00813A]" />
             <span className="font-medium text-zinc-900">Liga Fictícia 2026</span>
             <span className="text-zinc-400">·</span>
@@ -96,8 +96,8 @@ export function HomePage() {
             </span>
           </div>
 
-          {/* Headline e Descrição */}
-          <h1 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl sm:leading-tight 2xl:text-5xl 2xl:leading-tight">
+          {/* Headline (Ponto 2: Em UMA única linha no desktop conforme Figma) e Descrição */}
+          <h1 className="mt-4 font-heading text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl lg:text-[34px] xl:text-[38px] xl:whitespace-nowrap 2xl:text-[40px] 2xl:whitespace-nowrap">
             Gestão da liga, do mercado à classificação
           </h1>
           <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-[#686872] sm:text-base 2xl:max-w-2xl 2xl:text-lg">
@@ -157,14 +157,14 @@ export function HomePage() {
           </div>
         </div>
 
-        {/* Bloco Inferior: Como o sistema funciona (6 etapas perfeitamente contidas dentro do campo com margem segura) */}
-        <div className="relative z-10 w-full max-w-[1100px] 2xl:max-w-[1380px]">
+        {/* Bloco Inferior: Como o sistema funciona (Ponto 3: cards preenchendo o campo até as bordas internas conforme Figma) */}
+        <div className="relative z-10 w-full max-w-[1170px] 2xl:max-w-[1480px]">
           <div className="flex flex-col items-center justify-center gap-2 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-row lg:items-center lg:justify-between lg:gap-1.5 2xl:gap-2">
             {STEPS.map((step, index) => {
               const Icon = step.icon
               return (
                 <Fragment key={step.number}>
-                  <div className="flex h-[158px] w-full max-w-[280px] flex-col justify-between rounded-[14px] border border-zinc-200/90 bg-white p-3 text-left shadow-2xs transition-shadow hover:shadow-xs lg:w-[158px] lg:shrink 2xl:h-[168px] 2xl:w-[200px] 2xl:p-3.5">
+                  <div className="flex h-[158px] w-full max-w-[280px] flex-col justify-between rounded-[14px] border border-zinc-200/90 bg-white p-3 text-left shadow-2xs transition-shadow hover:shadow-xs lg:w-[168px] lg:shrink 2xl:h-[168px] 2xl:w-[214px] 2xl:p-3.5">
                     <div className="flex items-center justify-between">
                       <div className="flex size-8 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#155DFC] 2xl:size-9">
                         <Icon className="size-4 2xl:size-5" />

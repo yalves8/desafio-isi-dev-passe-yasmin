@@ -1,0 +1,65 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - img "Passe" [ref=e7]
+        - generic [ref=e8]: Passe
+      - generic [ref=e9]:
+        - generic [ref=e11]: Liga Fictícia 2026
+        - generic [ref=e12]: ·
+        - generic [ref=e13]: nenhuma partida ainda
+      - heading "Gestão da liga, do mercado à classificação" [level=1] [ref=e14]
+      - paragraph [ref=e15]: Cadastre jogadores, monte os clubes e negocie com contrato de fidelidade. Depois, escale os titulares e jogue partidas com placar calculado pelos atributos.
+      - generic [ref=e16]:
+        - button "Iniciar" [ref=e17] [cursor=pointer]
+        - generic [ref=e18]:
+          - text: ou tecle
+          - generic [ref=e19]: Enter
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e27]: "0"
+          - generic [ref=e28]: jogadores
+        - generic [ref=e30]:
+          - generic [ref=e34]: "0"
+          - generic [ref=e35]: livres
+        - generic [ref=e37]:
+          - generic [ref=e40]: "0"
+          - generic [ref=e41]: clubes
+        - generic [ref=e43]:
+          - generic [ref=e53]: "0"
+          - generic [ref=e54]: partidas
+        - generic [ref=e56]: Não precisa de login
+    - generic [ref=e61]:
+      - generic [ref=e62]:
+        - generic [ref=e63]:
+          - generic [ref=e64]: "01"
+          - generic [ref=e72]:
+            - heading "Jogadores" [level=3] [ref=e73]
+            - paragraph [ref=e74]: Nascem livres e Apto; o valor de mercado vem da condição, agilidade e idade.
+        - generic [ref=e77]:
+          - generic [ref=e78]: "02"
+          - generic [ref=e83]:
+            - heading "Clubes" [level=3] [ref=e84]
+            - paragraph [ref=e85]: Começam com 300,00 em caixa e sem jogadores.
+        - generic [ref=e88]:
+          - generic [ref=e89]: "03"
+          - generic [ref=e97]:
+            - heading "Compra" [level=3] [ref=e98]
+            - paragraph [ref=e99]: Valor + taxa, até 50% do caixa, com contrato de fidelidade.
+        - generic [ref=e102]:
+          - generic [ref=e103]: "04"
+          - generic [ref=e112]:
+            - heading "Venda" [level=3] [ref=e113]
+            - paragraph [ref=e114]: Multa antes do fim da fidelidade e comissão sobre o lucro.
+        - generic [ref=e117]:
+          - generic [ref=e118]: "05"
+          - generic [ref=e125]:
+            - heading "Histórico" [level=3] [ref=e126]
+            - paragraph [ref=e127]: Toda compra e venda fica registrada, com totais e CSV.
+        - generic [ref=e130]:
+          - generic [ref=e131]: "06"
+          - generic [ref=e140]:
+            - heading "Liga" [level=3] [ref=e141]
+            - paragraph [ref=e142]: Escale 5 titulares e jogue partidas que entram na classificação.
+      - generic [ref=e143]: Liga Fictícia 2026 · Horário de Brasília (UTC−3)
+  - region "Notifications alt+T"
