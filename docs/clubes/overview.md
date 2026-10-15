@@ -73,8 +73,6 @@ Endpoints que o frontend já consome, mas que **ainda não existem** no backend 
 |--------|------|--------------|
 | `GET` | `/clubs/:id/lineup` | `clubsService.getLineup` — aba Escalação |
 | `PUT` | `/clubs/:id/lineup` | `clubsService.updateLineup` — aba Escalação |
-| `GET` | `/clubs/:id/transactions` | `clubsService.getTransactions` — aba Histórico e contador da aba |
-| `GET` | `/clubs/:id/transactions/export` | `clubsService.exportTransactions` — exportação CSV |
 
 ### Ordenação de `GET /clubs`
 
@@ -181,7 +179,7 @@ O botão "Novo clube" fica desabilitado com explicação quando a lista já tem 
 | `squad-table`, `penalty-rate-tag` | Elenco na ordem da RN11 com valor de mercado, valor de compra, fim da fidelidade, dias restantes e % de multa (0% verde, 5%/10% âmbar, 20% vermelho) |
 | `sell-player-dialog`, `sale-result-dialog` | Venda a partir do elenco (detalhes em [Venda](../venda/overview.md)) |
 | `lineup-editor`, `formation-picker`, `lineup-slots`, `lineup-pitch`, `lineup-reserves` | Aba Escalação (RN19) — depende de endpoints pendentes |
-| `transactions-history`, `transactions-summary`, `transactions-table` | Aba Histórico, totais e CSV (RN17/RN18) — depende de endpoints pendentes |
+| `transactions-history`, `transactions-summary`, `transactions-table` | Aba Histórico, totais e CSV (RN17/RN18) — ver [Histórico](../historico/overview.md) |
 
 ### Erros 409 no diálogo
 
@@ -195,16 +193,14 @@ As validações de formato são feitas no formulário antes do envio. Nome repet
 
 ## Pendências
 
-Conferido em `backend/src/clubs/presentation/controllers/clubs.controller.ts`: o controller só declara `POST /clubs`, `GET /clubs` e `GET /clubs/:id`. Nenhum outro controller do backend declara rotas de escalação ou de histórico. Os endpoints abaixo já são chamados pelo frontend e hoje respondem `404`:
+O histórico (`GET /clubs/:id/transactions` e `/export`) já está implementado no módulo `transfers` (ver [Histórico](../historico/overview.md)). Nenhum controller do backend declara ainda as rotas de escalação; os endpoints abaixo já são chamados pelo frontend e hoje respondem `404`:
 
 | Endpoint | Regra do desafio | Efeito atual na tela |
 |----------|------------------|----------------------|
 | `GET /clubs/:id/lineup` | RN19 | A aba Escalação mostra o estado de erro |
 | `PUT /clubs/:id/lineup` | RN19 | Salvar a escalação falha |
-| `GET /clubs/:id/transactions` | RN17 | A aba Histórico mostra erro e o contador da aba não aparece |
-| `GET /clubs/:id/transactions/export` | RN18 | A exportação CSV falha |
 
-Já existem no banco as tabelas `escalacoes` e `transacoes` e a coluna `clubes.formacao`. A compra e a venda já gravam em `transacoes`, e a venda já remove o jogador de `escalacoes`.
+Já existem no banco a tabela `escalacoes` e a coluna `clubes.formacao`, e a venda já remove o jogador de `escalacoes`.
 
 ---
 

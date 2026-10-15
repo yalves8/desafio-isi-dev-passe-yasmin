@@ -9,6 +9,14 @@ import type {
   TransactionsResponse,
 } from './types'
 
+/** Query da API: `type` com os tipos separados por vírgula (RN17); filtro ausente não vai */
+function transactionParams({ types, player_id }: TransactionFilters) {
+  return {
+    ...(types?.length ? { type: types.join(',') } : {}),
+    ...(player_id === undefined ? {} : { player_id }),
+  }
+}
+
 export const clubsService = {
   async list(sort?: ClubSort): Promise<Club[]> {
     const params = sort ? { sort } : undefined
@@ -41,7 +49,7 @@ export const clubsService = {
     filters: TransactionFilters = {},
   ): Promise<TransactionsResponse> {
     const { data } = await api.get<TransactionsResponse>(`/clubs/${id}/transactions`, {
-      params: filters,
+      params: transactionParams(filters),
     })
     return data
   },
@@ -49,7 +57,7 @@ export const clubsService = {
   async exportTransactions(id: number, filters: TransactionFilters = {}): Promise<Blob> {
     try {
       const { data } = await api.get<Blob>(`/clubs/${id}/transactions/export`, {
-        params: filters,
+        params: transactionParams(filters),
         responseType: 'blob',
       })
       return data

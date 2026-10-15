@@ -1,61 +1,80 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { clubsService } from '@/api/clubs.service'
-import type { Club, TransactionFilters, TransactionType } from '@/api/types'
+import type { Club, TransactionType } from '@/api/types'
 import { useAction } from '@/hooks/use-action'
 import { useFetch } from '@/hooks/use-fetch'
-import { csvFileName, playerOptions } from './transactions-history.utils'
+import {
+  csvFileName,
+  exportedFiltersText,
+  playerOptions,
+  toggleType,
+  toTransactionFilters,
+  TRANSACTION_TYPES,
+} from './transactions-history.utils'
+
+const ALL_TYPES = TRANSACTION_TYPES.map((t) => t.value)
 
 export function useTransactionsHistory({ club, version }: { club: Club; version: number }) {
-  const [type, setType] = useState<TransactionType>()
+  const [types, setTypes] = useState<TransactionType[]>(ALL_TYPES)
   const [playerId, setPlayerId] = useState<number>()
-  const filters: TransactionFilters = { type, player_id: playerId }
+  const filters = toTransactionFilters(types, playerId)
+  const hasFilters = filters.types !== undefined || playerId !== undefined
 
   const history = useFetch(
     `transactions:${club.id}:${JSON.stringify(filters)}:${version}`,
     () => clubsService.getTransactions(club.id, filters),
     { keepPreviousData: true },
   )
-  // Sem filtro: base das opções de jogador
+  // Sem filtro: base das opções de jogador (inclui quem já foi vendido)
   const all = useFetch(`transactions-all:${club.id}:${version}`, () =>
     clubsService.getTransactions(club.id),
   )
+  const options = playerOptions(all.data?.data ?? [])
+  const playerName = options.find((o) => o.value === String(playerId))?.label
 
+  // O CSV usa os mesmos filtros da tela (RN18)
   const exportCsv = useAction(() => clubsService.exportTransactions(club.id, filters), {
     errorTitle: 'Não foi possível exportar o histórico',
   })
 
+  const clear = () => {
+    setTypes(ALL_TYPES)
+    setPlayerId(undefined)
+  }
+
   return {
     filters: {
-      type,
-      onTypeChange: (value: string) =>
-        setType(value === 'ALL' ? undefined : (value as TransactionType)),
+      types,
+      onToggleType: (type: TransactionType) => setTypes((current) => toggleType(current, type)),
+      /** O último tipo marcado não pode ser desmarcado */
+      isTypeLocked: (type: TransactionType) => types.length === 1 && types[0] === type,
       playerId,
+      playerLabel: playerName ?? 'todos',
+      playerOptions: options,
       onPlayerChange: (value: string) => setPlayerId(value === 'ALL' ? undefined : Number(value)),
-      playerOptions: playerOptions(all.data?.data ?? []),
-      hasFilters: type !== undefined || playerId !== undefined,
-      clear: () => {
-        setType(undefined)
-        setPlayerId(undefined)
-      },
+      hasFilters,
+      clear,
     },
     history: {
       data: history.data,
       loading: history.loading,
       error: history.error,
     },
+    clubCash: club.cash,
     exporting: exportCsv.isPending,
     onExport: async () => {
       const result = await exportCsv.run()
       if (!result.ok) return
+      const fileName = csvFileName(club.id)
       const url = URL.createObjectURL(result.data)
       const link = document.createElement('a')
       link.href = url
-      link.download = csvFileName(club.acronym)
+      link.download = fileName
       link.click()
       URL.revokeObjectURL(url)
-      toast.success('Histórico exportado', {
-        description: `${link.download} com os filtros atuais.`,
+      toast.success('CSV baixado', {
+        description: `${fileName}, ${exportedFiltersText(filters, playerName)}.`,
       })
     },
   }

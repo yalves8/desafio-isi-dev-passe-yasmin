@@ -108,8 +108,9 @@ export interface TransactionsResponse {
   summary: TransactionsSummary
 }
 
+/** Filtros do histórico; sem `types`, vêm compras e vendas */
 export interface TransactionFilters {
-  type?: TransactionType
+  types?: TransactionType[]
   player_id?: number
 }
 

@@ -2,7 +2,7 @@ import { render, screen, within } from '@testing-library/react'
 import { TransactionsTable } from './transactions-table'
 
 describe('TransactionsTable', () => {
-  it('deve mostrar compra e venda com a variação do caixa sinalizada', () => {
+  it('deve mostrar compra e venda como foram gravadas, com sinal e cor (H01)', () => {
     render(
       <TransactionsTable
         transactions={[
@@ -15,7 +15,7 @@ describe('TransactionsTable', () => {
             value: 40,
             fee: 0.3,
             penalty: 4,
-            profit: 3,
+            profit: -5.7,
             cash_change: 35.7,
             created_at: '2026-11-05T16:40:00-03:00',
           },
@@ -37,10 +37,13 @@ describe('TransactionsTable', () => {
     )
 
     const [sale, buy] = screen.getAllByRole('row').slice(1)
-    expect(within(sale).getByText('Venda')).toBeInTheDocument()
-    expect(within(sale).getByText('+35,70')).toHaveClass('text-green-700')
+    expect(within(sale).getByText('05/11/2026')).toBeInTheDocument()
     expect(within(sale).getByText('16:40')).toBeInTheDocument()
-    expect(within(buy).getByText('-38,85')).toHaveClass('text-red-600')
-    expect(within(buy).getByText('—')).toBeInTheDocument()
+    expect(within(sale).getByText('Venda')).toBeInTheDocument()
+    expect(within(sale).getByText('−5,70')).toHaveClass('text-red-600')
+    expect(within(sale).getByText('+35,70')).toHaveClass('text-green-700')
+    expect(within(buy).getByText('Compra')).toBeInTheDocument()
+    expect(within(buy).getByText('−38,85')).toHaveClass('text-red-600')
+    expect(within(buy).getByLabelText('sem lucro na compra')).toHaveTextContent('–')
   })
 })

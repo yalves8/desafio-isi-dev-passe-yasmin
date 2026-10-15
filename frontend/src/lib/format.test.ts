@@ -2,6 +2,7 @@ import {
   formatDate,
   formatInteger,
   formatMoney,
+  formatSigned,
   formatTime,
   getInitials,
   normalizeText,
@@ -17,6 +18,12 @@ describe('format', () => {
     expect(formatMoney(1234.5)).toBe('1.234,50')
     expect(formatMoney(-38.85)).toBe('-38,85')
     expect(formatInteger(1089)).toBe('1.089')
+  })
+
+  it('deve formatar valores com sinal, sem sinal no zero', () => {
+    expect(formatSigned(3)).toBe('+3,00')
+    expect(formatSigned(-5.7)).toBe('−5,70')
+    expect(formatSigned(0)).toBe('0,00')
   })
 
   it('deve gerar iniciais e normalizar texto', () => {

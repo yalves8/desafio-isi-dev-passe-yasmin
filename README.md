@@ -57,7 +57,7 @@ As variáveis são validadas com zod na subida: se faltar `DATABASE_URL`, a API 
 | `VITE_API_URL` | URL da API, embutida no build. O prefixo `/api/v1` é adicionado se faltar | `http://localhost:3000` |
 
 ## Funcionalidades
-Cada feature tem uma documentação detalhada (arquitetura, regras de negócio, endpoints, banco, tela e como testar) em [`docs/`](docs/README.md): [tela inicial](docs/home-page/overview.md), [jogadores](docs/jogadores/overview.md), [clubes](docs/clubes/overview.md), [compra](docs/compra/overview.md) e [venda](docs/venda/overview.md).
+Cada feature tem uma documentação detalhada (arquitetura, regras de negócio, endpoints, banco, tela e como testar) em [`docs/`](docs/README.md): [tela inicial](docs/home-page/overview.md), [jogadores](docs/jogadores/overview.md), [clubes](docs/clubes/overview.md), [compra](docs/compra/overview.md), [venda](docs/venda/overview.md) e [histórico](docs/historico/overview.md).
 
 ### Tela inicial (`/`)
 Apresenta a liga sobre um campo de futebol, com números da liga (jogadores, livres, clubes) e as 6 etapas do sistema. **Iniciar** (ou a tecla Enter) leva à tela de jogadores.
@@ -82,7 +82,7 @@ Apresenta a liga sobre um campo de futebol, com números da liga (jogadores, liv
 - **Detalhe do clube**: caixa, valor do elenco, patrimônio e lotação do elenco, como a API calcula. A trilha mostra o nome do clube.
   - **Elenco**: ordem da RN11, com valor de compra, fim da fidelidade, dias restantes e % de multa de cada contrato. **Vender** pede confirmação e mostra o resultado devolvido pela API (multa, lucro, comissão, crédito e novo caixa).
   - **Escalação**: formação (3-1, 2-2, 2-1-1 ou 1-2-1), um titular por vaga (sem jogador `DOENTE`), atributos usados na partida pela RN20, prévia no campo e reservas. Mostra quando a escalação está incompleta e por quê, avisa sobre titulares mal condicionados e exibe a recusa da API (`409`) no próprio card, recarregando o que ficou gravado.
-  - **Histórico**: compras e vendas com os totais do `summary`, filtros por tipo e por jogador e exportação CSV com os mesmos filtros.
+  - **Histórico**: compras e vendas da mais recente para a mais antiga, com o nome e os valores do momento; filtro por tipo (Compra e/ou Venda) e por jogador; totais do `summary` no rodapé; exportação CSV com os mesmos filtros. Filtro recusado pela API (ex.: jogador excluído depois de a tela abrir) aparece no próprio card.
 - **Comprar jogadores** e **Ver jogadores livres** levam para a aba "Livres" da tela de jogadores.
 
 ### Em toda ação
@@ -109,7 +109,8 @@ Prefixo `/api/v1`, exceto `/health`. A documentação completa está no Swagger 
 | GET | `/clubs` | Lista clubes. Query: `sort` (`name`, `net_worth_asc`, `net_worth_desc`) |
 | GET | `/clubs/:id` | Detalhe do clube com elenco |
 | GET/PUT | `/clubs/:id/lineup` | Escalação do clube (RN19) — *usado pelo frontend; ainda não implementado na API* |
-| GET | `/clubs/:id/transactions`, `/clubs/:id/transactions/export` | Histórico e CSV (RN17 e RN18) — *usado pelo frontend; ainda não implementado na API* |
+| GET | `/clubs/:id/transactions` | Histórico do clube com `summary`. Query: `type` (`COMPRA`, `VENDA` ou os dois, separados por vírgula) e `player_id` (RN17) |
+| GET | `/clubs/:id/transactions/export` | Histórico em CSV (`text/csv`, `;`, vírgula decimal), com os mesmos filtros (RN18) |
 | POST | `/players/:id/buy` | Compra jogador livre: desconta o caixa, cria o contrato `ATIVO` e grava a transação `COMPRA` numa única operação (RN12 a RN14) |
 | POST | `/players/:id/sell` | Venda pelo clube atual: multa por fidelidade, comissão sobre o lucro, contrato `RESCINDIDO` ou `ENCERRADO`, saída da escalação e transação `VENDA` numa única operação (RN15 e RN16) |
 
@@ -227,7 +228,7 @@ Os ADRs completos estão em [`docs/adr/`](docs/adr).
 - A recusa pelo limite de 50% do caixa mostra o limite exato, sem arredondar (caixa 261,15 → limite 130,575), como a RN13 define.
 
 ## Funcionalidades não implementadas
-- **API de escalação e histórico** (`GET/PUT /clubs/:id/lineup`, `GET /clubs/:id/transactions[/export]`). A tela de clubes já chama esses endpoints exatamente como o desafio especifica e trata `400`/`404`/`409`; até a API existir, as abas Escalação e Histórico mostram o erro devolvido.
+- **API de escalação** (`GET/PUT /clubs/:id/lineup`). A tela de clubes já chama esses endpoints exatamente como o desafio especifica e trata `400`/`404`/`409`; até a API existir, a aba Escalação mostra o erro devolvido.
 - **Partidas e classificação**: o card "Última partida" e o contador de partidas mostram um placeholder.
 
 ## Uso de inteligência artificial
