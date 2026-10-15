@@ -62,7 +62,7 @@ describe('StandingsPage', () => {
       'Águias FC',
     ])
     expect(within(rows[0]).getByText('+1')).toBeInTheDocument()
-    expect(within(rows[2]).getByText('−1')).toBeInTheDocument()
+    expect(within(rows[2]).getByText('-1')).toBeInTheDocument()
     expect(within(rows[0]).getByRole('link')).toHaveAttribute('href', '/clubes/2')
     expect(screen.getByRole('region', { name: 'Últimas partidas' })).toHaveTextContent(
       'Águias FC1 × 2Delta FC',

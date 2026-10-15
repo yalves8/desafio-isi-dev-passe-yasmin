@@ -42,10 +42,10 @@ describe('TransactionsTable', () => {
     expect(within(sale).getByText('05/11/2026')).toBeInTheDocument()
     expect(within(sale).getByText('16:40')).toBeInTheDocument()
     expect(within(sale).getByText('Venda')).toBeInTheDocument()
-    expect(within(sale).getByText('−5,70')).toHaveClass('text-red-600')
+    expect(within(sale).getByText('-5,70')).toHaveClass('text-red-600')
     expect(within(sale).getByText('+35,70')).toHaveClass('text-green-700')
     expect(within(buy).getByText('Compra')).toBeInTheDocument()
-    expect(within(buy).getByText('−38,85')).toHaveClass('text-red-600')
+    expect(within(buy).getByText('-38,85')).toHaveClass('text-red-600')
     expect(within(buy).getByLabelText('sem lucro na compra')).toHaveTextContent('–')
   })
 

@@ -19,6 +19,6 @@ describe('TransactionsSummary', () => {
     expect(screen.getByText('Total recebido em vendas').nextSibling).toHaveTextContent('61,54')
     expect(screen.getByText('Taxas e comissões').nextSibling).toHaveTextContent('12,63')
     expect(screen.getByText('Multas').nextSibling).toHaveTextContent('10,46')
-    expect(screen.getByText('−2,70')).toHaveClass('text-red-600')
+    expect(screen.getByText('-2,70')).toHaveClass('text-red-600')
   })
 })

@@ -24,7 +24,7 @@ const COLUMNS: DataTableColumn[] = [
   ...STATS.map((col) => ({ ...col, numeric: true, className: 'w-12' })),
 ]
 
-const signedInt = (value: number) => (value > 0 ? `+${value}` : value < 0 ? `−${-value}` : '0')
+const signedInt = (value: number) => (value > 0 ? `+${value}` : value < 0 ? `-${-value}` : '0')
 
 /** Classificação (Figma L05) na ordem devolvida por GET /standings; nada é recalculado (RN21) */
 export function StandingsTable({

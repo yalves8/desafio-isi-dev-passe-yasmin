@@ -22,7 +22,7 @@ describe('format', () => {
 
   it('deve formatar valores com sinal, sem sinal no zero', () => {
     expect(formatSigned(3)).toBe('+3,00')
-    expect(formatSigned(-5.7)).toBe('−5,70')
+    expect(formatSigned(-5.7)).toBe('-5,70')
     expect(formatSigned(0)).toBe('0,00')
   })
 

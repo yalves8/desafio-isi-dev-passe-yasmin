@@ -28,10 +28,10 @@ export function formatMoney(value: number) {
   return moneyFormat.format(value)
 }
 
-/** Valor com sinal, com o menos tipográfico (ex.: +3,00, −5,70 e 0,00) */
+/** Valor com sinal, com "+" na entrada e "-" na saída (ex.: +3,00, -5,70 e 0,00) */
 export function formatSigned(value: number) {
   if (value === 0) return formatMoney(0)
-  return `${value > 0 ? '+' : '−'}${formatMoney(Math.abs(value))}`
+  return `${value > 0 ? '+' : '-'}${formatMoney(Math.abs(value))}`
 }
 
 /** Inteiro com separador de milhar (ex.: 1.089) */

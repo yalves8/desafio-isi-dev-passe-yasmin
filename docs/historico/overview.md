@@ -149,7 +149,7 @@ A aba **Histórico** da página do clube segue os frames H01 a H05 do Figma, num
 | Filtro **Tipo** | Duas caixas, Compra e Venda, marcadas por padrão. Desmarcar uma filtra pela outra (`type=VENDA`); a última marcada não pode ser desmarcada. As duas marcadas equivalem a não filtrar por tipo |
 | Filtro **Jogador** | "Jogador: todos" ou o nome escolhido. As opções vêm do histórico completo do clube, então incluem jogadores já vendidos |
 | **Limpar filtros** | Aparece com qualquer filtro ativo e volta ao padrão |
-| Tabela | Data e hora na mesma linha; tipo com ícone; avatar e nome do momento; valor, taxa ou comissão, multa, lucro (`–` na compra) e variação do caixa. Lucro e variação com sinal (`+3,00`, `−38,85`) em verde ou vermelho |
+| Tabela | Data e hora na mesma linha; tipo com ícone; avatar e nome do momento; valor, taxa ou comissão, multa, lucro (`–` na compra) e variação do caixa. Lucro e variação com sinal (`+3,00`, `-38,85`) em verde ou vermelho |
 | Totais | Faixa no rodapé do card com os 5 totais do `summary`: total pago em compras, total recebido em vendas, taxas e comissões, multas e lucro total (com sinal e cor) |
 | Nota | "Os totais respeitam os filtros. 300,00 + soma das variações = caixa atual (X)", com o caixa devolvido pela API |
 
