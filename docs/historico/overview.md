@@ -159,9 +159,20 @@ A aba **Histórico** da página do clube segue os frames H01 a H05 do Figma, num
 | H02 | Só vendas e CSV exportado | Filtro por tipo; o CSV usa os mesmos filtros e o aviso "CSV baixado" diz o arquivo e os filtros (ex.: `historico-clube-1.csv, com o filtro de tipo Venda aplicado.`) |
 | H03 | Por jogador | Só as transações do jogador, com os totais delas |
 | H04 | Vazio | "Nenhuma transação ainda", com os totais zerados; com filtros, "Nenhuma transação com esses filtros" |
-| H05 | Filtro recusado | Com filtro ativo e erro da API (ex.: jogador excluído depois de a tela abrir), alerta "O filtro foi recusado" com o `message`, sem tabela, totais nem nota; os filtros continuam na tela. Sem filtro, o erro aparece com "Tentar de novo" |
+| H05 | Filtro recusado | Com filtro ativo e erro da API (ex.: jogador excluído depois de a tela abrir), alerta "O filtro foi recusado" com o `message`, sem tabela, totais nem nota; os filtros continuam na tela. Sem filtro, o erro ocupa o lugar do card (E05) |
 
 O contador da aba Histórico mostra o total sem filtros. A tela nunca recalcula valores: tudo vem da API.
+
+### Estados da tela
+
+| Estado | Comportamento |
+|--------|---------------|
+| Carregando | Esqueleto dentro do card |
+| Vazio | "Nenhuma transação ainda" (ou "com esses filtros"), com os totais zerados (H04) |
+| Erro sem filtros | "Não foi possível carregar o histórico" no lugar do card inteiro, com o `message` da API, o aviso de que os totais e a exportação ficam indisponíveis e **Tentar de novo** (E05) |
+| Erro com filtros | "O filtro foi recusado" dentro do card, mantendo os filtros (H05) |
+
+Padrão comum a todas as telas em [Estados das telas](../estados/overview.md).
 
 ---
 

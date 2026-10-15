@@ -112,6 +112,16 @@ A classificação não tem tabela: é calculada de `clubes` e `partidas` a cada 
 
 Os titulares no campo e nos duelos são montados só a partir dos duelos gravados (`startersFromDuels`): a tela não recalcula valores. O menu mostra o total de partidas e a última partida; a tela inicial, o total e o líder.
 
+### Estados da tela
+
+| Tela | Carregando | Vazio | Erro |
+|------|------------|-------|------|
+| Partidas | Esqueleto na última partida e na tabela | Liga sem partidas: só "Nenhuma partida jogada" com **Nova partida** (E06); com filtro: "Nenhuma partida desse clube" | "Não foi possível carregar as partidas" |
+| Partida | Esqueleto do placar e do campo | — | "Não foi possível carregar a partida" e **Voltar para partidas** |
+| Classificação | Esqueleto na tabela | "Nenhum clube cadastrado" | "Não foi possível carregar a classificação" |
+
+Padrão comum a todas as telas em [Estados das telas](../estados/overview.md).
+
 ---
 
 ## Como testar

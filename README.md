@@ -57,7 +57,7 @@ As variáveis são validadas com zod na subida: se faltar `DATABASE_URL`, a API 
 | `VITE_API_URL` | URL da API, embutida no build. O prefixo `/api/v1` é adicionado se faltar | `http://localhost:3000` |
 
 ## Funcionalidades
-Cada feature tem uma documentação detalhada (arquitetura, regras de negócio, endpoints, banco, tela e como testar) em [`docs/`](docs/README.md): [tela inicial](docs/home-page/overview.md), [jogadores](docs/jogadores/overview.md), [clubes](docs/clubes/overview.md), [compra](docs/compra/overview.md), [venda](docs/venda/overview.md), [histórico](docs/historico/overview.md), [escalação](docs/escalacao/overview.md) e [liga](docs/liga/overview.md).
+Cada feature tem uma documentação detalhada (arquitetura, regras de negócio, endpoints, banco, tela e como testar) em [`docs/`](docs/README.md): [tela inicial](docs/home-page/overview.md), [jogadores](docs/jogadores/overview.md), [clubes](docs/clubes/overview.md), [compra](docs/compra/overview.md), [venda](docs/venda/overview.md), [histórico](docs/historico/overview.md), [escalação](docs/escalacao/overview.md) e [liga](docs/liga/overview.md); os estados de carregando, vazio e erro de todas as telas estão em [estados](docs/estados/overview.md).
 
 ### Tela inicial (`/`)
 Apresenta a liga sobre um campo de futebol, com números da liga (jogadores, livres, clubes) e as 6 etapas do sistema. **Iniciar** (ou a tecla Enter) leva à tela de jogadores.

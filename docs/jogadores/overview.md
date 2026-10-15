@@ -235,6 +235,16 @@ Depois de cada ação a lista e a barra lateral são recarregadas, a linha alter
 | Potencial | 1 a 99; ≥ maior atributo; igual ao maior com 33 anos ou mais | Igual |
 | Posição | Uma das 5 | Uma das 5; com clube não muda (409) |
 
+### Estados da tela
+
+| Estado | Comportamento (Figma E01 a E03) |
+|--------|---------------------------------|
+| Carregando | "Carregando jogadores…" no lugar das abas e 10 linhas-esqueleto com a forma de cada coluna |
+| Lista vazia | Sem filtros: "Nenhum jogador cadastrado" com **Novo jogador**. Com filtros: "Nenhum jogador encontrado para “{busca}”" com **Limpar filtros**; os chips de filtros continuam acima |
+| Erro | "Não foi possível carregar os jogadores" no lugar do card, com o `message` da API e **Tentar de novo** |
+
+Padrão comum a todas as telas em [Estados das telas](../estados/overview.md).
+
 ---
 
 ## Como testar

@@ -184,6 +184,15 @@ As validações de formato são feitas no formulário antes do envio. Nome repet
 
 `frontend/src/components/layout/app-sidebar.tsx` lista os clubes (`clubsService.list('name')`) com link para `/clubes/{id}`, um "+" que leva a `/clubes?novo=1` e o contador de clubes ao lado do item "Clubes".
 
+### Estados da tela
+
+| Tela | Carregando | Vazio | Erro |
+|------|------------|-------|------|
+| Lista (`/clubes`) | Linhas-esqueleto | "Nenhum clube cadastrado" com **Novo clube** | "Não foi possível carregar os clubes" com **Tentar de novo** |
+| Detalhe (`/clubes/:id`) | Esqueleto do cabeçalho, dos cards e da tabela | Elenco: "Nenhum jogador no elenco" com **Ver jogadores livres** | `404`: "Clube não encontrado", trilha "Clube {id}" e **Voltar para clubes** (E04); outra falha: "Não foi possível carregar o clube" com **Tentar de novo** |
+
+Padrão comum a todas as telas em [Estados das telas](../estados/overview.md).
+
 ---
 
 
