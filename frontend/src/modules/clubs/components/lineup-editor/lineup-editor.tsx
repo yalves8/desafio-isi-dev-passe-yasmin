@@ -1,4 +1,4 @@
-import { Check, CircleCheck, Swords, TriangleAlert } from 'lucide-react'
+import { Check, CircleCheck, PencilLine, Swords, TriangleAlert } from 'lucide-react'
 import { Tag } from '@/components/data-display/tag/tag'
 import { AlertMessage } from '@/components/feedback/alert-message/alert-message'
 import { Button } from '@/components/ui/button'
@@ -48,7 +48,11 @@ export function LineupEditor({
                 vez.
               </p>
             </div>
-            {lineup.complete ? (
+            {editor.hasChanges ? (
+              <Tag variant="muted">
+                <PencilLine className="size-3" aria-hidden /> Alterações não salvas
+              </Tag>
+            ) : lineup.complete ? (
               <Tag variant="success">
                 <CircleCheck className="size-3" aria-hidden /> Completa
               </Tag>

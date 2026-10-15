@@ -1,7 +1,7 @@
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router'
 import { Tag } from '@/components/data-display/tag/tag'
-import { formatDate, formatTime } from '@/lib/format'
+import { formatDateTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { scoreLabel, winnerSide } from '../../league.utils'
 import type { RecentMatchesProps } from './recent-matches.types'
@@ -28,7 +28,7 @@ export function RecentMatches({ matches }: RecentMatchesProps) {
             return (
               <Link key={match.id} to={`/partidas/${match.id}`} className="group block">
                 <p className="text-xs text-muted-foreground tabular-nums">
-                  {formatDate(match.played_at)}, {formatTime(match.played_at)}
+                  {formatDateTime(match.played_at)}
                 </p>
                 <p className="flex flex-wrap items-center gap-2 text-sm group-hover:underline">
                   <span className={cn(winner === 'home' && 'font-semibold')}>

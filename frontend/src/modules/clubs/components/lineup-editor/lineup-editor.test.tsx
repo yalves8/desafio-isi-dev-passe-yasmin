@@ -49,6 +49,18 @@ describe('LineupEditor', () => {
     expect(onSave).toHaveBeenCalledWith('2-1-1', [1, 2, 3, 4, 5])
   })
 
+  it('deve avisar alterações não salvas e voltar ao selo da escalação gravada ao cancelar', async () => {
+    const user = userEvent.setup()
+    renderEditor()
+
+    await user.click(screen.getByRole('radio', { name: /1-2-1/ }))
+    expect(screen.getByText('Alterações não salvas')).toBeInTheDocument()
+    expect(screen.queryByText('Completa')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Cancelar' }))
+    expect(screen.getByText('Completa')).toBeInTheDocument()
+  })
+
   it('deve apontar a vaga vazia ao salvar, sem enviar', async () => {
     const user = userEvent.setup()
     const onSave = renderEditor()

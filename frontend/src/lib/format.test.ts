@@ -1,5 +1,6 @@
 import {
   formatDate,
+  formatDateTime,
   formatInteger,
   formatMoney,
   formatSigned,
@@ -12,6 +13,7 @@ describe('format', () => {
   it('deve formatar data e hora no horário de Brasília', () => {
     expect(formatDate('2028-11-03T11:20:00-03:00')).toBe('03/11/2028')
     expect(formatTime('2028-11-03T14:20:00Z')).toBe('11:20')
+    expect(formatDateTime('2028-11-03T11:20:00-03:00')).toBe('03/11/2028 11:20')
   })
 
   it('deve formatar moedas com 2 casas e inteiros com milhar', () => {

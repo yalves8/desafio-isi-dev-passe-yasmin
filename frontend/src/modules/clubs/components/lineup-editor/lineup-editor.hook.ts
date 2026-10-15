@@ -44,6 +44,14 @@ export function useLineupEditor({
   const starters = rows.flatMap((r) => (r.player ? [r.player] : []))
   const chosenIds = new Set(starters.map((p) => p.id))
   const filled = rows.every((r) => r.player)
+  // O selo de completa/incompleta fala da escalação gravada; com edição pendente, avisa
+  const savedIds = lineup.players
+    .map((p) => p.id)
+    .sort((a, b) => a - b)
+    .join()
+  const chosen = [...chosenIds].sort((a, b) => a - b).join()
+  const hasChanges =
+    lineup.formation !== null && (formation !== lineup.formation || chosen !== savedIds)
 
   return {
     formation,
@@ -51,6 +59,7 @@ export function useLineupEditor({
     reserves: squad.filter((p) => !chosenIds.has(p.id)),
     worn: starters.filter((p) => p.condition === 'MAL_CONDICIONADO'),
     filled,
+    hasChanges,
     canClose: canAnyFormationClose(squad),
     /** Troca a formação mantendo quem ainda cabe nas vagas novas, na ordem do elenco */
     changeFormation: (next: Formation) => {

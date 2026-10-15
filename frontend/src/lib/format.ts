@@ -23,6 +23,11 @@ export function formatTime(iso: string) {
   return timeFormat.format(new Date(iso))
 }
 
+/** Data e hora no horário de Brasília, no mesmo formato em toda a tela (ex.: 03/11/2028 11:20) */
+export function formatDateTime(iso: string) {
+  return `${formatDate(iso)} ${formatTime(iso)}`
+}
+
 /** Valores em moedas: 2 casas e vírgula decimal, sem símbolo (ex.: 1.234,50) */
 export function formatMoney(value: number) {
   return moneyFormat.format(value)

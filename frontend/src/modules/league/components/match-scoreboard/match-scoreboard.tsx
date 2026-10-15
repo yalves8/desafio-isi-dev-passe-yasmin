@@ -1,5 +1,5 @@
 import { Tag } from '@/components/data-display/tag/tag'
-import { formatDate, formatTime } from '@/lib/format'
+import { formatDateTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { ClubBadge } from '@/modules/clubs'
 import { RESULT_LABEL } from '../../league.constants'
@@ -42,7 +42,7 @@ export function MatchScoreboard({
           {scoreLabel(match)}
         </span>
         <span className="text-xs text-muted-foreground tabular-nums">
-          {formatDate(match.played_at)}, {formatTime(match.played_at)}
+          {formatDateTime(match.played_at)}
         </span>
         <Tag>{RESULT_LABEL[match.result]}</Tag>
       </div>

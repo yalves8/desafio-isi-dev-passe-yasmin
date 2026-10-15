@@ -52,8 +52,13 @@ export const SECTORS: Record<
   LineupSector,
   { label: string; positions: string; empty: string; short: string }
 > = {
-  GK: { label: 'Goleiro', positions: 'GOL', empty: 'Sem GOL no elenco', short: 'Goleiro' },
-  DEF: { label: 'Defesa', positions: 'ZAG ou LAT', empty: 'Sem ZAG ou LAT', short: 'Defesa' },
-  MID: { label: 'Meio', positions: 'MEI', empty: 'Sem MEI no elenco', short: 'Meio' },
-  ATT: { label: 'Ataque', positions: 'ATA', empty: 'Sem ATA no elenco', short: 'Ataque' },
+  GK: { label: 'Goleiro', positions: 'GOL', empty: 'Nenhum GOL disponível', short: 'Goleiro' },
+  DEF: {
+    label: 'Defesa',
+    positions: 'ZAG ou LAT',
+    empty: 'Nenhum ZAG ou LAT disponível',
+    short: 'Defesa',
+  },
+  MID: { label: 'Meio', positions: 'MEI', empty: 'Nenhum MEI disponível', short: 'Meio' },
+  ATT: { label: 'Ataque', positions: 'ATA', empty: 'Nenhum ATA disponível', short: 'Ataque' },
 }

@@ -35,7 +35,7 @@ describe('PurchaseResultDialog', () => {
     expect(screen.getByText('5% do valor, porque passa de 30,00')).toBeInTheDocument()
     expect(screen.getByText('2,30')).toBeInTheDocument()
     expect(screen.getByText('48,30')).toBeInTheDocument()
-    expect(screen.getByText('12/11/2027, 15:00')).toBeInTheDocument()
+    expect(screen.getByText('12/11/2027 15:00')).toBeInTheDocument()
     expect(screen.getByText('ATIVO')).toBeInTheDocument()
     expect(screen.getByText('Novo caixa do Tubarões EC')).toBeInTheDocument()
     expect(screen.getByText('251,70')).toBeInTheDocument()

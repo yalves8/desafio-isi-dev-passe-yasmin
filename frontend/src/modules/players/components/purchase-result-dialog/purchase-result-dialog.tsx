@@ -3,7 +3,7 @@ import { InfoList } from '@/components/data-display/info-list/info-list'
 import { Tag } from '@/components/data-display/tag/tag'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
 import { Button } from '@/components/ui/button'
-import { formatDate, formatMoney, formatTime } from '@/lib/format'
+import { formatDateTime, formatMoney } from '@/lib/format'
 import type { PurchaseResultDialogProps } from './purchase-result-dialog.types'
 
 /** Resultado da compra exatamente como a API devolveu (RN12, RN13 e RN17) */
@@ -57,7 +57,7 @@ export function PurchaseResultDialog({
           },
           {
             label: 'Fim da fidelidade',
-            value: `${formatDate(contract.loyalty_until)}, ${formatTime(contract.loyalty_until)}`,
+            value: formatDateTime(contract.loyalty_until),
           },
           {
             label: 'Contrato',

@@ -21,7 +21,7 @@ describe('LineupSlots', () => {
 
     const midRow = screen.getByText('Meio').closest('tr')!
     expect(within(midRow).getByRole('combobox')).toBeDisabled()
-    expect(within(midRow).getByRole('combobox')).toHaveTextContent('Sem MEI no elenco')
+    expect(within(midRow).getByRole('combobox')).toHaveTextContent('Nenhum MEI disponível')
   })
 
   it('deve mostrar a mensagem junto à vaga vazia', () => {

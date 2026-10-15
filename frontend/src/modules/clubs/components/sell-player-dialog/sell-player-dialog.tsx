@@ -1,7 +1,7 @@
 import { HandCoins } from 'lucide-react'
 import { InfoList } from '@/components/data-display/info-list/info-list'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
-import { formatDate, formatInteger, formatMoney, formatTime } from '@/lib/format'
+import { formatDateTime, formatInteger, formatMoney } from '@/lib/format'
 import { ConditionBadge, PlayerSummary } from '@/modules/players'
 import { PenaltyRateTag } from '../penalty-rate-tag/penalty-rate-tag'
 import type { SellPlayerDialogProps } from './sell-player-dialog.types'
@@ -45,7 +45,7 @@ export function SellPlayerDialog({
             { label: 'Valor de compra', value: formatMoney(contract.purchase_value) },
             {
               label: 'Fim da fidelidade',
-              value: `${formatDate(contract.loyalty_until)} ${formatTime(contract.loyalty_until)}`,
+              value: formatDateTime(contract.loyalty_until),
             },
             { label: 'Dias restantes', value: formatInteger(contract.remaining_days) },
             {
