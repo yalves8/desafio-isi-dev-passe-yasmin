@@ -57,6 +57,7 @@ As variáveis são validadas com zod na subida: se faltar `DATABASE_URL`, a API 
 | `VITE_API_URL` | URL da API, embutida no build. O prefixo `/api/v1` é adicionado se faltar | `http://localhost:3000` |
 
 ## Funcionalidades
+Cada feature tem uma documentação detalhada (arquitetura, regras de negócio, endpoints, banco, tela e como testar) em [`docs/`](docs/README.md): [tela inicial](docs/home-page/overview.md), [jogadores](docs/jogadores/overview.md), [clubes](docs/clubes/overview.md), [compra](docs/compra/overview.md) e [venda](docs/venda/overview.md).
 
 ### Tela inicial (`/`)
 Apresenta a liga sobre um campo de futebol, com números da liga (jogadores, livres, clubes) e as 6 etapas do sistema. **Iniciar** (ou a tecla Enter) leva à tela de jogadores.
@@ -151,7 +152,7 @@ Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro glo
 │  │  └─ test/                (setup e renderPage)
 │  ├─ Dockerfile              (build Vite → nginx)
 │  └─ nginx.conf
-├─ docs/adr/
+├─ docs/                     (README.md com o índice, uma pasta por feature com overview.md, e adr/)
 ├─ .github/workflows/ci.yml
 ├─ lefthook.yml               (hooks de Git)
 ├─ commitlint.config.mjs
