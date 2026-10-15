@@ -160,3 +160,57 @@ export interface LeagueStats {
     points: number
   } | null
 }
+
+export type MatchResult = 'MANDANTE' | 'VISITANTE' | 'EMPATE'
+export type DuelAttribute = 'shooting' | 'passing' | 'dribbling' | 'defending'
+
+/** Lado da partida: clube, formação do momento e gols */
+export interface MatchSide {
+  club_id: number
+  club_name: string
+  formation: Formation
+  goals: number
+}
+
+/** Jogador de um duelo, com os dados e o valor gravados na partida (RN20) */
+export interface DuelPlayer {
+  player_id: number
+  player_name: string
+  position: Position
+  condition: Condition
+  attribute: DuelAttribute
+  value: number
+}
+
+export interface Duel {
+  order: number
+  attacking_club_id: number
+  attacker: DuelPlayer
+  defender: DuelPlayer
+  goal: boolean
+}
+
+/** `POST /matches`, `GET /matches/{id}` (com `duels`) e itens de `GET /matches` (sem) */
+export interface Match {
+  id: number
+  played_at: string
+  home: MatchSide
+  away: MatchSide
+  result: MatchResult
+  duels?: Duel[]
+}
+
+/** Linha de `GET /standings` (RN21) */
+export interface Standing {
+  position: number
+  club_id: number
+  club_name: string
+  played: number
+  wins: number
+  draws: number
+  losses: number
+  goals_for: number
+  goals_against: number
+  goal_difference: number
+  points: number
+}

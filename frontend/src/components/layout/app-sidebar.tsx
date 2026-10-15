@@ -18,7 +18,7 @@ function SidebarSection({ title, children }: { title: string; children: React.Re
 
 /** Navegação lateral do Passe (Figma: 256px, fundo zinc-50) */
 export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
-  const { clubs, clubsLoaded, counts, summary } = useAppSidebar()
+  const { clubs, clubsLoaded, counts, summary, lastMatch, lastMatchId } = useAppSidebar()
 
   return (
     <div className="flex h-full flex-col gap-4 py-2">
@@ -116,7 +116,16 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
           </span>
           <div className="min-w-0 leading-tight">
             <p className="text-sm font-medium">Última partida</p>
-            <p className="truncate text-xs text-muted-foreground">Nenhuma partida ainda</p>
+            {lastMatch && lastMatchId ? (
+              <Link
+                to={`/partidas/${lastMatchId}`}
+                className="block truncate text-xs text-muted-foreground hover:underline"
+              >
+                {lastMatch}
+              </Link>
+            ) : (
+              <p className="truncate text-xs text-muted-foreground">Nenhuma partida ainda</p>
+            )}
           </div>
         </div>
         <p

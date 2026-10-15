@@ -13,6 +13,7 @@ Documentação por feature, no formato de visão geral de cada contexto: arquite
 | Venda | [venda/overview.md](venda/overview.md) | `backend/src/transfers/` | `frontend/src/modules/clubs/` (aba Elenco) |
 | Histórico | [historico/overview.md](historico/overview.md) | `backend/src/transfers/` | `frontend/src/modules/clubs/` (aba Histórico) |
 | Escalação | [escalacao/overview.md](escalacao/overview.md) | `backend/src/lineups/` | `frontend/src/modules/clubs/` (aba Escalação) |
+| Liga (partidas e classificação) | [liga/overview.md](liga/overview.md) | `backend/src/matches/` (motor em `backend/src/domain/match-engine.ts`) | `frontend/src/modules/league/` |
 
 ## Decisões de arquitetura (ADRs)
 

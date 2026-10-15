@@ -57,7 +57,7 @@ As variáveis são validadas com zod na subida: se faltar `DATABASE_URL`, a API 
 | `VITE_API_URL` | URL da API, embutida no build. O prefixo `/api/v1` é adicionado se faltar | `http://localhost:3000` |
 
 ## Funcionalidades
-Cada feature tem uma documentação detalhada (arquitetura, regras de negócio, endpoints, banco, tela e como testar) em [`docs/`](docs/README.md): [tela inicial](docs/home-page/overview.md), [jogadores](docs/jogadores/overview.md), [clubes](docs/clubes/overview.md), [compra](docs/compra/overview.md), [venda](docs/venda/overview.md), [histórico](docs/historico/overview.md) e [escalação](docs/escalacao/overview.md).
+Cada feature tem uma documentação detalhada (arquitetura, regras de negócio, endpoints, banco, tela e como testar) em [`docs/`](docs/README.md): [tela inicial](docs/home-page/overview.md), [jogadores](docs/jogadores/overview.md), [clubes](docs/clubes/overview.md), [compra](docs/compra/overview.md), [venda](docs/venda/overview.md), [histórico](docs/historico/overview.md), [escalação](docs/escalacao/overview.md) e [liga](docs/liga/overview.md).
 
 ### Tela inicial (`/`)
 Apresenta a liga sobre um campo de futebol, com números da liga (jogadores, livres, clubes) e as 6 etapas do sistema. **Iniciar** (ou a tecla Enter) leva à tela de jogadores.
@@ -85,6 +85,12 @@ Apresenta a liga sobre um campo de futebol, com números da liga (jogadores, liv
   - **Histórico**: compras e vendas da mais recente para a mais antiga, com o nome e os valores do momento; filtro por tipo (Compra e/ou Venda) e por jogador; totais do `summary` no rodapé; exportação CSV com os mesmos filtros. Filtro recusado pela API (ex.: jogador excluído depois de a tela abrir) aparece no próprio card.
 - **Comprar jogadores** e **Ver jogadores livres** levam para a aba "Livres" da tela de jogadores.
 
+### Liga (`/partidas`, `/partidas/:id` e `/classificacao`)
+- **Partidas**: última partida da liga e histórico da mais recente para a mais antiga, com filtro por clube (na URL). **Nova partida** escolhe mandante e visitante, valida os dois antes de enviar e mostra a recusa da API no próprio diálogo (ex.: escalação incompleta), marcando o clube citado. O botão fica desabilitado durante o envio: um clique duplo não cria duas partidas.
+- **Partida**: placar, formações, os titulares dos dois clubes no campo com os valores usados (já com o efeito da condição) e os 6 duelos agrupados pelos ataques do mandante e do visitante, tudo como a API gravou.
+- **Classificação**: tabela na ordem de `GET /standings`, com links para os clubes, últimas partidas e os critérios de desempate.
+- O menu mostra o total de partidas e a última partida, e a tela inicial mostra o total e o líder.
+
 ### Em toda ação
 - Mostra sucesso ou o `message` devolvido pela API.
 - O botão fica desabilitado durante o envio, e a mesma ação não é enviada duas vezes.
@@ -110,6 +116,10 @@ Prefixo `/api/v1`, exceto `/health`. A documentação completa está no Swagger 
 | GET | `/clubs/:id` | Detalhe do clube com elenco |
 | GET | `/clubs/:id/lineup` | Escalação atual: formação, `complete` e titulares na ordem do elenco (RN19) |
 | PUT | `/clubs/:id/lineup` | Substitui a escalação: `formation` e os 5 `player_ids` (1 GOL e os setores da formação; sem `DOENTE`) |
+| POST | `/matches` | Joga a partida na hora entre `home_club_id` e `away_club_id` (os dois com escalação completa) e grava placar, formações e os 6 duelos; `201` com `Location` (RN20) |
+| GET | `/matches` | Partidas da mais recente para a mais antiga, sem duelos. Query: `club_id` (mandante ou visitante) (RN21) |
+| GET | `/matches/:id` | Partida com os 6 duelos gravados (RN21) |
+| GET | `/standings` | Classificação de todos os clubes, calculada a cada consulta (RN21) |
 | GET | `/clubs/:id/transactions` | Histórico do clube com `summary`. Query: `type` (`COMPRA`, `VENDA` ou os dois, separados por vírgula) e `player_id` (RN17) |
 | GET | `/clubs/:id/transactions/export` | Histórico em CSV (`text/csv`, `;`, vírgula decimal), com os mesmos filtros (RN18) |
 | POST | `/players/:id/buy` | Compra jogador livre: desconta o caixa, cria o contrato `ATIVO` e grava a transação `COMPRA` numa única operação (RN12 a RN14) |
@@ -128,6 +138,9 @@ Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro glo
 │  │  ├─ players/             (application/, domain/, infrastructure/, presentation/, tests/)
 │  │  ├─ clubs/               (mesma divisão de camadas)
 │  │  ├─ contracts/           (entidade de contrato)
+│  │  ├─ transfers/           (compra, venda, histórico de transações e CSV)
+│  │  ├─ lineups/             (escalação: formação e titulares)
+│  │  ├─ matches/             (partidas, duelos e classificação)
 │  │  ├─ health/
 │  │  └─ main.ts
 │  └─ Dockerfile
@@ -144,6 +157,7 @@ Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro glo
 │  │  ├─ contexts/            (LeagueData: recarrega lista e sidebar após cada ação)
 │  │  ├─ hooks/               (useFetch, useAction, useDebouncedValue, useLeagueData)
 │  │  ├─ modules/clubs/            (lista, detalhe, elenco, venda, escalação e histórico)
+│  │  ├─ modules/league/           (partidas, partida com duelos e classificação)
 │  │  ├─ modules/players/
 │  │  │  ├─ components/<componente>/   (.tsx, .types.ts, .test.tsx e, quando há lógica, .hook.ts/.utils.ts)
 │  │  │  ├─ pages/players-page/        (.tsx só renderiza; .hook.ts tem a lógica)
@@ -229,7 +243,7 @@ Os ADRs completos estão em [`docs/adr/`](docs/adr).
 - A recusa pelo limite de 50% do caixa mostra o limite exato, sem arredondar (caixa 261,15 → limite 130,575), como a RN13 define.
 
 ## Funcionalidades não implementadas
-- **Partidas e classificação**: o card "Última partida" e o contador de partidas mostram um placeholder.
+Todo o fluxo do desafio está implementado: jogadores → clubes → compra → venda → histórico → escalação → partidas e classificação.
 
 ## Uso de inteligência artificial
 - **Claude Code:** usado no frontend, nas telas inicial, de jogadores e de clubes (layout a partir do Figma, componentização no padrão FCx e testes). Também foi usado na verificação visual com Playwright e na redação deste README. Todo o código gerado foi revisado e validado com testes, lint e typecheck.

@@ -2,6 +2,7 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import userEvent from '@testing-library/user-event'
 import { clubsService } from '@/api/clubs.service'
+import { matchesService } from '@/api/matches.service'
 import { playersService } from '@/api/players.service'
 import { renderPage } from '@/test/render'
 import { AppLayout } from './app-layout'
@@ -10,6 +11,7 @@ import { getBreadcrumb } from './layout.constants'
 
 vi.mock('@/api/players.service', () => ({ playersService: { list: vi.fn() } }))
 vi.mock('@/api/clubs.service', () => ({ clubsService: { list: vi.fn() } }))
+vi.mock('@/api/matches.service', () => ({ matchesService: { list: vi.fn() } }))
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -21,6 +23,7 @@ beforeEach(() => {
     { id: 1, name: 'Águias FC', acronym: 'AGU', cash: 300, squad_value: 0, net_worth: 300 },
     { id: 2, name: 'Delta FC', acronym: 'DEL', cash: 300, squad_value: 0, net_worth: 300 },
   ])
+  vi.mocked(matchesService.list).mockResolvedValue([])
 })
 
 describe('AppLayout', () => {
@@ -30,11 +33,30 @@ describe('AppLayout', () => {
     expect(screen.getByRole('link', { name: /passe, página inicial/i })).toBeInTheDocument()
     expect(await screen.findByRole('link', { name: /jogadores\s*23/i })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /clubes\s*2/i })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Partidas' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /partidas\s*0/i })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Classificação' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /águias fc/i })).toHaveAttribute('href', '/clubes/1')
     expect(screen.getByText('2 clubes · 23 jogadores')).toBeInTheDocument()
     expect(screen.getByText('Nenhuma partida ainda')).toBeInTheDocument()
+  })
+
+  it('deve mostrar o contador de partidas e a última partida da liga', async () => {
+    vi.mocked(matchesService.list).mockResolvedValue([
+      {
+        id: 7,
+        played_at: '2026-11-11T20:00:00-03:00',
+        home: { club_id: 2, club_name: 'Delta FC', formation: '2-1-1', goals: 2 },
+        away: { club_id: 1, club_name: 'Águias FC', formation: '2-1-1', goals: 1 },
+        result: 'MANDANTE',
+      },
+    ])
+    renderPage(<AppLayout />, { route: '/jogadores', path: '/jogadores' })
+
+    expect(await screen.findByRole('link', { name: /partidas\s*1/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Delta FC 2 × 1 Águias FC' })).toHaveAttribute(
+      'href',
+      '/partidas/7',
+    )
   })
 
   it('deve mostrar a trilha da tela atual e o fuso de Brasília', () => {

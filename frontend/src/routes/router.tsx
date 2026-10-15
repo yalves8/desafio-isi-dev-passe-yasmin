@@ -3,6 +3,7 @@ import { AppLayout } from '@/components/layout/app-layout'
 import { HomePage } from '@/pages/home/home-page'
 import { NotFoundPage } from '@/pages/not-found/not-found-page'
 import { ClubDetailsPage, ClubsPage } from '@/modules/clubs'
+import { MatchDetailsPage, MatchesPage, StandingsPage } from '@/modules/league'
 import { PlayersPage } from '@/modules/players'
 
 export const router = createBrowserRouter([
@@ -16,24 +17,9 @@ export const router = createBrowserRouter([
       { path: '/jogadores', element: <PlayersPage /> },
       { path: '/clubes', element: <ClubsPage /> },
       { path: '/clubes/:id', element: <ClubDetailsPage /> },
-      {
-        path: '/partidas',
-        element: (
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-xs">
-            <h1 className="font-heading text-2xl font-bold">Partidas</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Módulo em desenvolvimento.</p>
-          </div>
-        ),
-      },
-      {
-        path: '/classificacao',
-        element: (
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-xs">
-            <h1 className="font-heading text-2xl font-bold">Classificação</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Módulo em desenvolvimento.</p>
-          </div>
-        ),
-      },
+      { path: '/partidas', element: <MatchesPage /> },
+      { path: '/partidas/:id', element: <MatchDetailsPage /> },
+      { path: '/classificacao', element: <StandingsPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
