@@ -75,6 +75,41 @@ export interface SaleRecord {
   now: Date;
 }
 
+export type TransactionType = 'COMPRA' | 'VENDA';
+
+/**
+ * Transação gravada no momento da compra ou da venda; nunca é recalculada (RN17).
+ *
+ * @export
+ * @interface TransactionRecord
+ */
+export interface TransactionRecord {
+  id: number;
+  clubId: number;
+  playerId: number;
+  playerName: string;
+  type: TransactionType;
+  value: Cents;
+  fee: Cents;
+  penalty: Cents;
+  profit: Cents | null;
+  cashChange: Cents;
+  createdAt: Date;
+}
+
+/**
+ * Filtros do histórico do clube (RN17 e RN18).
+ *
+ * @export
+ * @interface TransactionFilter
+ */
+export interface TransactionFilter {
+  /** Tipos aceitos; ausente = todos */
+  types?: TransactionType[];
+  /** Só as transações deste jogador no clube */
+  playerId?: number;
+}
+
 /**
  * Contrato do repositório de compra e venda.
  *
@@ -114,4 +149,33 @@ export abstract class ITransferRepository {
     playerId: number,
     decide: (state: SaleState) => SaleRecord,
   ): Promise<{ record: SaleRecord; transactionId: number }>;
+
+  /**
+   * Indica se o clube existe.
+   *
+   * @param {number} clubId - Clube da URL.
+   * @returns {Promise<boolean>} true se existir.
+   */
+  abstract clubExists(clubId: number): Promise<boolean>;
+
+  /**
+   * Indica se o jogador existe e não foi excluído (RN09).
+   *
+   * @param {number} playerId - Jogador do filtro.
+   * @returns {Promise<boolean>} true se existir e estiver ativo.
+   */
+  abstract activePlayerExists(playerId: number): Promise<boolean>;
+
+  /**
+   * Transações do clube com os filtros, da mais recente para a mais antiga e, no empate,
+   * por id decrescente (RN17).
+   *
+   * @param {number} clubId - Clube da URL.
+   * @param {TransactionFilter} filter - Tipos e jogador.
+   * @returns {Promise<TransactionRecord[]>} Transações gravadas.
+   */
+  abstract findClubTransactions(
+    clubId: number,
+    filter: TransactionFilter,
+  ): Promise<TransactionRecord[]>;
 }

@@ -8,6 +8,9 @@ import {
   PurchaseState,
   SaleRecord,
   SaleState,
+  TransactionFilter,
+  TransactionRecord,
+  TransactionType,
 } from '../../application/interfaces/repositories/transfer.repository.interface.js';
 
 /** Centavos no formato decimal das colunas (ex.: -3885 → "-38.85"), sem ponto flutuante */
@@ -189,5 +192,63 @@ export class PrismaTransferRepository implements ITransferRepository {
 
       return { record, transactionId: transaction.id };
     });
+  }
+
+  /**
+   * Indica se o clube existe.
+   *
+   * @param {number} clubId - Clube da URL.
+   * @returns {Promise<boolean>} true se existir.
+   */
+  async clubExists(clubId: number): Promise<boolean> {
+    return (await this.prisma.clube.count({ where: { id: clubId } })) > 0;
+  }
+
+  /**
+   * Indica se o jogador existe e não foi excluído (RN09).
+   *
+   * @param {number} playerId - Jogador do filtro.
+   * @returns {Promise<boolean>} true se existir e estiver ativo.
+   */
+  async activePlayerExists(playerId: number): Promise<boolean> {
+    const count = await this.prisma.jogador.count({
+      where: { id: playerId, excluido_em: null },
+    });
+    return count > 0;
+  }
+
+  /**
+   * Transações do clube com os filtros, da mais recente para a mais antiga e, no empate,
+   * por id decrescente (RN17). Os valores são os gravados no momento da operação.
+   *
+   * @param {number} clubId - Clube da URL.
+   * @param {TransactionFilter} filter - Tipos e jogador.
+   * @returns {Promise<TransactionRecord[]>} Transações gravadas.
+   */
+  async findClubTransactions(
+    clubId: number,
+    { types, playerId }: TransactionFilter,
+  ): Promise<TransactionRecord[]> {
+    const rows = await this.prisma.transacao.findMany({
+      where: {
+        clube_id: clubId,
+        ...(types ? { tipo: { in: types } } : {}),
+        ...(playerId !== undefined ? { jogador_id: playerId } : {}),
+      },
+      orderBy: [{ criado_em: 'desc' }, { id: 'desc' }],
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      clubId: row.clube_id,
+      playerId: row.jogador_id,
+      playerName: row.nome_jogador,
+      type: row.tipo as TransactionType,
+      value: toCents(row.valor),
+      fee: toCents(row.taxa),
+      penalty: toCents(row.multa),
+      profit: row.lucro === null ? null : toCents(row.lucro),
+      cashChange: toCents(row.variacao_caixa),
+      createdAt: row.criado_em,
+    }));
   }
 }
