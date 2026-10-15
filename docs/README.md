@@ -12,6 +12,7 @@ Documentação por feature, no formato de visão geral de cada contexto: arquite
 | Compra | [compra/overview.md](compra/overview.md) | `backend/src/transfers/` | `frontend/src/modules/players/` (diálogos de compra) |
 | Venda | [venda/overview.md](venda/overview.md) | `backend/src/transfers/` | `frontend/src/modules/clubs/` (aba Elenco) |
 | Histórico | [historico/overview.md](historico/overview.md) | `backend/src/transfers/` | `frontend/src/modules/clubs/` (aba Histórico) |
+| Escalação | [escalacao/overview.md](escalacao/overview.md) | `backend/src/lineups/` | `frontend/src/modules/clubs/` (aba Escalação) |
 
 ## Decisões de arquitetura (ADRs)
 

@@ -1,7 +1,6 @@
-import { compareNames } from '../../../common/utils/text.js';
-import { comparePositions } from '../../../domain/enums/position.enum.js';
 import { fromCents, toCents } from '../../../domain/money.js';
 import { PlayerEntity } from '../../../players/domain/entities/player.entity.js';
+import { compareSquadOrder } from '../../../players/domain/squad-order.js';
 
 /**
  * Representa a entidade de domínio de um Clube na Liga.
@@ -109,13 +108,7 @@ export class ClubEntity {
    * @returns {PlayerEntity[]} Nova lista de jogadores rigorosamente ordenada.
    */
   public sortSquad(players: PlayerEntity[]): PlayerEntity[] {
-    return [...players].sort((a, b) => {
-      const posDiff = comparePositions(a.getPosition(), b.getPosition());
-      if (posDiff !== 0) return posDiff;
-      const nameDiff = compareNames(a.getName(), b.getName());
-      if (nameDiff !== 0) return nameDiff;
-      return a.id - b.id;
-    });
+    return [...players].sort(compareSquadOrder);
   }
 }
 

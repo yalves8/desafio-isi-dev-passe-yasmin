@@ -5,6 +5,7 @@ import { EnvModule } from './common/config/env.module.js';
 import { EnvService } from './common/config/env.service.js';
 import { PrismaModule } from './common/prisma/prisma.module.js';
 import { HealthModule } from './health/health.module.js';
+import { LineupsModule } from './lineups/lineups.module.js';
 import { PlayersModule } from './players/players.module.js';
 import { TransfersModule } from './transfers/transfers.module.js';
 
@@ -29,6 +30,7 @@ import { TransfersModule } from './transfers/transfers.module.js';
     PlayersModule,
     ClubsModule,
     TransfersModule,
+    LineupsModule,
   ],
 })
 export class AppModule {}

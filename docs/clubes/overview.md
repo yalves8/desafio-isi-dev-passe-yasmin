@@ -67,12 +67,7 @@ Base URL: `/api/v1`. Implementados em `backend/src/clubs/presentation/controller
 | `GET` | `/clubs` | `200` (array) | `400` (`sort` inválido ou parâmetro vazio) | Lista os clubes, sem elenco, com `cash`, `squad_value` e `net_worth` |
 | `GET` | `/clubs/:id` | `200` | `404` (clube inexistente ou id fora do padrão, via `ParseIdPipe`) | Clube com `players` na ordem da RN11, cada jogador com os campos do jogador e `contract` (`purchase_value`, `loyalty_until`, `remaining_days`, `penalty_rate`) |
 
-Endpoints que o frontend já consome, mas que **ainda não existem** no backend (ver [Pendências](#pendências)):
-
-| Método | Rota | Consumido em |
-|--------|------|--------------|
-| `GET` | `/clubs/:id/lineup` | `clubsService.getLineup` — aba Escalação |
-| `PUT` | `/clubs/:id/lineup` | `clubsService.updateLineup` — aba Escalação |
+A escalação (`GET/PUT /clubs/:id/lineup`) e o histórico (`GET /clubs/:id/transactions[/export]`) ficam em módulos próprios: ver [Escalação](../escalacao/overview.md) e [Histórico](../historico/overview.md).
 
 ### Ordenação de `GET /clubs`
 
@@ -178,7 +173,7 @@ O botão "Novo clube" fica desabilitado com explicação quando a lista já tem 
 | `club-tabs` | Abas Elenco, Escalação e Histórico, com contadores de elenco e histórico |
 | `squad-table`, `penalty-rate-tag` | Elenco na ordem da RN11 com valor de mercado, valor de compra, fim da fidelidade, dias restantes e % de multa (0% verde, 5%/10% âmbar, 20% vermelho) |
 | `sell-player-dialog`, `sale-result-dialog` | Venda a partir do elenco (detalhes em [Venda](../venda/overview.md)) |
-| `lineup-editor`, `formation-picker`, `lineup-slots`, `lineup-pitch`, `lineup-reserves` | Aba Escalação (RN19) — depende de endpoints pendentes |
+| `lineup-editor`, `formation-picker`, `lineup-slots`, `lineup-pitch`, `lineup-reserves` | Aba Escalação (RN19) — ver [Escalação](../escalacao/overview.md) |
 | `transactions-history`, `transactions-summary`, `transactions-table` | Aba Histórico, totais e CSV (RN17/RN18) — ver [Histórico](../historico/overview.md) |
 
 ### Erros 409 no diálogo
@@ -191,18 +186,6 @@ As validações de formato são feitas no formulário antes do envio. Nome repet
 
 ---
 
-## Pendências
-
-O histórico (`GET /clubs/:id/transactions` e `/export`) já está implementado no módulo `transfers` (ver [Histórico](../historico/overview.md)). Nenhum controller do backend declara ainda as rotas de escalação; os endpoints abaixo já são chamados pelo frontend e hoje respondem `404`:
-
-| Endpoint | Regra do desafio | Efeito atual na tela |
-|----------|------------------|----------------------|
-| `GET /clubs/:id/lineup` | RN19 | A aba Escalação mostra o estado de erro |
-| `PUT /clubs/:id/lineup` | RN19 | Salvar a escalação falha |
-
-Já existem no banco a tabela `escalacoes` e a coluna `clubes.formacao`, e a venda já remove o jogador de `escalacoes`.
-
----
 
 ## Como testar
 

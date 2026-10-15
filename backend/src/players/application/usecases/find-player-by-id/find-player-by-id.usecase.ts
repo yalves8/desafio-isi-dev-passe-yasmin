@@ -1,5 +1,6 @@
 import { NotFoundError } from '../../../../common/errors/domain.errors.js';
 import { IPlayerRepository } from '../../interfaces/repositories/player.repository.interface.js';
+import { toPlayerOutput } from '../../presenters/player.presenter.js';
 import { FindPlayerByIdInput } from './find-player-by-id.input.js';
 import { FindPlayerByIdOutput } from './find-player-by-id.output.js';
 
@@ -37,24 +38,6 @@ export class FindPlayerByIdUseCase {
       throw new NotFoundError('Jogador não encontrado');
     }
 
-    return {
-      id: player.id,
-      name: player.getName(),
-      position: player.getPosition(),
-      agility: player.getAgility(),
-      age: player.getAge(),
-      condition: player.getCondition(),
-      base_value: player.baseValue,
-      market_value: player.calculateMarketValue(),
-      pace: player.attributes.pace,
-      shooting: player.attributes.shooting,
-      passing: player.attributes.passing,
-      dribbling: player.attributes.dribbling,
-      defending: player.attributes.defending,
-      physical: player.attributes.physical,
-      potential: player.potential,
-      overall: player.calculateOverall(),
-      club_id: player.getClubId(),
-    };
+    return toPlayerOutput(player);
   }
 }

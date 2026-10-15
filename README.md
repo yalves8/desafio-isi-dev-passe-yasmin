@@ -57,7 +57,7 @@ As variáveis são validadas com zod na subida: se faltar `DATABASE_URL`, a API 
 | `VITE_API_URL` | URL da API, embutida no build. O prefixo `/api/v1` é adicionado se faltar | `http://localhost:3000` |
 
 ## Funcionalidades
-Cada feature tem uma documentação detalhada (arquitetura, regras de negócio, endpoints, banco, tela e como testar) em [`docs/`](docs/README.md): [tela inicial](docs/home-page/overview.md), [jogadores](docs/jogadores/overview.md), [clubes](docs/clubes/overview.md), [compra](docs/compra/overview.md), [venda](docs/venda/overview.md) e [histórico](docs/historico/overview.md).
+Cada feature tem uma documentação detalhada (arquitetura, regras de negócio, endpoints, banco, tela e como testar) em [`docs/`](docs/README.md): [tela inicial](docs/home-page/overview.md), [jogadores](docs/jogadores/overview.md), [clubes](docs/clubes/overview.md), [compra](docs/compra/overview.md), [venda](docs/venda/overview.md), [histórico](docs/historico/overview.md) e [escalação](docs/escalacao/overview.md).
 
 ### Tela inicial (`/`)
 Apresenta a liga sobre um campo de futebol, com números da liga (jogadores, livres, clubes) e as 6 etapas do sistema. **Iniciar** (ou a tecla Enter) leva à tela de jogadores.
@@ -108,7 +108,8 @@ Prefixo `/api/v1`, exceto `/health`. A documentação completa está no Swagger 
 | POST | `/clubs` | Cadastra clube (nome e sigla de 3 letras) |
 | GET | `/clubs` | Lista clubes. Query: `sort` (`name`, `net_worth_asc`, `net_worth_desc`) |
 | GET | `/clubs/:id` | Detalhe do clube com elenco |
-| GET/PUT | `/clubs/:id/lineup` | Escalação do clube (RN19) — *usado pelo frontend; ainda não implementado na API* |
+| GET | `/clubs/:id/lineup` | Escalação atual: formação, `complete` e titulares na ordem do elenco (RN19) |
+| PUT | `/clubs/:id/lineup` | Substitui a escalação: `formation` e os 5 `player_ids` (1 GOL e os setores da formação; sem `DOENTE`) |
 | GET | `/clubs/:id/transactions` | Histórico do clube com `summary`. Query: `type` (`COMPRA`, `VENDA` ou os dois, separados por vírgula) e `player_id` (RN17) |
 | GET | `/clubs/:id/transactions/export` | Histórico em CSV (`text/csv`, `;`, vírgula decimal), com os mesmos filtros (RN18) |
 | POST | `/players/:id/buy` | Compra jogador livre: desconta o caixa, cria o contrato `ATIVO` e grava a transação `COMPRA` numa única operação (RN12 a RN14) |
@@ -228,7 +229,6 @@ Os ADRs completos estão em [`docs/adr/`](docs/adr).
 - A recusa pelo limite de 50% do caixa mostra o limite exato, sem arredondar (caixa 261,15 → limite 130,575), como a RN13 define.
 
 ## Funcionalidades não implementadas
-- **API de escalação** (`GET/PUT /clubs/:id/lineup`). A tela de clubes já chama esses endpoints exatamente como o desafio especifica e trata `400`/`404`/`409`; até a API existir, a aba Escalação mostra o erro devolvido.
 - **Partidas e classificação**: o card "Última partida" e o contador de partidas mostram um placeholder.
 
 ## Uso de inteligência artificial

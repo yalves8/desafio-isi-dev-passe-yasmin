@@ -111,14 +111,17 @@ export class PrismaPlayerRepository implements IPlayerRepository {
     const newCondition = player.getCondition();
 
     if (newCondition === 'DOENTE') {
+      // Atualiza o jogador antes de tirá-lo da escalação: o UPDATE espera a trava de uma troca
+      // de escalação em andamento, e a remoção já enxerga o titular que ela gravou
       const updated = await this.prisma.$transaction(async (tx) => {
-        await tx.escalacao.deleteMany({
-          where: { jogador_id: player.id },
-        });
-        return tx.jogador.update({
+        const row = await tx.jogador.update({
           where: { id: player.id },
           data: { condicao: 'DOENTE' },
         });
+        await tx.escalacao.deleteMany({
+          where: { jogador_id: player.id },
+        });
+        return row;
       });
       return playerFromRow(updated);
     }
