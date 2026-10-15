@@ -3,6 +3,7 @@ import { InfoList } from '@/components/data-display/info-list/info-list'
 import { StatCard } from '@/components/data-display/stat-card/stat-card'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet'
+import { useReturnFocus } from '@/hooks/use-return-focus'
 import { formatMoney } from '@/lib/format'
 import { ATTRIBUTE_FIELDS, POSITION_LABEL } from '../../players.constants'
 import { AttributeBar } from '../attribute-bar/attribute-bar'
@@ -22,9 +23,14 @@ export function PlayerDetailsSheet({
   onBuy,
   buyDisabledReason,
 }: PlayerDetailsSheetProps) {
+  const returnFocus = useReturnFocus()
+
   return (
     <Sheet open onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="gap-0 overflow-y-auto data-[side=right]:w-full data-[side=right]:sm:max-w-[480px]">
+      <SheetContent
+        onCloseAutoFocus={returnFocus}
+        className="gap-0 overflow-y-auto data-[side=right]:w-full data-[side=right]:sm:max-w-[480px]"
+      >
         <div className="flex items-start gap-3 p-6 pb-4">
           <PlayerAvatar id={player.id} name={player.name} className="size-10 text-sm" />
           <div className="flex flex-col gap-1.5">

@@ -14,6 +14,7 @@ describe('ClubTabs', () => {
     )
     expect(screen.getByRole('tab', { name: /histórico\s*10/i })).toBeInTheDocument()
     await user.click(screen.getByRole('tab', { name: /escalação/i }))
+    expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenCalledWith('lineup')
   })
 })

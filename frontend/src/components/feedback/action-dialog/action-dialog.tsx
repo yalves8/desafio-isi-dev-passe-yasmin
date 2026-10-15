@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useReturnFocus } from '@/hooks/use-return-focus'
 import { cn } from '@/lib/utils'
 import type { ActionDialogProps, ActionDialogSize } from './action-dialog.types'
 
@@ -35,12 +36,15 @@ export function ActionDialog({
   footerNote,
   children,
 }: ActionDialogProps) {
+  const returnFocus = useReturnFocus()
+
   return (
     <Dialog open onOpenChange={(open) => !open && !busy && onClose()}>
       <DialogContent
         role={alert ? 'alertdialog' : 'dialog'}
         showCloseButton={!alert}
         onInteractOutside={alert ? (e) => e.preventDefault() : undefined}
+        onCloseAutoFocus={returnFocus}
         className={cn(
           'max-h-[calc(100dvh-2rem)] gap-5 overflow-y-auto p-6',
           SIZES[size],

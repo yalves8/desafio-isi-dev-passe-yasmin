@@ -27,7 +27,12 @@ export function PlayersToolbar({ tabs, sort }: PlayersToolbarProps) {
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 p-4">
-      <Tabs value={tabs.value} onValueChange={(v) => tabs.onChange(v as PlayersTab)}>
+      {/* Manual: troca no clique ou Enter; no foco também, cada troca empilharia no histórico */}
+      <Tabs
+        value={tabs.value}
+        activationMode="manual"
+        onValueChange={(v) => tabs.onChange(v as PlayersTab)}
+      >
         <TabsList className="h-9 bg-muted">
           {TABS.map((tab) => {
             const reason = tab.value === 'free' ? tabs.freeDisabledReason : undefined

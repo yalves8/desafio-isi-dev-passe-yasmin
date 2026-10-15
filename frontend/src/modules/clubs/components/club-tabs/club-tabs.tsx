@@ -11,7 +11,13 @@ const TABS = [
 
 export function ClubTabs({ value, counts, onChange }: ClubTabsProps) {
   return (
-    <Tabs value={value} onValueChange={(v) => onChange(v as ClubDetailsTab)}>
+    // Manual: a aba troca no clique ou Enter, não no foco. No modo automático, clique e foco
+    // disparam duas trocas, e cada uma empilha uma entrada no histórico do navegador
+    <Tabs
+      value={value}
+      activationMode="manual"
+      onValueChange={(v) => onChange(v as ClubDetailsTab)}
+    >
       {/* Sublinhado dentro da aba (bottom-0): com overflow-x-auto, o padrão em -5px some cortado */}
       <TabsList
         variant="line"

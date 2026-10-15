@@ -27,6 +27,7 @@ describe('PlayersToolbar', () => {
       'true',
     )
     await user.click(screen.getByRole('tab', { name: /livres\s*7/i }))
+    expect(props.tabs.onChange).toHaveBeenCalledTimes(1)
     expect(props.tabs.onChange).toHaveBeenCalledWith('free')
   })
 
