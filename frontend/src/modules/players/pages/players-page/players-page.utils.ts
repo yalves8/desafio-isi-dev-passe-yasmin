@@ -31,9 +31,13 @@ function oneOf<T extends string>(value: string | null, allowed: readonly T[]) {
   return allowed.includes(value as T) ? (value as T) : undefined
 }
 
-/** Lê a URL ignorando valores inválidos (a URL pode ter sido editada à mão) */
+/**
+ * Lê a URL ignorando valores inválidos (a URL pode ter sido editada à mão).
+ * "Livres" e filtro por clube não se combinam (a API devolve 400): na aba Livres o clube é descartado.
+ */
 export function parsePlayersParams(sp: URLSearchParams): PlayersParams {
   const page = toNumber(sp.get('page'))
+  const tab = oneOf(sp.get('tab'), TABS) ?? DEFAULT_PARAMS.tab
   return {
     search: sp.get('search') ?? '',
     position: oneOf<Position>(sp.get('position'), Object.keys(POSITION_LABEL) as Position[]),
@@ -41,12 +45,12 @@ export function parsePlayersParams(sp: URLSearchParams): PlayersParams {
       sp.get('condition'),
       Object.keys(CONDITION_BY_VALUE) as Condition[],
     ),
-    clubId: toNumber(sp.get('club')),
+    clubId: tab === 'free' ? undefined : toNumber(sp.get('club')),
     minAge: toNumber(sp.get('min_age')),
     maxAge: toNumber(sp.get('max_age')),
     minValue: toNumber(sp.get('min_value')),
     maxValue: toNumber(sp.get('max_value')),
-    tab: oneOf(sp.get('tab'), TABS) ?? DEFAULT_PARAMS.tab,
+    tab,
     sort:
       oneOf<PlayerSort>(
         sp.get('sort'),
@@ -76,10 +80,7 @@ export function toSearchParams(params: PlayersParams) {
   return sp
 }
 
-/**
- * Converte o estado da tela nos query params da API.
- * "Livres" e filtro por clube não se combinam (a API devolve 400): na aba Livres o clube é ignorado.
- */
+/** Converte o estado da tela nos query params da API */
 export function toApiFilters(params: PlayersParams): PlayerFilters {
   const search = params.search.trim()
   return {
@@ -90,7 +91,7 @@ export function toApiFilters(params: PlayersParams): PlayerFilters {
     position: params.position,
     condition: params.condition,
     free: params.tab === 'all' ? undefined : params.tab === 'free',
-    club_id: params.tab === 'free' ? undefined : params.clubId,
+    club_id: params.clubId,
     min_age: params.minAge,
     max_age: params.maxAge,
     min_value: params.minValue,

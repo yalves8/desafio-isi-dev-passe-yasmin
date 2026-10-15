@@ -42,6 +42,13 @@ describe('parsePlayersParams', () => {
       page: 2,
     })
   })
+
+  it('deve descartar o clube na aba Livres, que não combinam (a API recusa com 400)', () => {
+    const params = parsePlayersParams(new URLSearchParams('tab=free&club=2'))
+
+    expect(params).toMatchObject({ tab: 'free', clubId: undefined })
+    expect(toApiFilters(params).club_id).toBeUndefined()
+  })
 })
 
 describe('toSearchParams', () => {
@@ -64,10 +71,6 @@ describe('toApiFilters', () => {
     })
     expect(toApiFilters({ ...DEFAULT_PARAMS, tab: 'clubs' })).toMatchObject({ free: false })
     expect(toApiFilters(DEFAULT_PARAMS).free).toBeUndefined()
-  })
-
-  it('não deve combinar "Livres" com o filtro por clube (a API recusa com 400)', () => {
-    expect(toApiFilters({ ...DEFAULT_PARAMS, tab: 'free', clubId: 2 }).club_id).toBeUndefined()
   })
 
   it('deve ignorar busca com menos de 2 caracteres', () => {

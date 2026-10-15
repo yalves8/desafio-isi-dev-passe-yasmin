@@ -7,5 +7,4 @@ export interface ClubsTableProps extends Omit<ClubsToolbarProps, 'total'> {
   error: string | null
   onRetry: () => void
   onCreate: () => void
-  canCreate: boolean
 }

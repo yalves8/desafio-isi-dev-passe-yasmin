@@ -1,8 +1,36 @@
 import { act, renderHook } from '@testing-library/react'
+import { AxiosError, AxiosHeaders } from 'axios'
+import type { ReactNode } from 'react'
 import { toast } from 'sonner'
+import { LeagueDataContext } from '@/contexts/league-data-context'
 import { useAction } from './use-action'
 
 vi.mock('sonner', () => ({ toast: { error: vi.fn() } }))
+
+function apiError(status: number) {
+  const config = { headers: new AxiosHeaders() }
+  return new AxiosError(
+    'erro',
+    String(status),
+    config,
+    {},
+    {
+      status,
+      statusText: '',
+      data: { message: 'Recusado pela API' },
+      headers: {},
+      config,
+    },
+  )
+}
+
+function withLeagueData(refresh: () => void) {
+  return ({ children }: { children: ReactNode }) => (
+    <LeagueDataContext.Provider value={{ version: 0, refresh }}>
+      {children}
+    </LeagueDataContext.Provider>
+  )
+}
 
 describe('useAction', () => {
   beforeEach(() => vi.clearAllMocks())
@@ -67,5 +95,36 @@ describe('useAction', () => {
     })
 
     expect(action).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([404, 409])(
+    'deve recarregar os dados da liga numa recusa %i (o dado mudou depois de a tela abrir)',
+    async (status) => {
+      const refresh = vi.fn()
+      const { result } = renderHook(
+        () => useAction(() => Promise.reject(apiError(status)), { errorTitle: 'x' }),
+        { wrapper: withLeagueData(refresh) },
+      )
+
+      await act(async () => {
+        await result.current.run()
+      })
+
+      expect(refresh).toHaveBeenCalledTimes(1)
+    },
+  )
+
+  it('não deve recarregar numa recusa de validação (400)', async () => {
+    const refresh = vi.fn()
+    const { result } = renderHook(
+      () => useAction(() => Promise.reject(apiError(400)), { errorTitle: 'x' }),
+      { wrapper: withLeagueData(refresh) },
+    )
+
+    await act(async () => {
+      await result.current.run()
+    })
+
+    expect(refresh).not.toHaveBeenCalled()
   })
 })

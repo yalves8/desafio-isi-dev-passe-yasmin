@@ -1,5 +1,4 @@
 import { Plus, Shield } from 'lucide-react'
-import { DisabledHint } from '@/components/feedback/disabled-hint/disabled-hint'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { formatMoney } from '@/lib/format'
@@ -18,11 +17,9 @@ export function ClubsPage() {
         title="Clubes"
         description={`Cada clube começa com ${formatMoney(INITIAL_CASH)} em caixa e sem jogadores. A liga aceita no máximo ${MAX_CLUBS} clubes.`}
         actions={
-          <DisabledHint reason={header.createDisabledReason}>
-            <Button size="md" onClick={header.onCreate} disabled={!!header.createDisabledReason}>
-              <Plus /> Novo clube
-            </Button>
-          </DisabledHint>
+          <Button size="md" onClick={header.onCreate}>
+            <Plus /> Novo clube
+          </Button>
         }
       />
 

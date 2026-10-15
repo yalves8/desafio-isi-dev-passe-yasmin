@@ -13,7 +13,6 @@ function renderTable(props: Partial<ClubsTableProps> = {}) {
         error={null}
         onRetry={vi.fn()}
         onCreate={vi.fn()}
-        canCreate
         sort="name"
         onSortChange={vi.fn()}
         {...props}

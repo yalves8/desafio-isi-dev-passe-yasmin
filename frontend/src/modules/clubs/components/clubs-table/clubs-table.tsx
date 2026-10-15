@@ -28,7 +28,6 @@ export function ClubsTable({
   error,
   onRetry,
   onCreate,
-  canCreate,
   sort,
   onSortChange,
 }: ClubsTableProps) {
@@ -51,7 +50,7 @@ export function ClubsTable({
           title: 'Nenhum clube cadastrado',
           description: `Crie o primeiro clube com nome e sigla. Ele começa com ${formatMoney(INITIAL_CASH)} em caixa e sem jogadores.`,
           action: (
-            <Button variant="outline" size="md" onClick={onCreate} disabled={!canCreate}>
+            <Button variant="outline" size="md" onClick={onCreate}>
               <Plus /> Novo clube
             </Button>
           ),

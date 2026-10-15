@@ -5,7 +5,6 @@ import type { Club, ClubSort } from '@/api/types'
 import { useFetch } from '@/hooks/use-fetch'
 import { useLeagueData } from '@/hooks/use-league-data'
 import { formatMoney } from '@/lib/format'
-import { MAX_CLUBS } from '../../clubs.constants'
 import { parseClubSort } from './clubs-page.utils'
 
 export function useClubsPage() {
@@ -20,7 +19,6 @@ export function useClubsPage() {
     keepPreviousData: true,
   })
   const list = clubs.data ?? []
-  const limitReached = list.length >= MAX_CLUBS
 
   const setParam = (key: string, value?: string) =>
     setSearchParams((prev) => {
@@ -31,19 +29,14 @@ export function useClubsPage() {
     })
 
   return {
-    header: {
-      onCreate: () => setParam('novo', '1'),
-      createDisabledReason: limitReached
-        ? `A liga aceita no máximo ${MAX_CLUBS} clubes.`
-        : undefined,
-    },
+    // O limite de 20 clubes fica com a API: a tela envia e mostra o 409 no diálogo
+    header: { onCreate: () => setParam('novo', '1') },
     table: {
       clubs: list,
       loading: clubs.loading,
       error: clubs.error,
       onRetry: refresh,
       onCreate: () => setParam('novo', '1'),
-      canCreate: !limitReached,
       sort,
       onSortChange: (value: ClubSort) => setParam('sort', value === 'name' ? undefined : value),
     },

@@ -38,14 +38,16 @@ describe('ClubsPage', () => {
     expect(screen.getByRole('dialog', { name: 'Novo clube' })).toBeInTheDocument()
   })
 
-  it('deve bloquear a criação quando a liga já tem 20 clubes', async () => {
+  it('deve deixar criar com 20 clubes: o limite é da API, que responde 409 no diálogo', async () => {
+    const user = userEvent.setup()
     vi.mocked(clubsService.list).mockResolvedValue(
       Array.from({ length: 20 }, (_, i) => clubFixture({ id: i + 1, name: `Clube ${i}` })),
     )
     renderClubs()
 
     expect(await screen.findByText('20 de 20')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /novo clube/i })).toBeDisabled()
+    await user.click(screen.getByRole('button', { name: /novo clube/i }))
+    expect(screen.getByRole('dialog', { name: 'Novo clube' })).toBeInTheDocument()
   })
 })
 
