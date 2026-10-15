@@ -1,3 +1,4 @@
+import { Loader2, SearchX, UserPlus, Users, X } from 'lucide-react'
 import { EmptyState, ErrorState } from '@/components/feedback/states'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -46,34 +47,49 @@ export function PlayersTable({ tabs, sort, list, actions, pagination }: PlayersT
       aria-label="Lista de jogadores"
       className="overflow-hidden rounded-xl border bg-card shadow-2xs"
     >
-      <PlayersToolbar tabs={tabs} sort={sort} />
-
-      {error && (
-        <div className="border-t p-4">
-          <ErrorState message={error} onRetry={list.onRetry} />
-        </div>
-      )}
-
-      {isEmpty && (
-        <div className="border-t p-4">
+      {error ? (
+        <ErrorState
+          title="Não foi possível carregar os jogadores"
+          message={error}
+          onRetry={list.onRetry}
+        />
+      ) : isEmpty ? (
+        empty.hasFilters ? (
           <EmptyState
-            title="Nenhum jogador encontrado"
-            description={
-              empty.hasFilters
-                ? 'Nenhum jogador atende a todos os filtros. Remova algum para ampliar a busca.'
-                : 'Cadastre o primeiro jogador da liga.'
+            icon={SearchX}
+            title={
+              empty.search
+                ? `Nenhum jogador encontrado para “${empty.search}”`
+                : 'Nenhum jogador encontrado'
             }
+            description="Confira a grafia ou tire alguns filtros. A busca ignora maiúsculas, minúsculas e acentos."
             action={
-              empty.hasFilters ? (
-                <Button variant="outline" onClick={empty.onClear}>
-                  Limpar filtros
-                </Button>
-              ) : (
-                <Button onClick={empty.onCreate}>Novo jogador</Button>
-              )
+              <Button variant="outline" size="md" onClick={empty.onClear}>
+                <X /> Limpar filtros
+              </Button>
             }
           />
+        ) : (
+          <EmptyState
+            icon={Users}
+            title="Nenhum jogador cadastrado"
+            description="Com o banco recém-criado, a lista começa vazia. Cadastre o primeiro jogador da liga."
+            action={
+              <Button variant="outline" size="md" onClick={empty.onCreate}>
+                <UserPlus /> Novo jogador
+              </Button>
+            }
+          />
+        )
+      ) : showSkeleton ? (
+        <div className="flex items-center justify-between gap-3 p-4">
+          <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="size-4 animate-spin" aria-hidden /> Carregando jogadores…
+          </p>
+          <Skeleton className="h-9 w-56" />
         </div>
+      ) : (
+        <PlayersToolbar tabs={tabs} sort={sort} />
       )}
 
       {!error && !isEmpty && (
@@ -99,10 +115,27 @@ export function PlayersTable({ tabs, sort, list, actions, pagination }: PlayersT
             </TableHeader>
             <TableBody className={cn(loading && 'opacity-60 transition-opacity')}>
               {showSkeleton
-                ? Array.from({ length: 5 }, (_, i) => (
-                    <TableRow key={i} className="h-14">
-                      <TableCell colSpan={COLUMNS.length + 1}>
-                        <Skeleton className="h-6 w-full" />
+                ? Array.from({ length: 10 }, (_, i) => (
+                    <TableRow key={i} className="h-14" aria-hidden>
+                      <TableCell className="px-2 pl-4">
+                        <span className="flex items-center gap-3">
+                          <Skeleton className="size-8 rounded-full" />
+                          <Skeleton className={cn('h-3', i % 2 ? 'w-36' : 'w-28')} />
+                        </span>
+                      </TableCell>
+                      {COLUMNS.slice(1).map((col) => (
+                        <TableCell key={col.label} className="px-2">
+                          <Skeleton
+                            className={cn(
+                              'h-3',
+                              col.label === 'Condição' ? 'h-5 w-20 rounded-full' : 'w-12',
+                              col.numeric && 'ml-auto',
+                            )}
+                          />
+                        </TableCell>
+                      ))}
+                      <TableCell className="pr-4">
+                        <Skeleton className="ml-auto size-8 rounded-md" />
                       </TableCell>
                     </TableRow>
                   ))

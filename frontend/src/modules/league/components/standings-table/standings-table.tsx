@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { Tag } from '@/components/data-display/tag/tag'
-import { ErrorState } from '@/components/feedback/states'
+import { ListOrdered } from 'lucide-react'
+import { EmptyState, ErrorState } from '@/components/feedback/states'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
@@ -40,9 +41,11 @@ export function StandingsTable({
       className="overflow-hidden rounded-xl border bg-card shadow-2xs"
     >
       {error ? (
-        <div className="p-4">
-          <ErrorState message={error} onRetry={onRetry} />
-        </div>
+        <ErrorState
+          title="Não foi possível carregar a classificação"
+          message={error}
+          onRetry={onRetry}
+        />
       ) : loading && standings.length === 0 ? (
         <div
           role="status"
@@ -53,9 +56,11 @@ export function StandingsTable({
           <Skeleton className="h-10 w-full" />
         </div>
       ) : standings.length === 0 ? (
-        <p className="px-6 py-12 text-center text-sm text-muted-foreground">
-          Nenhum clube cadastrado. A classificação aparece quando houver clubes.
-        </p>
+        <EmptyState
+          icon={ListOrdered}
+          title="Nenhum clube cadastrado"
+          description="A classificação mostra todos os clubes, mesmo os que ainda não jogaram."
+        />
       ) : (
         <>
           <Table aria-busy={loading}>

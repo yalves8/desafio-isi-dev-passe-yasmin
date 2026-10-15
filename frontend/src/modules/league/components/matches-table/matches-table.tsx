@@ -74,7 +74,11 @@ export function MatchesTable({
 
       {error ? (
         <div className="border-t p-4">
-          <ErrorState message={error} onRetry={onRetry} />
+          <ErrorState
+            title="Não foi possível carregar as partidas"
+            message={error}
+            onRetry={onRetry}
+          />
         </div>
       ) : loading && matches.length === 0 ? (
         <div

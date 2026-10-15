@@ -131,15 +131,39 @@ describe('ClubDetailsPage', () => {
     await waitFor(() => expect(clubsService.getLineup).toHaveBeenCalledTimes(2))
   })
 
-  it('deve mostrar o erro quando o clube não existe', async () => {
-    vi.mocked(clubsService.get).mockRejectedValue(new Error('404'))
+  it('deve mostrar que o clube não existe quando a API responde 404 (E04)', async () => {
+    const config = { headers: new AxiosHeaders() }
+    vi.mocked(clubsService.get).mockRejectedValue(
+      new AxiosError(
+        'Not Found',
+        '404',
+        config,
+        {},
+        {
+          status: 404,
+          statusText: 'Not Found',
+          data: { message: 'Clube não encontrado' },
+          headers: {},
+          config,
+        },
+      ),
+    )
     renderDetails('/clubes/99')
 
-    expect(await screen.findByRole('alert')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /voltar para os clubes/i })).toHaveAttribute(
+    expect(await screen.findByText('Clube não encontrado')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /voltar para clubes/i })).toHaveAttribute(
       'href',
       '/clubes',
     )
+  })
+
+  it('deve mostrar o erro com tentar de novo quando a API falha de outro jeito', async () => {
+    vi.mocked(clubsService.get).mockRejectedValue(new Error('falhou'))
+    renderDetails('/clubes/1')
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível carregar o clube')
+    expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /voltar para clubes/i })).toBeInTheDocument()
   })
 })
 

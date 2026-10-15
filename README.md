@@ -94,7 +94,7 @@ Apresenta a liga sobre um campo de futebol, com números da liga (jogadores, liv
 ### Em toda ação
 - Mostra sucesso ou o `message` devolvido pela API.
 - O botão fica desabilitado durante o envio, e a mesma ação não é enviada duas vezes.
-- Toda lista mostra os estados de carregando, vazio e erro (com "Tentar novamente").
+- As 6 telas de lista (jogadores, clubes, elenco, histórico, partidas e classificação) mostram carregando, vazio e erro no padrão do Figma (seção Estados): o erro diz o que não carregou, traz o `message` da API e oferece "Tentar de novo"; clube inexistente mostra "Clube não encontrado" com o caminho de volta.
 - Valores em moedas aparecem com 2 casas e vírgula decimal, e o horário de referência é o de Brasília (UTC−3).
 - O layout é responsivo: em telas pequenas, o menu lateral vira uma gaveta.
 

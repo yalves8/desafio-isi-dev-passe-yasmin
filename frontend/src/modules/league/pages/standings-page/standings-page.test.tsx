@@ -69,4 +69,20 @@ describe('StandingsPage', () => {
     )
     expect(screen.getByText('Mais gols marcados')).toBeInTheDocument()
   })
+
+  it('deve mostrar a liga sem clubes e o erro com tentar de novo', async () => {
+    vi.mocked(matchesService.standings).mockResolvedValue([])
+    const { unmount } = renderPage(<StandingsPage />, {
+      route: '/classificacao',
+      path: '/classificacao',
+    })
+    expect(await screen.findByText('Nenhum clube cadastrado')).toBeInTheDocument()
+    unmount()
+
+    vi.mocked(matchesService.standings).mockRejectedValue(new Error('falhou'))
+    renderPage(<StandingsPage />, { route: '/classificacao', path: '/classificacao' })
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Não foi possível carregar a classificação',
+    )
+  })
 })

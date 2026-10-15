@@ -55,8 +55,10 @@ describe('MatchesPage', () => {
     vi.mocked(matchesService.list).mockResolvedValue([])
     renderPage(<MatchesPage />, { route: '/partidas', path: '/partidas' })
 
-    expect(await screen.findByText('Nenhuma partida ainda')).toBeInTheDocument()
+    expect(await screen.findByText('Nenhuma partida jogada')).toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Última partida' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Histórico de partidas' })).not.toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: /Nova partida/ })).toHaveLength(2)
   })
 
   it('deve abrir a nova partida pela URL (?nova=1)', async () => {

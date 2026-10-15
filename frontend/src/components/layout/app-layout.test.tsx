@@ -37,7 +37,7 @@ describe('AppLayout', () => {
     expect(screen.getByRole('link', { name: 'Classificação' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /águias fc/i })).toHaveAttribute('href', '/clubes/1')
     expect(screen.getByText('2 clubes · 23 jogadores')).toBeInTheDocument()
-    expect(screen.getByText('Nenhuma partida ainda')).toBeInTheDocument()
+    expect(screen.getByText('nenhuma ainda')).toBeInTheDocument()
   })
 
   it('deve mostrar o contador de partidas e a última partida da liga', async () => {

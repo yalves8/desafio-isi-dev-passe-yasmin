@@ -124,7 +124,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
                 {lastMatch}
               </Link>
             ) : (
-              <p className="truncate text-xs text-muted-foreground">Nenhuma partida ainda</p>
+              <p className="truncate text-xs text-muted-foreground">nenhuma ainda</p>
             )}
           </div>
         </div>

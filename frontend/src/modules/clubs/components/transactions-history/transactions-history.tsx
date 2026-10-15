@@ -20,11 +20,22 @@ import { TRANSACTION_TYPES } from './transactions-history.utils'
 
 /** Aba Histórico (Figma H01–H05): compras e vendas do clube, filtros, totais e CSV (RN17 e RN18) */
 export function TransactionsHistory({ club, version }: TransactionsHistoryProps) {
-  const { filters, history, clubCash, exporting, onExport } = useTransactionsHistory({
+  const { filters, history, clubCash, exporting, onExport, onRetry } = useTransactionsHistory({
     club,
     version,
   })
   const data = history.data
+
+  if (history.error && !filters.hasFilters) {
+    return (
+      <ErrorState
+        bordered
+        title="Não foi possível carregar o histórico"
+        message={`${history.error} Os totais e a exportação ficam indisponíveis até a lista carregar.`}
+        onRetry={onRetry}
+      />
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -132,11 +143,7 @@ export function TransactionsHistory({ club, version }: TransactionsHistoryProps)
                 </p>
               </div>
             </div>
-          ) : (
-            <div className="p-4">
-              <ErrorState message={history.error} />
-            </div>
-          )
+          ) : null
         ) : !data ? (
           <div role="status" aria-label="Carregando histórico" className="flex flex-col gap-2 p-4">
             <Skeleton className="h-10 w-full" />

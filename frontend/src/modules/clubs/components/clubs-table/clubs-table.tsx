@@ -41,8 +41,8 @@ export function ClubsTable({
 }: ClubsTableProps) {
   if (error) {
     return (
-      <section aria-label="Lista de clubes" className="rounded-xl border bg-card p-4">
-        <ErrorState message={error} onRetry={onRetry} />
+      <section aria-label="Lista de clubes" className="rounded-xl border bg-card shadow-2xs">
+        <ErrorState title="Não foi possível carregar os clubes" message={error} onRetry={onRetry} />
       </section>
     )
   }

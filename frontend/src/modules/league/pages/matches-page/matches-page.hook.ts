@@ -48,6 +48,8 @@ export function useMatchesPage() {
       match: latest.data?.[0],
       loading: latest.loading && latest.data === undefined,
     },
+    /** Liga sem nenhuma partida (E06): a tela mostra só o convite para jogar a primeira */
+    leagueEmpty: latest.data?.length === 0 && !latest.error && clubId === undefined,
     table: {
       matches: list.data ?? [],
       clubsById,

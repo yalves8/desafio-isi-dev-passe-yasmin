@@ -235,6 +235,7 @@ export function usePlayersPage() {
         highlightId,
         empty: {
           hasFilters: chips.length > 0 || params.tab !== 'all',
+          search: params.search || undefined,
           onClear: () => clearFilters({ tab: 'all' }),
           onCreate: () => setDialog({ type: 'create' }),
         },

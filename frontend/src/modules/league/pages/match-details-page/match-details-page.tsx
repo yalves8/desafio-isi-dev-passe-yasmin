@@ -23,7 +23,12 @@ export function MatchDetailsPage() {
     return (
       <div className="flex flex-col gap-4">
         {back}
-        <ErrorState message={match.error} onRetry={match.onRetry} />
+        <ErrorState
+          bordered
+          title="Não foi possível carregar a partida"
+          message={match.error}
+          onRetry={match.onRetry}
+        />
       </div>
     )
   }

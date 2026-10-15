@@ -68,7 +68,7 @@ describe('PlayersTable', () => {
   it('deve oferecer cadastro quando a liga não tem jogadores', () => {
     renderTable()
 
-    expect(screen.getByText('Cadastre o primeiro jogador da liga.')).toBeInTheDocument()
+    expect(screen.getByText('Nenhum jogador cadastrado')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Novo jogador' })).toBeInTheDocument()
   })
 
@@ -76,5 +76,6 @@ describe('PlayersTable', () => {
     renderTable({ loading: true })
 
     expect(screen.getByRole('table')).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByRole('status')).toHaveTextContent('Carregando jogadores…')
   })
 })

@@ -13,7 +13,8 @@ import type { ClubDetailsDialog } from './club-details-page.types'
 import { lineupEditorKey, parseClubTab } from './club-details-page.utils'
 
 export function useClubDetailsPage() {
-  const clubId = Number(useParams().id)
+  const { id } = useParams()
+  const clubId = Number(id)
   const [searchParams, setSearchParams] = useSearchParams()
   const tab = parseClubTab(searchParams.get('aba'))
   const { version, refresh } = useLeagueData()
@@ -29,7 +30,9 @@ export function useClubDetailsPage() {
   const history = useFetch(`transactions-count:${clubId}:${version}`, () =>
     clubsService.getTransactions(clubId),
   )
-  useBreadcrumbDetail(club.data?.name)
+  // Clube inexistente (ou id inválido na URL): a API responde 404 e a trilha mostra o id (E04)
+  const notFound = club.errorStatus === 404
+  useBreadcrumbDetail(club.data?.name ?? (notFound ? `Clube ${id}` : undefined))
 
   const squad = club.data?.players ?? []
 
@@ -69,6 +72,7 @@ export function useClubDetailsPage() {
       data: club.data,
       loading: club.loading && !club.data,
       error: club.error,
+      notFound,
       onRetry: refresh,
     },
     squad,

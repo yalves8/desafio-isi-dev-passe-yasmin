@@ -1,6 +1,6 @@
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, SearchX } from 'lucide-react'
 import { Link } from 'react-router'
-import { ErrorState } from '@/components/feedback/states'
+import { EmptyState, ErrorState } from '@/components/feedback/states'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ClubHeader } from '../../components/club-header/club-header'
@@ -17,15 +17,34 @@ export function ClubDetailsPage() {
   const { club, squad, tabs, lineup, version, dialog } = useClubDetailsPage()
   const current = dialog.current
 
+  const backToClubs = (
+    <Button variant="outline" size="md" asChild>
+      <Link to="/clubes">
+        <ArrowLeft /> Voltar para clubes
+      </Link>
+    </Button>
+  )
+  if (club.notFound) {
+    return (
+      <EmptyState
+        bordered
+        icon={SearchX}
+        title="Clube não encontrado"
+        description="O endereço pode estar errado ou o clube não existe."
+        action={backToClubs}
+      />
+    )
+  }
   if (club.error) {
     return (
       <div className="flex flex-col gap-4">
-        <ErrorState message={club.error} onRetry={club.onRetry} />
-        <Button variant="outline" size="md" className="self-start" asChild>
-          <Link to="/clubes">
-            <ArrowLeft /> Voltar para os clubes
-          </Link>
-        </Button>
+        <ErrorState
+          bordered
+          title="Não foi possível carregar o clube"
+          message={club.error}
+          onRetry={club.onRetry}
+        />
+        <div className="self-start">{backToClubs}</div>
       </div>
     )
   }
@@ -64,7 +83,12 @@ export function ClubDetailsPage() {
 
       {tabs.value === 'escalacao' &&
         (lineup.error ? (
-          <ErrorState message={lineup.error} onRetry={lineup.onRetry} />
+          <ErrorState
+            bordered
+            title="Não foi possível carregar a escalação"
+            message={lineup.error}
+            onRetry={lineup.onRetry}
+          />
         ) : lineup.data ? (
           <LineupEditor
             key={lineup.editorKey}

@@ -12,7 +12,13 @@ export interface PlayersTableProps extends PlayersToolbarProps {
     onRetry: () => void
     /** Linha alterada pela última ação */
     highlightId?: number
-    empty: { hasFilters: boolean; onClear: () => void; onCreate: () => void }
+    empty: {
+      hasFilters: boolean
+      /** Busca digitada, citada no estado vazio (E02) */
+      search?: string
+      onClear: () => void
+      onCreate: () => void
+    }
   }
   actions: PlayerRowActions
   pagination: PlayersPaginationProps

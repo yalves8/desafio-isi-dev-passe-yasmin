@@ -102,6 +102,17 @@ describe('TransactionsHistory', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument()
     expect(screen.queryByText(/soma das variações/)).not.toBeInTheDocument()
   })
+
+  it('deve trocar o card inteiro pelo erro quando a lista falha sem filtros (E05)', async () => {
+    vi.mocked(clubsService.getTransactions).mockRejectedValue(new Error('falhou'))
+    render(<TransactionsHistory club={clubFixture()} version={0} />)
+
+    const alert = await screen.findByRole('alert')
+    expect(alert).toHaveTextContent('Não foi possível carregar o histórico')
+    expect(alert).toHaveTextContent('Os totais e a exportação ficam indisponíveis')
+    expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Exportar CSV' })).not.toBeInTheDocument()
+  })
 })
 
 describe('transactions-history utils', () => {

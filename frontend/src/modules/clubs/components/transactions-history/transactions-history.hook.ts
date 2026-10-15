@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLeagueData } from '@/hooks/use-league-data'
 import { toast } from 'sonner'
 import { clubsService } from '@/api/clubs.service'
 import type { Club, TransactionType } from '@/api/types'
@@ -16,6 +17,7 @@ import {
 const ALL_TYPES = TRANSACTION_TYPES.map((t) => t.value)
 
 export function useTransactionsHistory({ club, version }: { club: Club; version: number }) {
+  const { refresh } = useLeagueData()
   const [types, setTypes] = useState<TransactionType[]>(ALL_TYPES)
   const [playerId, setPlayerId] = useState<number>()
   const filters = toTransactionFilters(types, playerId)
@@ -62,6 +64,7 @@ export function useTransactionsHistory({ club, version }: { club: Club; version:
       error: history.error,
     },
     clubCash: club.cash,
+    onRetry: refresh,
     exporting: exportCsv.isPending,
     onExport: async () => {
       const result = await exportCsv.run()

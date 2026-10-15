@@ -109,15 +109,17 @@ describe('PlayersPage', () => {
     vi.mocked(playersService.list).mockRejectedValue(new Error('falhou'))
     renderPlayers()
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Erro inesperado')
-    expect(screen.getByRole('button', { name: 'Tentar novamente' })).toBeInTheDocument()
+    const alert = await screen.findByRole('alert')
+    expect(alert).toHaveTextContent('Não foi possível carregar os jogadores')
+    expect(alert).toHaveTextContent('Erro inesperado')
+    expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument()
   })
 
   it('deve mostrar o estado vazio com ação de limpar filtros', async () => {
     mockList([])
     renderPlayers('/jogadores?search=zzz')
 
-    expect(await screen.findByText('Nenhum jogador encontrado')).toBeInTheDocument()
+    expect(await screen.findByText('Nenhum jogador encontrado para “zzz”')).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: 'Limpar filtros' }).length).toBeGreaterThan(0)
   })
 

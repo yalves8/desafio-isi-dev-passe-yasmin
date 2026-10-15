@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import { getErrorMessage } from '@/api/client'
+import { getErrorMessage, getErrorStatus } from '@/api/client'
 
 interface FetchResult<T> {
   key: string
   data?: T
   error?: string
+  /** Status HTTP da falha; ausente quando a resposta não chegou */
+  errorStatus?: number
 }
 
 interface FetchOptions {
@@ -27,7 +29,10 @@ export function useFetch<T>(
     let ignore = false
     fetcher()
       .then((data) => !ignore && setResult({ key, data }))
-      .catch((e) => !ignore && setResult({ key, error: getErrorMessage(e) }))
+      .catch(
+        (e) =>
+          !ignore && setResult({ key, error: getErrorMessage(e), errorStatus: getErrorStatus(e) }),
+      )
     return () => {
       ignore = true
     }
@@ -39,6 +44,7 @@ export function useFetch<T>(
   return {
     data: loading && !keepPreviousData ? undefined : result?.data,
     error: loading ? null : (result?.error ?? null),
+    errorStatus: loading ? undefined : result?.errorStatus,
     loading,
   }
 }
