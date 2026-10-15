@@ -33,6 +33,8 @@ describe('TransactionsTable', () => {
             created_at: '2026-11-02T10:15:00-03:00',
           },
         ]}
+        loading={false}
+        hasFilters={false}
       />,
     )
 
@@ -45,5 +47,16 @@ describe('TransactionsTable', () => {
     expect(within(buy).getByText('Compra')).toBeInTheDocument()
     expect(within(buy).getByText('−38,85')).toHaveClass('text-red-600')
     expect(within(buy).getByLabelText('sem lucro na compra')).toHaveTextContent('–')
+  })
+
+  it('deve explicar o histórico vazio conforme os filtros (H04)', () => {
+    const { rerender } = render(
+      <TransactionsTable transactions={[]} loading={false} hasFilters={false} />,
+    )
+    expect(screen.getByText('Nenhuma transação ainda')).toBeInTheDocument()
+
+    rerender(<TransactionsTable transactions={[]} loading={false} hasFilters />)
+    expect(screen.getByText('Nenhuma transação com esses filtros')).toBeInTheDocument()
+    expect(screen.queryByRole('table')).not.toBeInTheDocument()
   })
 })

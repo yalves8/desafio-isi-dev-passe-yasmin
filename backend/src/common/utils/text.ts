@@ -15,7 +15,12 @@ export function containsControlChars(text: string): boolean {
 }
 
 export function normalizeSpaces(text: string): string {
-  return text.trim().replace(/\s+/g, ' ');
+  return text.replace(/^ +| +$/g, '').replace(/ {2,}/g, ' ');
+}
+
+/** Tamanho em caracteres (pontos de código Unicode), como o enunciado define */
+export function charCount(text: string): number {
+  return Array.from(text).length;
 }
 
 export function removeAccents(text: string): string {

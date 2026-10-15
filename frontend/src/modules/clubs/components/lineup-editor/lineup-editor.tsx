@@ -1,8 +1,7 @@
-import { Check, CircleAlert, CircleCheck, Swords, TriangleAlert } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { Check, CircleCheck, Swords, TriangleAlert } from 'lucide-react'
 import { Tag } from '@/components/data-display/tag/tag'
+import { AlertMessage } from '@/components/feedback/alert-message/alert-message'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
 import { FormationPicker } from '../formation-picker/formation-picker'
 import { LineupPitch } from '../lineup-pitch/lineup-pitch'
 import { LineupReserves } from '../lineup-reserves/lineup-reserves'
@@ -10,39 +9,6 @@ import { LineupSlots } from '../lineup-slots/lineup-slots'
 import { useLineupEditor } from './lineup-editor.hook'
 import type { LineupEditorProps } from './lineup-editor.types'
 import { joinNames } from './lineup-editor.utils'
-
-function Notice({
-  tone,
-  title,
-  children,
-  className,
-}: {
-  tone: 'warning' | 'danger'
-  title: string
-  children: ReactNode
-  className?: string
-}) {
-  const Icon = tone === 'danger' ? CircleAlert : TriangleAlert
-  return (
-    <div
-      role={tone === 'danger' ? 'alert' : 'note'}
-      className={cn(
-        'flex gap-3 rounded-xl border px-4 py-3 text-sm',
-        tone === 'danger'
-          ? 'border-red-200 bg-red-50 text-red-700'
-          : 'border-amber-200 bg-amber-50 text-amber-800',
-        className,
-      )}
-    >
-      <Icon className="mt-0.5 size-4 shrink-0" aria-hidden />
-      <p>
-        <span className="font-medium">{title}</span>
-        <br />
-        {children}
-      </p>
-    </div>
-  )
-}
 
 /** Aba Escalação: formação, 5 titulares, prévia no campo e reservas (RN19) */
 export function LineupEditor({
@@ -53,18 +19,18 @@ export function LineupEditor({
   saveError,
   onSave,
 }: LineupEditorProps) {
-  const editor = useLineupEditor({ lineup, squad })
+  const editor = useLineupEditor({ lineup, squad, onSave })
   const incompleteTitle = `Escalação incompleta: o ${clubName} não pode jogar partidas`
   const neverSaved = lineup.formation === null
 
   return (
     <div className="flex flex-col gap-6">
       {neverSaved && (
-        <Notice tone="warning" title={incompleteTitle}>
+        <AlertMessage variant="warning" title={incompleteTitle}>
           {editor.canClose
             ? 'O clube ainda não tem escalação. Escolha a formação e os 5 titulares e salve.'
             : `O elenco tem ${squad.length} ${squad.length === 1 ? 'jogador' : 'jogadores'}, e a escalação precisa de 5: 1 goleiro e 4 jogadores de linha. Compre jogadores e salve a escalação com os 5 titulares.`}
-        </Notice>
+        </AlertMessage>
       )}
 
       <div className="grid items-start gap-6 xl:grid-cols-[1fr_320px]">
@@ -95,19 +61,19 @@ export function LineupEditor({
 
           <div className="flex flex-col gap-4 p-5">
             {saveError && (
-              <Notice tone="danger" title="A escalação foi recusada">
+              <AlertMessage variant="error" title="A escalação foi recusada">
                 {saveError}
-              </Notice>
+              </AlertMessage>
             )}
             {!neverSaved && !lineup.complete && (
-              <Notice tone="warning" title={incompleteTitle}>
+              <AlertMessage variant="warning" title={incompleteTitle}>
                 A formação {lineup.formation} continua salva, com {lineup.players.length}{' '}
                 {lineup.players.length === 1 ? 'titular' : 'titulares'}. Titular vendido ou que
                 ficou Doente sai da escalação e não volta sozinho.{' '}
                 {editor.canClose
                   ? 'Escolha os titulares e salve de novo.'
                   : 'Com os jogadores disponíveis, nenhuma formação fecha: o clube precisa comprar um jogador e escalar de novo.'}
-              </Notice>
+              </AlertMessage>
             )}
             <div>
               <p className="font-medium">Formação</p>
@@ -123,13 +89,13 @@ export function LineupEditor({
 
           {editor.worn.length > 0 && (
             <div className="px-5 pt-4">
-              <Notice
-                tone="warning"
+              <AlertMessage
+                variant="warning"
                 title={`${joinNames(editor.worn.map((p) => p.name))} ${editor.worn.length === 1 ? 'está mal condicionado' : 'estão mal condicionados'}`}
               >
                 {editor.worn.length === 1 ? 'Pode' : 'Podem'} jogar, mas cada atributo vale 15% a
                 menos durante a partida.
-              </Notice>
+              </AlertMessage>
             </div>
           )}
 
@@ -142,11 +108,7 @@ export function LineupEditor({
             <Button variant="outline" size="md" onClick={editor.reset} disabled={isSaving}>
               Cancelar
             </Button>
-            <Button
-              size="md"
-              onClick={() => onSave(editor.formation, editor.playerIds)}
-              disabled={!editor.filled || isSaving}
-            >
+            <Button size="md" onClick={editor.submit} disabled={isSaving}>
               <Check /> {isSaving ? 'Salvando…' : 'Salvar escalação'}
             </Button>
           </div>

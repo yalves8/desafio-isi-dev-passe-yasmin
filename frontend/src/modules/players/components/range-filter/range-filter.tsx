@@ -1,7 +1,8 @@
+import { useId } from 'react'
+import { FieldMessage } from '@/components/form/field-message/field-message'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
 import { FilterTrigger } from '../filter-trigger/filter-trigger'
 import { useRangeFilter } from './range-filter.hook'
 import type { RangeFilterProps } from './range-filter.types'
@@ -10,6 +11,7 @@ import type { RangeFilterProps } from './range-filter.types'
 export function RangeFilter({ icon, label, activeLabel, unit, ...options }: RangeFilterProps) {
   const range = useRangeFilter(options)
   const { bounds } = options
+  const id = useId()
 
   return (
     <Popover open={range.open} onOpenChange={range.onOpenChange}>
@@ -33,6 +35,7 @@ export function RangeFilter({ icon, label, activeLabel, unit, ...options }: Rang
               value={range.draft.from}
               onChange={(e) => range.setFrom(e.target.value)}
               aria-invalid={!!range.error}
+              aria-describedby={`${id}-message`}
             />
             <span className="text-sm text-muted-foreground">a</span>
             <Input
@@ -42,11 +45,14 @@ export function RangeFilter({ icon, label, activeLabel, unit, ...options }: Rang
               value={range.draft.to}
               onChange={(e) => range.setTo(e.target.value)}
               aria-invalid={!!range.error}
+              aria-describedby={`${id}-message`}
             />
           </div>
-          <p className={cn('text-xs text-muted-foreground', range.error && 'text-destructive')}>
-            {range.error ?? `Deixe um lado vazio para não limitar. Em ${unit}.`}
-          </p>
+          <FieldMessage
+            id={id}
+            hint={`Deixe um lado vazio para não limitar. Em ${unit}.`}
+            error={range.error ?? undefined}
+          />
           <div className="flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={range.clear}>
               Limpar

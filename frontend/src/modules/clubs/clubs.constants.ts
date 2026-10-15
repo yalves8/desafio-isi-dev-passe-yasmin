@@ -22,10 +22,16 @@ export const CLUB_SORT_OPTIONS: { value: ClubSort; label: string; short: string 
   },
 ]
 
-export const CLUB_DETAILS_TABS: ClubDetailsTab[] = ['elenco', 'escalacao', 'historico']
+/** Aba aberta no endereço do clube (`?aba=escalacao`); o elenco é a aba padrão, sem parâmetro */
+export const CLUB_TAB_PARAM = 'aba'
+export const CLUB_TAB_SLUGS: Record<ClubDetailsTab, string> = {
+  squad: 'elenco',
+  lineup: 'escalacao',
+  history: 'historico',
+}
 
 /** RN19: jogadores de linha por setor em cada formação (o goleiro fica fora da conta) */
-export const FORMATIONS: Record<Formation, Record<Exclude<LineupSector, 'GOL'>, number>> = {
+export const FORMATIONS: Record<Formation, Record<Exclude<LineupSector, 'GK'>, number>> = {
   '3-1': { DEF: 3, MID: 0, ATT: 1 },
   '2-2': { DEF: 2, MID: 0, ATT: 2 },
   '2-1-1': { DEF: 2, MID: 1, ATT: 1 },
@@ -46,7 +52,7 @@ export const SECTORS: Record<
   LineupSector,
   { label: string; positions: string; empty: string; short: string }
 > = {
-  GOL: { label: 'Goleiro', positions: 'GOL', empty: 'Sem GOL no elenco', short: 'Goleiro' },
+  GK: { label: 'Goleiro', positions: 'GOL', empty: 'Sem GOL no elenco', short: 'Goleiro' },
   DEF: { label: 'Defesa', positions: 'ZAG ou LAT', empty: 'Sem ZAG ou LAT', short: 'Defesa' },
   MID: { label: 'Meio', positions: 'MEI', empty: 'Sem MEI no elenco', short: 'Meio' },
   ATT: { label: 'Ataque', positions: 'ATA', empty: 'Sem ATA no elenco', short: 'Ataque' },

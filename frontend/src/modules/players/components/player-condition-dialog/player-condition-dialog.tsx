@@ -1,5 +1,6 @@
-import { Lock, TriangleAlert } from 'lucide-react'
+import { Lock } from 'lucide-react'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
+import { AlertMessage } from '@/components/feedback/alert-message/alert-message'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { cn } from '@/lib/utils'
 import { CONDITION_OPTIONS } from '../../players.constants'
@@ -80,18 +81,10 @@ export function PlayerConditionDialog({
       </RadioGroup>
 
       {showLineupNotice && (
-        <div
-          role="note"
-          className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
-        >
-          <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
-          <p>
-            <span className="font-medium">Se {player.name} for titular</span>
-            <br />
-            Ao passar a Doente, ele sai da escalação, e o {club?.name ?? 'clube'} só volta a jogar
-            partidas depois de escalar de novo os 5 titulares.
-          </p>
-        </div>
+        <AlertMessage variant="warning" title={`Se ${player.name} for titular`}>
+          Ao passar a Doente, ele sai da escalação, e o {club?.name ?? 'clube'} só volta a jogar
+          partidas depois de escalar de novo os 5 titulares.
+        </AlertMessage>
       )}
     </ActionDialog>
   )

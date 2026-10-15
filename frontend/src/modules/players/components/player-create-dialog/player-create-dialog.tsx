@@ -1,6 +1,7 @@
 import { Info, UserRound } from 'lucide-react'
 import { Controller } from 'react-hook-form'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
+import { FieldMessage } from '@/components/form/field-message/field-message'
 import { FormField } from '@/components/form/form-field/form-field'
 import { InputWithIcon } from '@/components/form/input-with-icon/input-with-icon'
 import { NumberField } from '@/components/form/number-field/number-field'
@@ -53,21 +54,20 @@ export function PlayerCreateDialog({ onClose, onCreated }: PlayerCreateDialogPro
           />
         </FormField>
 
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Posição</span>
+        <FormField id="player-position" label="Posição" error={errors.position?.message} group>
           <Controller
             control={form.control}
             name="position"
             render={({ field }) => (
               <PositionPicker
+                id="player-position"
                 value={field.value}
                 onChange={field.onChange}
                 invalid={!!errors.position}
               />
             )}
           />
-          {errors.position && <p className="text-xs text-destructive">{errors.position.message}</p>}
-        </div>
+        </FormField>
 
         <div className="grid gap-4 sm:grid-cols-3">
           <NumberField
@@ -95,9 +95,9 @@ export function PlayerCreateDialog({ onClose, onCreated }: PlayerCreateDialogPro
               atributos não pode passar de 480.
             </p>
             {attributesError && (
-              <p role="alert" className="mt-2 text-xs text-destructive">
-                {attributesError}
-              </p>
+              <div className="mt-2">
+                <FieldMessage id="player-attributes" error={attributesError} />
+              </div>
             )}
           </div>
 

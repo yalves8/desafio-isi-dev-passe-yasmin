@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { ParseIdPipe } from '../../../common/pipes/parse-id.pipe.js';
+import { ParseQueryPipe } from '../../../common/pipes/parse-query.pipe.js';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe.js';
 import { FindMatchByIdUseCase } from '../../application/usecases/find-match-by-id/find-match-by-id.usecase.js';
 import { FindMatchesUseCase } from '../../application/usecases/find-matches/find-matches.usecase.js';
@@ -62,12 +63,15 @@ export class MatchesController {
   /**
    * Histórico de partidas, da mais recente para a mais antiga; filtro `club_id`.
    *
-   * @param {Record<string, unknown>} query - Filtros.
+   * @param query - Filtro `club_id` validado.
    * @returns {Promise<MatchOutput[]>} Partidas sem duelos.
    */
   @Get()
-  async findAll(@Query() query: Record<string, unknown>) {
-    return this.findMatchesUseCase.execute(parseMatchesQuery(query));
+  async findAll(
+    @Query(new ParseQueryPipe(parseMatchesQuery))
+    query: ReturnType<typeof parseMatchesQuery>,
+  ) {
+    return this.findMatchesUseCase.execute(query);
   }
 
   /**

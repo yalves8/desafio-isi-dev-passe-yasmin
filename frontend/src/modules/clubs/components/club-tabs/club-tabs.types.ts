@@ -2,6 +2,6 @@ import type { ClubDetailsTab } from '../../clubs.types'
 
 export interface ClubTabsProps {
   value: ClubDetailsTab
-  counts: { elenco?: number; historico?: number }
+  counts: { squad?: number; history?: number }
   onChange: (tab: ClubDetailsTab) => void
 }

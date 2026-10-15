@@ -1,5 +1,5 @@
 # ---- dependências de produção ----
-FROM node:24-slim AS prod-deps
+FROM node:22-slim AS prod-deps
 WORKDIR /app
 COPY package.json package-lock.json .npmrc prisma.config.ts ./
 COPY prisma ./prisma
@@ -13,16 +13,16 @@ RUN npm ci --omit=dev \
   && npm cache clean --force
 
 # ---- build ----
-FROM node:24-slim AS build
+FROM node:22-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json .npmrc prisma.config.ts ./
 COPY prisma ./prisma
 RUN npm ci
 COPY . .
-RUN npm run build && npm run build:seed
+RUN npm run build
 
 # ---- runtime ----
-FROM node:24-slim
+FROM node:22-slim
 ENV NODE_ENV=production TZ=America/Sao_Paulo PRISMA_HIDE_UPDATE_MESSAGE=1
 WORKDIR /app
 COPY --from=prod-deps /app/node_modules ./node_modules

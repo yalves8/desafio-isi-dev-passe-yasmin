@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   containsControlChars,
   isSubsequence,
+  charCount,
   normalizeSpaces,
   removeAccents,
 } from '../../../common/utils/text.js';
@@ -25,7 +26,7 @@ export const createClubSchema = z
         message: 'Caracteres de controle não são permitidos no nome',
       })
       .transform((v) => normalizeSpaces(v))
-      .refine((v) => v.length >= 3 && v.length <= 60, {
+      .refine((v) => charCount(v) >= 3 && charCount(v) <= 60, {
         message: 'Nome do clube deve ter entre 3 e 60 caracteres',
       })
       .refine(
@@ -37,7 +38,7 @@ export const createClubSchema = z
           message: 'Nome do clube deve ter entre 2 e 5 palavras',
         },
       )
-      .refine((v) => /^[\p{L}\s\-.]+$/u.test(v), {
+      .refine((v) => /^[\p{L} \-.]+$/u.test(v), {
         message: 'Nome do clube aceita apenas letras, espaços, hífen e ponto',
       }),
     acronym: z

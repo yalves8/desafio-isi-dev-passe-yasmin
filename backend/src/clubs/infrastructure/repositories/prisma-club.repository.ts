@@ -56,7 +56,6 @@ export class PrismaClubRepository implements IClubRepository {
       raw.nome_normalizado,
       raw.sigla,
       Number(raw.caixa),
-      raw.formacao,
       raw.criado_em,
     );
   }
@@ -78,7 +77,6 @@ export class PrismaClubRepository implements IClubRepository {
       raw.nome_normalizado,
       raw.sigla,
       Number(raw.caixa),
-      raw.formacao,
       raw.criado_em,
     );
   }
@@ -112,7 +110,6 @@ export class PrismaClubRepository implements IClubRepository {
       raw.nome_normalizado,
       raw.sigla,
       Number(raw.caixa),
-      raw.formacao,
       raw.criado_em,
     );
 
@@ -178,7 +175,6 @@ export class PrismaClubRepository implements IClubRepository {
         raw.nome_normalizado,
         raw.sigla,
         Number(raw.caixa),
-        raw.formacao,
         raw.criado_em,
       ),
       players: raw.jogadores.map(
@@ -236,7 +232,6 @@ export class PrismaClubRepository implements IClubRepository {
       created.nome_normalizado,
       created.sigla,
       Number(created.caixa),
-      created.formacao,
       created.criado_em,
     );
   }

@@ -1,19 +1,12 @@
 import axios, { isAxiosError } from 'axios'
 import type { ApiError } from './types'
 
-export const TOKEN_KEY = 'token'
-
 const rawBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 const normalizedBaseUrl = rawBaseUrl.endsWith('/api/v1')
   ? rawBaseUrl
   : `${rawBaseUrl.replace(/\/$/, '')}/api/v1`
 
 export const api = axios.create({ baseURL: normalizedBaseUrl })
-
-api.interceptors.response.use(
-  (res) => res,
-  (error) => Promise.reject(error),
-)
 
 export function getErrorMessage(error: unknown): string {
   if (isAxiosError<ApiError>(error)) {

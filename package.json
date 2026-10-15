@@ -4,8 +4,8 @@
   "description": "Ferramentas do repositório (hooks de Git e commitlint). Backend e frontend têm package.json próprios.",
   "type": "module",
   "engines": {
-    "node": ">=24",
-    "npm": ">=11"
+    "node": "^22.12.0",
+    "npm": ">=10"
   },
   "scripts": {
     "prepare": "git rev-parse --git-dir >/dev/null 2>&1 && lefthook install || echo 'lefthook: sem repositório git, hooks não instalados'",

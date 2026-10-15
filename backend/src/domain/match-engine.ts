@@ -11,13 +11,13 @@ export interface Starter {
 
 export type DuelAttribute = 'shooting' | 'passing' | 'dribbling' | 'defending';
 
-export interface DuelSide {
+interface DuelSide {
   player: Starter;
   attribute: DuelAttribute;
   value: number;
 }
 
-export interface Duel {
+interface Duel {
   order: number;
   attackingSide: 'home' | 'away';
   attacker: DuelSide;
@@ -27,7 +27,7 @@ export interface Duel {
 
 export type MatchResult = 'MANDANTE' | 'VISITANTE' | 'EMPATE';
 
-export interface MatchOutcome {
+interface MatchOutcome {
   duels: Duel[];
   homeGoals: number;
   awayGoals: number;
@@ -110,11 +110,16 @@ export function playMatch(
   const awayGoals = duels.filter(
     (d) => d.attackingSide === 'away' && d.goal,
   ).length;
-  const result: MatchResult =
-    homeGoals === awayGoals
-      ? 'EMPATE'
-      : homeGoals > awayGoals
-        ? 'MANDANTE'
-        : 'VISITANTE';
-  return { duels, homeGoals, awayGoals, result };
+  return {
+    duels,
+    homeGoals,
+    awayGoals,
+    result: matchResult(homeGoals, awayGoals),
+  };
+}
+
+/** Resultado pelo placar: quem marcou mais gols, ou EMPATE (RN20). */
+export function matchResult(homeGoals: number, awayGoals: number): MatchResult {
+  if (homeGoals === awayGoals) return 'EMPATE';
+  return homeGoals > awayGoals ? 'MANDANTE' : 'VISITANTE';
 }

@@ -1,6 +1,7 @@
-import { CircleAlert, Shield, Wallet } from 'lucide-react'
+import { Shield, Wallet } from 'lucide-react'
 import { Controller } from 'react-hook-form'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
+import { AlertMessage } from '@/components/feedback/alert-message/alert-message'
 import { FormField } from '@/components/form/form-field/form-field'
 import { InputWithIcon } from '@/components/form/input-with-icon/input-with-icon'
 import { Input } from '@/components/ui/input'
@@ -27,17 +28,9 @@ export function ClubCreateDialog({ onClose, onCreated }: ClubCreateDialogProps) 
       confirm={{ label: 'Criar clube', busyLabel: 'Criando…', form: FORM_ID }}
     >
       {apiError && (
-        <div
-          role="alert"
-          className="flex gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-        >
-          <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
-          <p>
-            <span className="font-medium">Não foi possível criar o clube</span>
-            <br />
-            {apiError}
-          </p>
-        </div>
+        <AlertMessage variant="error" title="Não foi possível criar o clube">
+          {apiError}
+        </AlertMessage>
       )}
 
       <form id={FORM_ID} noValidate onSubmit={onSubmit} className="flex flex-col gap-5">

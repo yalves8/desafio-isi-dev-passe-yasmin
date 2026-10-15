@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service.js';
 import { Condition } from '../../../domain/market-value.js';
-import { DuelAttribute, MatchResult } from '../../../domain/match-engine.js';
+import { DuelAttribute, matchResult } from '../../../domain/match-engine.js';
 import { Position } from '../../../domain/player-rating.js';
 import { Formation } from '../../../lineups/domain/formation.js';
 import { playerFromRow } from '../../../players/infrastructure/mappers/player.mapper.js';
@@ -44,12 +44,6 @@ type MatchRow = {
   }[];
 };
 
-/** `result` sai do placar gravado: não há coluna própria no esquema do desafio */
-function resultOf(home: number, away: number): MatchResult {
-  if (home === away) return 'EMPATE';
-  return home > away ? 'MANDANTE' : 'VISITANTE';
-}
-
 function toStored(row: MatchRow): StoredMatch {
   return {
     id: row.id,
@@ -66,7 +60,8 @@ function toStored(row: MatchRow): StoredMatch {
       formation: row.formacao_visitante as Formation,
       goals: row.gols_visitante,
     },
-    result: resultOf(row.gols_mandante, row.gols_visitante),
+    // `result` não tem coluna no esquema do desafio: sai do placar gravado
+    result: matchResult(row.gols_mandante, row.gols_visitante),
     duels: (row.duelos ?? []).map((d) => ({
       order: d.ordem,
       attackingClubId: d.clube_atacante_id,

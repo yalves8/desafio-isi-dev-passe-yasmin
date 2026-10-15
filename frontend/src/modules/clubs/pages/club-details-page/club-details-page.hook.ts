@@ -8,15 +8,16 @@ import { useAction } from '@/hooks/use-action'
 import { useBreadcrumbDetail } from '@/hooks/use-breadcrumb-detail'
 import { useFetch } from '@/hooks/use-fetch'
 import { useLeagueData } from '@/hooks/use-league-data'
+import { CLUB_TAB_PARAM } from '../../clubs.constants'
 import type { ClubDetailsTab } from '../../clubs.types'
 import type { ClubDetailsDialog } from './club-details-page.types'
-import { lineupEditorKey, parseClubTab } from './club-details-page.utils'
+import { clubTabParams, lineupEditorKey, parseClubTab } from './club-details-page.utils'
 
 export function useClubDetailsPage() {
   const { id } = useParams()
   const clubId = Number(id)
   const [searchParams, setSearchParams] = useSearchParams()
-  const tab = parseClubTab(searchParams.get('aba'))
+  const tab = parseClubTab(searchParams.get(CLUB_TAB_PARAM))
   const { version, refresh } = useLeagueData()
   const [dialog, setDialog] = useState<ClubDetailsDialog>(null)
   const [lineupError, setLineupError] = useState<string>()
@@ -79,12 +80,12 @@ export function useClubDetailsPage() {
     tabs: {
       value: tab,
       counts: {
-        elenco: club.data ? squad.length : undefined,
-        historico: history.data?.data.length,
+        squad: club.data ? squad.length : undefined,
+        history: history.data?.data.length,
       },
       onChange: (next: ClubDetailsTab) => {
         setLineupError(undefined)
-        setSearchParams(next === 'elenco' ? {} : { aba: next })
+        setSearchParams(clubTabParams(next))
       },
     },
     lineup: {

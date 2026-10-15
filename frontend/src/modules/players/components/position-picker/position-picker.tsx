@@ -3,9 +3,15 @@ import { POSITION_OPTIONS } from '../../players.constants'
 import type { PositionPickerProps } from './position-picker.types'
 
 /** Cinco cartões de posição, na ordem oficial */
-export function PositionPicker({ value, onChange, lockedTo, invalid }: PositionPickerProps) {
+export function PositionPicker({ id, value, onChange, lockedTo, invalid }: PositionPickerProps) {
   return (
-    <div role="radiogroup" aria-label="Posição" className="grid grid-cols-5 gap-2">
+    <div
+      id={id}
+      role="radiogroup"
+      aria-labelledby={`${id}-label`}
+      aria-describedby={`${id}-message`}
+      className="grid grid-cols-5 gap-2"
+    >
       {POSITION_OPTIONS.map((option) => {
         const selected = value === option.value
         return (

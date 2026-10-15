@@ -9,7 +9,7 @@ export type Condition = 'APTO' | 'MAL_CONDICIONADO' | 'DOENTE'
 /** Ordenações aceitas por `GET /players?sort=` */
 export type PlayerSort = 'name' | 'value_desc' | 'value_asc' | 'age_desc' | 'age_asc' | 'position'
 
-export interface ContractDetails {
+interface ContractDetails {
   purchase_value: number
   loyalty_until: string
   remaining_days: number
@@ -165,7 +165,7 @@ export type MatchResult = 'MANDANTE' | 'VISITANTE' | 'EMPATE'
 export type DuelAttribute = 'shooting' | 'passing' | 'dribbling' | 'defending'
 
 /** Lado da partida: clube, formação do momento e gols */
-export interface MatchSide {
+interface MatchSide {
   club_id: number
   club_name: string
   formation: Formation

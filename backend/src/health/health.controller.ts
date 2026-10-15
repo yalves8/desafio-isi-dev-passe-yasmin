@@ -1,17 +1,15 @@
 import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { PrismaService } from '../common/prisma/prisma.service.js';
+import { HealthService } from './health.service.js';
 
 @ApiTags('health')
 @Controller('health')
 export class HealthController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly health: HealthService) {}
 
   @Get()
   async check() {
-    try {
-      await this.prisma.$queryRaw`SELECT 1`;
-    } catch {
+    if (!(await this.health.isDatabaseUp())) {
       throw new ServiceUnavailableException('Banco de dados indisponível');
     }
     return {

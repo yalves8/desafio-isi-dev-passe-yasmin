@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 export type ActionDialogSize = 'sm' | 'md' | 'lg' | 'xl'
 
-export interface ActionDialogConfirm {
+interface ActionDialogConfirm {
   label: string
   /** Texto enquanto `busy` (ex.: "Salvando…") */
   busyLabel?: string

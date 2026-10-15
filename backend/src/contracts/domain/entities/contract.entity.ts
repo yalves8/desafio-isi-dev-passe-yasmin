@@ -40,7 +40,10 @@ export class ContractEntity {
    * @param {Date} [now=new Date()] - Data de referência do cálculo.
    * @returns {Penalty} Detalhes da multa calculada (dias restantes, percentual e valor em centavos).
    */
-  public calculatePenalty(marketValue: number, now: Date = new Date()): Penalty {
+  public calculatePenalty(
+    marketValue: number,
+    now: Date = new Date(),
+  ): Penalty {
     const mvCents = toCents(marketValue);
     return loyaltyPenalty(mvCents, this.loyaltyUntil, now);
   }

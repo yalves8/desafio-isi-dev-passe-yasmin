@@ -17,7 +17,7 @@ export const LINEUP_SIZE = 5;
 type Sector = 'GK' | 'DEF' | 'MID' | 'ATT';
 
 /** Setor de cada posição: ZAG e LAT são defesa, MEI é meio e ATA é ataque */
-export function sectorOf(position: Position): Sector {
+function sectorOf(position: Position): Sector {
   if (position === 'GOL') return 'GK';
   if (position === 'MEI') return 'MID';
   if (position === 'ATA') return 'ATT';

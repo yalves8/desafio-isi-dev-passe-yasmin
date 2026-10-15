@@ -3,7 +3,6 @@ import { Condition, marketValue } from '../../../domain/market-value.js';
 import { fromCents, toCents } from '../../../domain/money.js';
 import {
   Attributes,
-  baseValue,
   overall,
   Position,
 } from '../../../domain/player-rating.js';
@@ -60,7 +59,7 @@ export class PlayerEntity {
     public readonly potential: number,
     public readonly deletedAt: Date | null = null,
     public readonly createdAt: Date = new Date(),
-    private activeContract: ContractEntity | null = null,
+    private readonly activeContract: ContractEntity | null = null,
   ) {}
 
   public getName(): string {
@@ -91,16 +90,8 @@ export class PlayerEntity {
     return this.clubId === null;
   }
 
-  public isDeleted(): boolean {
-    return this.deletedAt !== null;
-  }
-
   public getActiveContract(): ContractEntity | null {
     return this.activeContract;
-  }
-
-  public setActiveContract(contract: ContractEntity | null): void {
-    this.activeContract = contract;
   }
 
   /**
@@ -196,46 +187,5 @@ export class PlayerEntity {
       );
     }
     this.condition = newCondition;
-  }
-
-  /**
-   * Método de fábrica para criar uma nova entidade de jogador no momento do cadastro.
-   *
-   * Calcula o overall inicial e o valor base definitivo (RN06).
-   */
-  public static create(params: {
-    id: number;
-    name: string;
-    position: Position;
-    agility: number;
-    age: number;
-    attributes: PlayerTechnicalAttributes;
-    potential: number;
-  }): PlayerEntity {
-    const attr: Attributes = {
-      pace: params.attributes.pace,
-      shooting: params.attributes.shooting,
-      passing: params.attributes.passing,
-      dribbling: params.attributes.dribbling,
-      defending: params.attributes.defending,
-      physical: params.attributes.physical,
-    };
-    const ovr = overall(params.position, attr);
-    const baseCents = baseValue(ovr, params.potential, params.age);
-    const calculatedBase = fromCents(baseCents);
-
-    return new PlayerEntity(
-      params.id,
-      params.name,
-      params.position,
-      params.agility,
-      params.age,
-      calculatedBase,
-      'APTO',
-      null,
-      params.attributes,
-      params.potential,
-      null,
-    );
   }
 }

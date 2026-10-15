@@ -1,9 +1,9 @@
 import type { Player } from '@/api/types'
 
-export type ClubDetailsTab = 'elenco' | 'escalacao' | 'historico'
+export type ClubDetailsTab = 'squad' | 'lineup' | 'history'
 
 /** Setores da escalação: goleiro, defesa (ZAG/LAT), meio (MEI) e ataque (ATA) */
-export type LineupSector = 'GOL' | 'DEF' | 'MID' | 'ATT'
+export type LineupSector = 'GK' | 'DEF' | 'MID' | 'ATT'
 
 export interface LineupSlot {
   /** Ex.: "DEF-1" */
@@ -14,15 +14,10 @@ export interface LineupSlot {
 /** Vaga → id do titular escolhido */
 export type LineupSelection = Record<string, number | undefined>
 
-/** Atributo que o titular usa na partida (RN20) */
-export interface UsedAttribute {
-  label: string
-  value: number
-}
-
 export interface LineupRow {
   slot: LineupSlot
   player?: Player
   candidates: Player[]
-  attributes: UsedAttribute[]
+  /** Vaga vazia ao tentar salvar */
+  error?: string
 }

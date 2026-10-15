@@ -1,16 +1,8 @@
-import {
-  Calendar,
-  CircleAlert,
-  Clock,
-  Info,
-  Loader2,
-  RefreshCw,
-  Shield,
-  ShoppingCart,
-} from 'lucide-react'
+import { Calendar, Clock, Info, Loader2, RefreshCw, Shield, ShoppingCart } from 'lucide-react'
 import type { MouseEvent } from 'react'
 import { Controller } from 'react-hook-form'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
+import { AlertMessage } from '@/components/feedback/alert-message/alert-message'
 import { FormField } from '@/components/form/form-field/form-field'
 import { InputWithIcon } from '@/components/form/input-with-icon/input-with-icon'
 import {
@@ -66,17 +58,9 @@ export function BuyPlayerDialog({ player, clubs, onClose, onBought }: BuyPlayerD
       }}
     >
       {error && (
-        <div
-          role="alert"
-          className="flex gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-        >
-          <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
-          <p>
-            <span className="font-medium">{retry ? 'Sem conexão' : 'Compra recusada'}</span>
-            <br />
-            {error.message}
-          </p>
-        </div>
+        <AlertMessage variant="error" title={retry ? 'Sem conexão' : 'Compra recusada'}>
+          {error.message}
+        </AlertMessage>
       )}
 
       <PlayerSummary

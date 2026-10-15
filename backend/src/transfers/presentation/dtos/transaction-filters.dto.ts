@@ -1,9 +1,8 @@
 import { BadRequestException } from '@nestjs/common';
 import { TransactionType } from '../../application/interfaces/repositories/transfer.repository.interface.js';
+import { MAX_ID, POSITIVE_INT_REGEX } from '../../../common/utils/id.js';
 
 const TYPES: readonly TransactionType[] = ['COMPRA', 'VENDA'];
-const MAX_ID = 2_147_483_647;
-const ID_REGEX = /^[1-9]\d*$/;
 
 /**
  * Valida os filtros do histórico e da exportação (GET /clubs/{id}/transactions[/export]).
@@ -50,7 +49,7 @@ export function parseTransactionFilters(query: Record<string, unknown>): {
   let id: number | undefined;
   if (typeof playerId === 'string') {
     id = Number(playerId);
-    if (!ID_REGEX.test(playerId) || id > MAX_ID) {
+    if (!POSITIVE_INT_REGEX.test(playerId) || id > MAX_ID) {
       throw new BadRequestException('player_id deve ser um inteiro positivo');
     }
   }

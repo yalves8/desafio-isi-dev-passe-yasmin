@@ -12,7 +12,7 @@ import type { PlayersParams } from './players-page.types'
 
 const TABS: PlayersTab[] = ['all', 'free', 'clubs']
 /** A API exige busca com pelo menos 2 caracteres */
-export const MIN_SEARCH_LENGTH = 2
+const MIN_SEARCH_LENGTH = 2
 
 export const DEFAULT_PARAMS: PlayersParams = {
   search: '',

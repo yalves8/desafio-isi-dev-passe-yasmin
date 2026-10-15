@@ -20,7 +20,6 @@ export class ClubEntity {
    * @param {string} normalizedName - Nome normalizado em minúsculas para controle de unicidade (RN10).
    * @param {string} acronym - Sigla oficial de 3 letras maiúsculas.
    * @param {number} cash - Saldo financeiro em caixa (inicia em 300,00).
-   * @param {string | null} formation - Formação tática atual da escalação, se houver.
    * @param {Date} [createdAt] - Data de criação do clube.
    */
   constructor(
@@ -28,8 +27,7 @@ export class ClubEntity {
     public readonly name: string,
     public readonly normalizedName: string,
     public readonly acronym: string,
-    private cash: number = 300.0,
-    private formation: string | null = null,
+    private readonly cash: number = 300.0,
     public readonly createdAt: Date = new Date(),
   ) {}
 
@@ -40,33 +38,6 @@ export class ClubEntity {
    */
   public getCash(): number {
     return this.cash;
-  }
-
-  /**
-   * Obtém a formação tática cadastrada na escalação.
-   *
-   * @returns {string | null} A formação (ex: '2-1-1') ou null se não escalado.
-   */
-  public getFormation(): string | null {
-    return this.formation;
-  }
-
-  /**
-   * Atualiza a formação tática do clube.
-   *
-   * @param {string | null} newFormation - Nova formação tática.
-   */
-  public updateFormation(newFormation: string | null): void {
-    this.formation = newFormation;
-  }
-
-  /**
-   * Atualiza o saldo em caixa após operações de mercado.
-   *
-   * @param {number} newCash - Novo valor de caixa.
-   */
-  public updateCash(newCash: number): void {
-    this.cash = newCash;
   }
 
   /**
@@ -111,4 +82,3 @@ export class ClubEntity {
     return [...players].sort(compareSquadOrder);
   }
 }
-

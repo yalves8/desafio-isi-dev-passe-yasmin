@@ -1,20 +1,23 @@
-import { Volleyball } from 'lucide-react'
-import { Fragment } from 'react'
+import { Swords, Volleyball } from 'lucide-react'
 import type { Duel, DuelPlayer } from '@/api/types'
+import { DataTable } from '@/components/data-display/data-table/data-table'
+import type { DataTableColumn } from '@/components/data-display/data-table/data-table.types'
 import { Tag } from '@/components/data-display/tag/tag'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { TableCell, TableRow } from '@/components/ui/table'
 import { plural } from '@/lib/format'
 import { PlayerAvatar } from '@/modules/players'
 import { ATTRIBUTE_LABEL } from '../../league.constants'
 import { slotLabel, startersFromDuels } from '../../league.utils'
 import type { DuelsTableProps } from './duels-table.types'
+
+const COLUMNS: DataTableColumn[] = [
+  { label: 'Duelo' },
+  { label: 'Atacante' },
+  { label: 'Ataque' },
+  { label: 'Defensor' },
+  { label: 'Defesa' },
+  { label: 'Resultado' },
+]
 
 function PlayerCell({ player, detail }: { player: DuelPlayer; detail: string }) {
   return (
@@ -53,7 +56,6 @@ export function DuelsTable({ match, clubsById }: DuelsTableProps) {
       club,
       opponent,
       attacks,
-      goals: attacks.filter((d) => d.goal).length,
       attackerDetail: (d: Duel) =>
         `${roleOf(own, d.attacker.player_id, d.attacker.position)} · ${club.club_name}`,
       defenderDetail: (d: Duel) =>
@@ -62,64 +64,54 @@ export function DuelsTable({ match, clubsById }: DuelsTableProps) {
   })
 
   return (
-    <Table>
-      <TableHeader className="bg-muted/60">
-        <TableRow className="hover:bg-transparent">
-          {['Duelo', 'Atacante', 'Ataque', 'Defensor', 'Defesa', 'Resultado'].map((label) => (
-            <TableHead
-              key={label}
-              className="h-10 px-2 font-medium text-muted-foreground first:pl-4 last:pr-4"
-            >
-              {label}
-            </TableHead>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {sides.map(({ side, club, attacks, goals, attackerDetail, defenderDetail }) => (
-          <Fragment key={side}>
-            <TableRow className="bg-muted/40 hover:bg-muted/40">
-              <TableCell colSpan={5} className="px-2 pl-4 text-sm">
-                <span className="inline-flex items-center gap-2 font-medium">
-                  <Tag variant="muted">{clubsById.get(club.club_id)?.acronym ?? '—'}</Tag>
-                  Ataques do {club.club_name} ({side === 'home' ? 'mandante' : 'visitante'})
-                </span>
+    <DataTable
+      columns={COLUMNS}
+      rows={sides}
+      rowKey={({ side }) => side}
+      empty={{ icon: Swords, title: 'Nenhum duelo gravado nesta partida' }}
+      renderRow={({ side, club, attacks, attackerDetail, defenderDetail }) => (
+        <>
+          <TableRow className="bg-muted/40 hover:bg-muted/40">
+            <TableCell colSpan={5} className="px-2 pl-4 text-sm">
+              <span className="inline-flex items-center gap-2 font-medium">
+                <Tag variant="muted">{clubsById.get(club.club_id)?.acronym ?? '—'}</Tag>
+                Ataques do {club.club_name} ({side === 'home' ? 'mandante' : 'visitante'})
+              </span>
+            </TableCell>
+            <TableCell className="pr-4 text-right text-sm text-muted-foreground">
+              {plural(club.goals, 'gol')}
+            </TableCell>
+          </TableRow>
+          {attacks.map((duel) => (
+            <TableRow key={duel.order} className="h-15">
+              <TableCell className="px-2 pl-4">
+                <Tag className="tabular-nums">{duel.order}</Tag>
               </TableCell>
-              <TableCell className="pr-4 text-right text-sm text-muted-foreground">
-                {plural(goals, 'gol')}
+              <TableCell className="px-2">
+                <PlayerCell player={duel.attacker} detail={attackerDetail(duel)} />
+              </TableCell>
+              <TableCell className="px-2">
+                <ValueCell player={duel.attacker} />
+              </TableCell>
+              <TableCell className="px-2">
+                <PlayerCell player={duel.defender} detail={defenderDetail(duel)} />
+              </TableCell>
+              <TableCell className="px-2">
+                <ValueCell player={duel.defender} />
+              </TableCell>
+              <TableCell className="px-2 pr-4">
+                {duel.goal ? (
+                  <Tag variant="success">
+                    <Volleyball className="size-3" aria-hidden /> Gol
+                  </Tag>
+                ) : (
+                  <Tag>Sem gol</Tag>
+                )}
               </TableCell>
             </TableRow>
-            {attacks.map((duel) => (
-              <TableRow key={duel.order} className="h-15">
-                <TableCell className="px-2 pl-4">
-                  <Tag className="tabular-nums">{duel.order}</Tag>
-                </TableCell>
-                <TableCell className="px-2">
-                  <PlayerCell player={duel.attacker} detail={attackerDetail(duel)} />
-                </TableCell>
-                <TableCell className="px-2">
-                  <ValueCell player={duel.attacker} />
-                </TableCell>
-                <TableCell className="px-2">
-                  <PlayerCell player={duel.defender} detail={defenderDetail(duel)} />
-                </TableCell>
-                <TableCell className="px-2">
-                  <ValueCell player={duel.defender} />
-                </TableCell>
-                <TableCell className="px-2 pr-4">
-                  {duel.goal ? (
-                    <Tag variant="success">
-                      <Volleyball className="size-3" aria-hidden /> Gol
-                    </Tag>
-                  ) : (
-                    <Tag>Sem gol</Tag>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </Fragment>
-        ))}
-      </TableBody>
-    </Table>
+          ))}
+        </>
+      )}
+    />
   )
 }

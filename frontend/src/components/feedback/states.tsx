@@ -1,35 +1,12 @@
-import { Inbox, Loader2, RefreshCw, ServerOff, type LucideIcon } from 'lucide-react'
+import { Inbox, RefreshCw, ServerOff, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
 /**
- * Os quatro estados de toda tela: carregando, erro, vazio e conteúdo. Nenhuma tela fica muda.
- * Vazio e erro seguem o Figma (E02 a E06): ícone num quadrado, título, explicação e uma ação.
+ * Estados de vazio e de erro de toda tela, conforme o Figma (E02 a E06): ícone num quadrado,
+ * título, explicação e uma ação. O carregando fica com o esqueleto de cada tela.
  */
-
-export function Spinner({ label = 'Carregando' }: { label?: string }) {
-  return (
-    <div
-      role="status"
-      className="flex items-center justify-center gap-2 py-16 text-muted-foreground"
-    >
-      <Loader2 className="size-5 animate-spin" aria-hidden />
-      <span className="text-sm">{label}…</span>
-    </div>
-  )
-}
-
-export function ListSkeleton({ rows = 4 }: { rows?: number }) {
-  return (
-    <div role="status" aria-label="Carregando lista" className="space-y-2">
-      {Array.from({ length: rows }, (_, i) => (
-        <Skeleton key={i} className="h-14 w-full" />
-      ))}
-    </div>
-  )
-}
 
 interface StatePanelProps {
   icon: LucideIcon
@@ -42,7 +19,7 @@ interface StatePanelProps {
 }
 
 /** Painel central de estado: ícone, título, explicação e ação (Figma E02 a E06) */
-export function StatePanel({
+function StatePanel({
   icon: Icon,
   title,
   description,

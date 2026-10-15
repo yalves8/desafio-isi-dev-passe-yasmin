@@ -1,6 +1,7 @@
 import { Controller, Get, Param, Query, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { ParseIdPipe } from '../../../common/pipes/parse-id.pipe.js';
+import { ParseQueryPipe } from '../../../common/pipes/parse-query.pipe.js';
 import { ExportClubTransactionsUseCase } from '../../application/usecases/export-club-transactions/export-club-transactions.usecase.js';
 import { FindClubTransactionsUseCase } from '../../application/usecases/find-club-transactions/find-club-transactions.usecase.js';
 import { parseTransactionFilters } from '../dtos/transaction-filters.dto.js';
@@ -31,17 +32,18 @@ export class ClubTransactionsController {
    * Histórico do clube com `summary`; filtros `type` e `player_id` (RN17).
    *
    * @param {number} id - Clube da URL (inválido → 404).
-   * @param {Record<string, unknown>} query - Filtros.
+   * @param filters - Filtros validados (`type` e `player_id`).
    * @returns {Promise<FindClubTransactionsOutput>} `data` e `summary`.
    */
   @Get(':id/transactions')
   async find(
     @Param('id', ParseIdPipe) id: number,
-    @Query() query: Record<string, unknown>,
+    @Query(new ParseQueryPipe(parseTransactionFilters))
+    filters: ReturnType<typeof parseTransactionFilters>,
   ) {
     return this.findClubTransactionsUseCase.execute({
       clubId: id,
-      ...parseTransactionFilters(query),
+      ...filters,
     });
   }
 
@@ -49,19 +51,20 @@ export class ClubTransactionsController {
    * Histórico em CSV, com os mesmos filtros (RN18). Os erros continuam em JSON.
    *
    * @param {number} id - Clube da URL (inválido → 404).
-   * @param {Record<string, unknown>} query - Filtros.
+   * @param filters - Filtros validados (`type` e `player_id`).
    * @param {Response} res - Resposta Express, para o corpo em texto.
    * @returns {Promise<void>} 200 com `text/csv`.
    */
   @Get(':id/transactions/export')
   async export(
     @Param('id', ParseIdPipe) id: number,
-    @Query() query: Record<string, unknown>,
+    @Query(new ParseQueryPipe(parseTransactionFilters))
+    filters: ReturnType<typeof parseTransactionFilters>,
     @Res() res: Response,
   ) {
     const csv = await this.exportClubTransactionsUseCase.execute({
       clubId: id,
-      ...parseTransactionFilters(query),
+      ...filters,
     });
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader(

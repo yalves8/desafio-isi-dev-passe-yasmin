@@ -69,7 +69,7 @@ export function ClubDetailsPage() {
       <ClubStats club={club.data} squadSize={squad.length} />
       <ClubTabs {...tabs} />
 
-      {tabs.value === 'elenco' && (
+      {tabs.value === 'squad' && (
         <>
           <SquadTable players={squad} onSell={dialog.openSell} />
           {squad.length > 0 && (
@@ -81,7 +81,7 @@ export function ClubDetailsPage() {
         </>
       )}
 
-      {tabs.value === 'escalacao' &&
+      {tabs.value === 'lineup' &&
         (lineup.error ? (
           <ErrorState
             bordered
@@ -103,7 +103,7 @@ export function ClubDetailsPage() {
           <Skeleton role="status" aria-label="Carregando escalação" className="h-96 w-full" />
         ))}
 
-      {tabs.value === 'historico' && <TransactionsHistory club={club.data} version={version} />}
+      {tabs.value === 'history' && <TransactionsHistory club={club.data} version={version} />}
 
       {current?.type === 'sell' && (
         <SellPlayerDialog

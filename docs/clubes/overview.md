@@ -158,7 +158,7 @@ model Clube {
 |------|--------|---------------|
 | `/clubes` | `ClubsPage` | Tabela com clube, sigla, caixa, valor do elenco e patrimônio, na ordem devolvida pela API; ordenação na URL (`?sort=net_worth_desc`, ausente = `name`; valor inválido volta para `name`) |
 | `/clubes?novo=1` | `ClubsPage` + `ClubCreateDialog` | Abre o diálogo "Novo clube"; fechar remove o parâmetro. Ao criar: toast, atualização dos dados da liga e navegação para `/clubes/{id}` |
-| `/clubes/:id` | `ClubDetailsPage` | Cabeçalho, indicadores e abas; a aba fica em `?aba=` (`escalacao` ou `historico`; ausente ou inválida = `elenco`) |
+| `/clubes/:id` | `ClubDetailsPage` | Cabeçalho, indicadores e abas; a aba fica em `?aba=` (`escalacao` ou `historico`; ausente ou inválida = elenco), traduzida pela constante `CLUB_TAB_SLUGS` para as abas `squad`, `lineup` e `history` |
 
 O botão "Novo clube" fica desabilitado com explicação quando a lista já tem 20 clubes.
 

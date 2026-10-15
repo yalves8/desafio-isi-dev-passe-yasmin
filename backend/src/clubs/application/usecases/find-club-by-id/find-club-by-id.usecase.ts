@@ -60,7 +60,9 @@ export class FindClubByIdUseCase {
         activeContract && penalty
           ? {
               purchase_value: activeContract.purchaseValue,
-              loyalty_until: formatBrasiliaDateTime(activeContract.loyaltyUntil),
+              loyalty_until: formatBrasiliaDateTime(
+                activeContract.loyaltyUntil,
+              ),
               remaining_days: penalty.daysRemaining,
               penalty_rate: penalty.percent,
             }
@@ -99,4 +101,3 @@ export class FindClubByIdUseCase {
     };
   }
 }
-

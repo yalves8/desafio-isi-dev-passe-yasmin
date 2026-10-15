@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { ParseIdPipe } from '../../../common/pipes/parse-id.pipe.js';
+import { ParseQueryPipe } from '../../../common/pipes/parse-query.pipe.js';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe.js';
 import { CreatePlayerUseCase } from '../../application/usecases/create-player/create-player.usecase.js';
 import { DeletePlayerUseCase } from '../../application/usecases/delete-player/delete-player.usecase.js';
@@ -79,12 +80,14 @@ export class PlayersController {
   /**
    * Lista jogadores de forma paginada com suporte a busca textual, filtros e ordenações (RN07).
    *
-   * @param {Record<string, string | undefined>} query - Query params validados pelo parser.
+   * @param parsedQuery - Busca, filtros, ordenação e paginação validados.
    * @returns {Promise<any>} Objeto paginado com 'data' e 'meta'.
    */
   @Get()
-  async findAll(@Query() query: Record<string, string | undefined>) {
-    const parsedQuery = parseQueryPlayers(query);
+  async findAll(
+    @Query(new ParseQueryPipe(parseQueryPlayers))
+    parsedQuery: ReturnType<typeof parseQueryPlayers>,
+  ) {
     return this.findPlayersUseCase.execute(parsedQuery);
   }
 

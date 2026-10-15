@@ -11,7 +11,7 @@ import {
   transactionsFixture,
 } from '../../clubs.fixtures'
 import { ClubDetailsPage } from './club-details-page'
-import { parseClubTab } from './club-details-page.utils'
+import { clubTabParams, parseClubTab } from './club-details-page.utils'
 
 vi.mock('@/api/clubs.service', () => ({
   clubsService: {
@@ -24,12 +24,13 @@ vi.mock('@/api/clubs.service', () => ({
 }))
 vi.mock('@/api/players.service', () => ({ playersService: { sell: vi.fn() } }))
 
-const gol = player({ id: 1, name: 'Bruno Tavares', position: 'GOL' })
-const zag = player({ id: 2, name: 'Felipe Moura', position: 'ZAG' })
-const lat = player({ id: 3, name: 'Diego Ramos', position: 'LAT' })
-const mei = player({ id: 4, name: 'Sávio Lima', position: 'MEI' })
-const ata = player({ id: 5, name: 'João Silva', position: 'ATA' })
-const squad = [gol, zag, lat, mei, ata]
+const squad = [
+  player({ id: 1, name: 'Bruno Tavares', position: 'GOL' }),
+  player({ id: 2, name: 'Felipe Moura', position: 'ZAG' }),
+  player({ id: 3, name: 'Diego Ramos', position: 'LAT' }),
+  player({ id: 4, name: 'Sávio Lima', position: 'MEI' }),
+  player({ id: 5, name: 'João Silva', position: 'ATA' }),
+]
 
 function conflict(message: string) {
   const config = { headers: new AxiosHeaders() }
@@ -167,9 +168,16 @@ describe('ClubDetailsPage', () => {
   })
 })
 
-describe('parseClubTab', () => {
-  it('deve voltar para o elenco com aba inválida', () => {
-    expect(parseClubTab('historico')).toBe('historico')
-    expect(parseClubTab('xyz')).toBe('elenco')
+describe('parseClubTab e clubTabParams', () => {
+  it('deve ler a aba pelo endereço e voltar para o elenco com aba inválida', () => {
+    expect(parseClubTab('historico')).toBe('history')
+    expect(parseClubTab('escalacao')).toBe('lineup')
+    expect(parseClubTab('xyz')).toBe('squad')
+    expect(parseClubTab(null)).toBe('squad')
+  })
+
+  it('deve escrever a aba no endereço, sem parâmetro para o elenco', () => {
+    expect(new URLSearchParams(clubTabParams('lineup')).toString()).toBe('aba=escalacao')
+    expect(new URLSearchParams(clubTabParams('squad')).toString()).toBe('')
   })
 })

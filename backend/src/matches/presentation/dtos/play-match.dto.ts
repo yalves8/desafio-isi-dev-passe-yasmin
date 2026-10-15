@@ -1,6 +1,5 @@
 import { z } from 'zod';
-
-const MAX_ID = 2_147_483_647;
+import { MAX_ID } from '../../../common/utils/id.js';
 
 const clubId = (field: string) =>
   z

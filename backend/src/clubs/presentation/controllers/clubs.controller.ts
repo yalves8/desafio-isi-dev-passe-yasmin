@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { ParseIdPipe } from '../../../common/pipes/parse-id.pipe.js';
+import { ParseQueryPipe } from '../../../common/pipes/parse-query.pipe.js';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe.js';
 import { CreateClubUseCase } from '../../application/usecases/create-club/create-club.usecase.js';
 import { FindClubByIdUseCase } from '../../application/usecases/find-club-by-id/find-club-by-id.usecase.js';
@@ -62,12 +63,14 @@ export class ClubsController {
   /**
    * Endpoint para listar todos os clubes participantes.
    *
-   * @param {Record<string, string | undefined>} query - Parâmetros de consulta (ordenação por nome ou patrimônio).
+   * @param sort - Ordenação validada (nome ou patrimônio).
    * @returns {Promise<any>} Lista dos clubes com seus respectivos patrimônios calculados.
    */
   @Get()
-  async findAll(@Query() query: Record<string, string | undefined>) {
-    const { sort } = parseQueryClubs(query);
+  async findAll(
+    @Query(new ParseQueryPipe(parseQueryClubs))
+    { sort }: ReturnType<typeof parseQueryClubs>,
+  ) {
     return this.findClubsUseCase.execute({ sort });
   }
 

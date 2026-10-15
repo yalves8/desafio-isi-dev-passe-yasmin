@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 
-export interface FilterOption {
+interface FilterOption {
   value: string
   label: string
 }

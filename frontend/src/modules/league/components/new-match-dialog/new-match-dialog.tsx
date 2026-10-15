@@ -1,5 +1,6 @@
-import { CircleAlert, Info, Shield, Swords } from 'lucide-react'
+import { Info, Shield, Swords } from 'lucide-react'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
+import { AlertMessage } from '@/components/feedback/alert-message/alert-message'
 import { FormField } from '@/components/form/form-field/form-field'
 import {
   Select,
@@ -74,17 +75,9 @@ export function NewMatchDialog({ clubs, onClose, onPlayed }: NewMatchDialogProps
       }}
     >
       {apiError && (
-        <div
-          role="alert"
-          className="flex gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-        >
-          <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
-          <p>
-            <span className="font-medium">Não foi possível jogar a partida</span>
-            <br />
-            {apiError}
-          </p>
-        </div>
+        <AlertMessage variant="error" title="Não foi possível jogar a partida">
+          {apiError}
+        </AlertMessage>
       )}
 
       <div className="flex flex-col gap-5">

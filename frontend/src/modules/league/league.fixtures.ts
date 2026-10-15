@@ -10,7 +10,7 @@ const p = (
 ): DuelPlayer => ({ player_id: id, player_name: name, position, condition, attribute, value })
 
 /** Duelos do exemplo da RN20: Águias FC (1, mandante) 1 × 2 Delta FC (2) */
-export const DUELS: Duel[] = [
+const DUELS: Duel[] = [
   {
     order: 1,
     attacking_club_id: 1,

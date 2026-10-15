@@ -4,9 +4,9 @@ import type { ClubDetailsTab } from '../../clubs.types'
 import type { ClubTabsProps } from './club-tabs.types'
 
 const TABS = [
-  { value: 'elenco', label: 'Elenco', icon: Shirt },
-  { value: 'escalacao', label: 'Escalação', icon: ClipboardList },
-  { value: 'historico', label: 'Histórico', icon: History },
+  { value: 'squad', label: 'Elenco', icon: Shirt },
+  { value: 'lineup', label: 'Escalação', icon: ClipboardList },
+  { value: 'history', label: 'Histórico', icon: History },
 ] as const
 
 export function ClubTabs({ value, counts, onChange }: ClubTabsProps) {
@@ -18,7 +18,7 @@ export function ClubTabs({ value, counts, onChange }: ClubTabsProps) {
         className="w-full justify-start gap-4 overflow-x-auto border-b p-0 group-data-horizontal/tabs:h-auto"
       >
         {TABS.map(({ value: tab, label, icon: Icon }) => {
-          const count = tab === 'escalacao' ? undefined : counts[tab]
+          const count = tab === 'lineup' ? undefined : counts[tab]
           return (
             <TabsTrigger
               key={tab}

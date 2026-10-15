@@ -8,7 +8,9 @@ Toda tela de lista mostra três estados além do conteúdo: **carregando**, **li
 
 | Peça | Caminho | Responsabilidade |
 |------|---------|------------------|
-| Painel de estado | `frontend/src/components/feedback/states.tsx` | `StatePanel` (ícone num quadrado, título, explicação e ação), `ErrorState` e `EmptyState`; `bordered` para usar fora de um card |
+| Painel de estado | `frontend/src/components/feedback/states.tsx` | `ErrorState` e `EmptyState` (ícone num quadrado, título, explicação e ação); `bordered` para usar fora de um card |
+| Tabela | `frontend/src/components/data-display/data-table/` | `DataTable`: cabeçalho, linhas e os estados de carregando (esqueleto), vazio e erro, usada por todas as tabelas (jogadores, clubes, elenco, escalação, histórico, partidas, duelos e classificação) |
+| Aviso | `frontend/src/components/feedback/alert-message/` | `AlertMessage`: recusa da API (`error`, `role="alert"`) ou aviso (`warning`) dentro de diálogos e cards |
 | Busca de dados | `frontend/src/hooks/use-fetch.ts` | `useFetch` devolve `data`, `loading`, `error` (o `message` da API ou o aviso de conexão) e `errorStatus` (status HTTP; ausente sem resposta) |
 | Mensagem do erro | `frontend/src/api/client.ts` | `getErrorMessage`: o `message` devolvido pela API ou "Não foi possível conectar ao servidor. Verifique sua conexão." |
 | Recarregar | `frontend/src/hooks/use-league-data.ts` | `refresh()`: "Tentar de novo" busca de novo a tela e o menu |

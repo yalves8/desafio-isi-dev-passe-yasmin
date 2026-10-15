@@ -109,7 +109,7 @@ Verificação contra o PostgreSQL: em 15 rodadas disparando a troca de escalaç�
 
 ## Tela (frontend)
 
-A aba Escalação (frames C06 a C11 do Figma) mostra a formação com mini campo, uma vaga por titular com os atributos usados na partida, a prévia no campo, as reservas e os avisos de escalação incompleta e de mal condicionados. Salvar envia a formação e os 5 titulares; a recusa da API (`409`) aparece no próprio card e a tela recarrega o que ficou gravado.
+A aba Escalação (frames C06 a C11 do Figma) mostra a formação com mini campo, uma vaga por titular com a condição e o overall devolvidos pela API (os candidatos vêm na ordem do elenco da API, sem reordenar na tela), a prévia no campo, as reservas e os avisos de escalação incompleta e de mal condicionados. Salvar valida antes de enviar: com vaga vazia, nada é enviado e cada vaga sem titular mostra a mensagem junto ao seletor; completa, envia a formação e os 5 titulares. A tela não decide quem ataca ou defende nem aplica o efeito da condição (isso é da partida, RN20); a recusa da API (`409`) aparece no próprio card e a tela recarrega o que ficou gravado.
 
 ---
 

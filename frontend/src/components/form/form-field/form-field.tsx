@@ -1,28 +1,23 @@
-import { CircleAlert } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { FieldMessage } from '../field-message/field-message'
 import type { FormFieldProps } from './form-field.types'
 
 /** Rótulo + controle + dica, que vira a mensagem de erro quando o campo é recusado */
-export function FormField({ id, label, hint, error, children, className }: FormFieldProps) {
+export function FormField({ id, label, hint, error, group, children, className }: FormFieldProps) {
   return (
     <div className={cn('flex flex-col gap-2', className)}>
-      <Label htmlFor={id} className="font-medium">
-        {label}
-      </Label>
-      {children}
-      {error ? (
-        <p id={`${id}-message`} className="flex gap-1.5 text-xs text-destructive">
-          <CircleAlert className="mt-px size-3.5 shrink-0" aria-hidden />
-          {error}
-        </p>
+      {group ? (
+        <span id={`${id}-label`} className="text-sm font-medium">
+          {label}
+        </span>
       ) : (
-        hint && (
-          <p id={`${id}-message`} className="text-xs text-muted-foreground">
-            {hint}
-          </p>
-        )
+        <Label htmlFor={id} className="font-medium">
+          {label}
+        </Label>
       )}
+      {children}
+      <FieldMessage id={id} hint={hint} error={error} />
     </div>
   )
 }

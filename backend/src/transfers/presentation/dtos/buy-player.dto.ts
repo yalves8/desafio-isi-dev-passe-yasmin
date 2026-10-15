@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { parseBrasiliaDateTime } from '../../../common/utils/date.js';
+import { MAX_ID } from '../../../common/utils/id.js';
 
 /**
  * Schema Zod do corpo da compra (POST /api/v1/players/{id}/buy).
@@ -14,7 +15,8 @@ export const buyPlayerSchema = z.object({
   club_id: z
     .number({ error: 'club_id é obrigatório e deve ser um inteiro' })
     .int({ error: 'club_id deve ser um inteiro' })
-    .positive({ error: 'club_id deve ser um inteiro positivo' }),
+    .positive({ error: 'club_id deve ser um inteiro positivo' })
+    .max(MAX_ID, { error: 'club_id deve ser um inteiro positivo' }),
   loyalty_until: z
     .string({ error: 'loyalty_until é obrigatório' })
     .transform((value, ctx) => {

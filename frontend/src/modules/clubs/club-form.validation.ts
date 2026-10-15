@@ -20,7 +20,7 @@ export function isAcronymInName(acronym: string, name: string) {
   return false
 }
 
-export function firstLetterOf(name: string) {
+function firstLetterOf(name: string) {
   return normalizeText(name).toUpperCase().match(/\p{L}/u)?.[0]
 }
 

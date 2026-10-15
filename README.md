@@ -5,38 +5,63 @@ Sistema de gestão de uma liga fictícia de futebol (Liga Fictícia 2026). Permi
 Projeto do desafio de desenvolvedor fullstack do SENAI (ISI).
 
 ## Pré-requisitos
-- Docker e Docker Compose **ou** Node 24 LTS (npm 11) e PostgreSQL 16
+- Docker Engine 24 ou superior, com Docker Compose v2
+- Node.js 22 LTS (22.12 ou superior), com npm 10, para rodar fora do Docker, os testes, o lint e a formatação
+- PostgreSQL 16: sobe pelo Docker Compose (imagem `postgres:16-alpine`), não precisa instalar
 - Para contribuir (hooks de Git): [gitleaks](https://github.com/gitleaks/gitleaks#installing)
 
 ## Como executar
 
-### Com Docker
+- **Origem da API:** `http://localhost:3000` (as rotas ficam em `/api/v1`)
+- **Frontend:** `http://localhost:5173`
+- **Swagger:** `http://localhost:3000/docs`
+- **Health check:** `http://localhost:3000/health`
+
+### Com Docker (um único comando sobe interface, API e banco)
+Na raiz do repositório:
 ```bash
 docker compose up -d --build
 ```
-- Frontend: http://localhost:5173
-- API: http://localhost:3000/api/v1
-- Swagger: http://localhost:3000/docs
-- Health check: http://localhost:3000/health
-
-As migrations rodam automaticamente na subida da API. O banco começa vazio (exigência do desafio).
+As migrations rodam automaticamente na subida da API, e o banco começa vazio, sem jogadores, clubes, transações nem partidas.
 
 > **VPN corporativa:** clientes como o Cisco AnyConnect podem capturar as rotas `172.16.0.0/12` usadas pelas redes do Docker. Nesse caso, nem o host alcança os containers. Desconecte a VPN, ou rode o frontend fora do Docker (`npm run dev`).
 
 ### Sem Docker (desenvolvimento)
 ```bash
-docker compose up -d db          # ou um PostgreSQL 16 local (porta 5433 no compose)
+# Banco de dados (na raiz do repositório): PostgreSQL 16 na porta 5433
+docker compose up -d db
+
+# Backend (na pasta backend)
 cd backend
 cp .env.example .env
-npm install
+npm ci
 npm run prisma:deploy
 npm run start:dev
 
-# em outro terminal
+# Frontend (em outro terminal, a partir da raiz do repositório)
 cd frontend
 cp .env.example .env
-npm install
+npm ci
 npm run dev
+```
+
+## Banco de dados: criar e recriar do zero
+O banco é criado pelas migrations do Prisma (`backend/prisma/migrations`) e começa vazio.
+
+**Com Docker** (na raiz do repositório), apaga o volume do banco e sobe tudo de novo:
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+
+**Sem Docker**, criar o banco (na pasta `backend`, com o `db` do compose no ar):
+```bash
+npm run prisma:deploy
+```
+
+**Sem Docker**, recriar do zero: apaga todas as tabelas e reaplica as migrations (na pasta `backend`):
+```bash
+npm run prisma:reset
 ```
 
 ## Variáveis de ambiente
@@ -81,7 +106,7 @@ Apresenta a liga sobre um campo de futebol, com números da liga (jogadores, liv
 - **Novo clube**: valida nome e sigla antes de enviar (3 letras do nome, nessa ordem, começando pela inicial). Nome ou sigla repetidos e o limite de 20 clubes chegam como `409` e aparecem dentro do diálogo. O "+" da sidebar abre o mesmo diálogo (`/clubes?novo=1`).
 - **Detalhe do clube**: caixa, valor do elenco, patrimônio e lotação do elenco, como a API calcula. A trilha mostra o nome do clube.
   - **Elenco**: ordem da RN11, com valor de compra, fim da fidelidade, dias restantes e % de multa de cada contrato. **Vender** pede confirmação e mostra o resultado devolvido pela API (multa, lucro, comissão, crédito e novo caixa).
-  - **Escalação**: formação (3-1, 2-2, 2-1-1 ou 1-2-1), um titular por vaga (sem jogador `DOENTE`), atributos usados na partida pela RN20, prévia no campo e reservas. Mostra quando a escalação está incompleta e por quê, avisa sobre titulares mal condicionados e exibe a recusa da API (`409`) no próprio card, recarregando o que ficou gravado.
+  - **Escalação**: formação (3-1, 2-2, 2-1-1 ou 1-2-1), um titular por vaga (sem jogador `DOENTE`), com a condição e o overall devolvidos pela API, prévia no campo e reservas. Salvar com vaga vazia não envia nada: a mensagem aparece junto a cada vaga sem titular. Mostra quando a escalação está incompleta e por quê, avisa sobre titulares mal condicionados e exibe a recusa da API (`409`) no próprio card, recarregando o que ficou gravado.
   - **Histórico**: compras e vendas da mais recente para a mais antiga, com o nome e os valores do momento; filtro por tipo (Compra e/ou Venda) e por jogador; totais do `summary` no rodapé; exportação CSV com os mesmos filtros. Filtro recusado pela API (ex.: jogador excluído depois de a tela abrir) aparece no próprio card.
 - **Comprar jogadores** e **Ver jogadores livres** levam para a aba "Livres" da tela de jogadores.
 
@@ -131,7 +156,7 @@ Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro glo
 ```
 /
 ├─ backend/
-│  ├─ prisma/                 (schema.prisma com 7 tabelas, migrations/, seed.ts)
+│  ├─ prisma/                 (schema.prisma com 7 tabelas e migrations/)
 │  ├─ src/
 │  │  ├─ common/              (config/ validada com zod, errors/, filters/, pipes/ zod, prisma/, utils/)
 │  │  ├─ domain/              (regras puras: valor de mercado, overall, dinheiro, negociação, motor de partida)
@@ -151,11 +176,11 @@ Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro glo
 │  │  ├─ components/
 │  │  │  ├─ ui/               (shadcn)
 │  │  │  ├─ layout/           (AppLayout, sidebar, PageHeader)
-│  │  │  ├─ feedback/         (ActionDialog, DisabledHint, estados de carregando/erro/vazio)
-│  │  │  ├─ form/             (FormField, InputWithIcon, NumberField)
-│  │  │  └─ data-display/     (Tag, InfoList, StatCard)
+│  │  │  ├─ feedback/         (ActionDialog, AlertMessage, DisabledHint, estados de vazio/erro)
+│  │  │  ├─ form/             (FormField, FieldMessage, InputWithIcon, NumberField)
+│  │  │  └─ data-display/     (DataTable, Tag, InfoList, StatCard)
 │  │  ├─ contexts/            (LeagueData: recarrega lista e sidebar após cada ação)
-│  │  ├─ hooks/               (useFetch, useAction, useDebouncedValue, useLeagueData)
+│  │  ├─ hooks/               (useFetch, useAction, useBreadcrumbDetail, useLeagueData)
 │  │  ├─ modules/clubs/            (lista, detalhe, elenco, venda, escalação e histórico)
 │  │  ├─ modules/league/           (partidas, partida com duelos e classificação)
 │  │  ├─ modules/players/
@@ -175,6 +200,48 @@ Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro glo
 ├─ .gitleaks.toml
 └─ docker-compose.yml
 ```
+
+## Bibliotecas
+
+### Backend (`backend/package.json`)
+| Biblioteca | Motivo |
+|---|---|
+| `@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express` | Framework da API (NestJS sobre Express): módulos, controllers, pipes, filtros e injeção de dependência |
+| `@nestjs/config`, `dotenv` | Leitura das variáveis de ambiente (`.env`), validadas com zod na subida |
+| `@nestjs/swagger` | Documentação interativa da API em `/docs` |
+| `prisma`, `@prisma/client`, `@prisma/adapter-pg`, `pg` | ORM, migrations e acesso ao PostgreSQL com consultas parametrizadas |
+| `zod` | Validação declarativa dos corpos, query params e variáveis de ambiente |
+| `nestjs-pino`, `pino-http` | Log de cada requisição em uma linha (data e hora, método, caminho e status) |
+| `reflect-metadata`, `rxjs` | Dependências obrigatórias do NestJS (decorators e interceptors) |
+| `@nestjs/cli`, `@nestjs/schematics` (dev) | Build (`nest build`) e geradores do Nest |
+| `typescript` (dev) | Compilação do TypeScript |
+| `vitest`, `@vitest/coverage-v8` (dev) | Testes unitários e cobertura |
+| `oxlint`, `oxlint-tsgolint` (dev) | Lint com regras que usam os tipos do TypeScript |
+| `prettier` (dev) | Formatação do código |
+| `pino-pretty` (dev) | Log legível no terminal em desenvolvimento |
+| `@types/*` (dev) | Tipos do Node, Express e pg |
+
+### Frontend (`frontend/package.json`)
+| Biblioteca | Motivo |
+|---|---|
+| `react`, `react-dom` | Interface (stack obrigatória) |
+| `vite`, `@vitejs/plugin-react` (dev) | Projeto, servidor de desenvolvimento e build |
+| `react-router` | Rotas no modo biblioteca, com filtros e abas na URL |
+| `axios` | Cliente HTTP da camada `src/api` |
+| `react-hook-form`, `@hookform/resolvers`, `zod` | Formulários com validação antes do envio e mensagem junto ao campo |
+| `tailwindcss`, `@tailwindcss/vite` (dev), `tw-animate-css` | Estilos e animações dos componentes |
+| `shadcn`, `radix-ui`, `class-variance-authority`, `cn` | Componentes acessíveis (diálogos, selects, menus) no padrão shadcn/ui e composição de classes |
+| `lucide-react` | Ícones |
+| `sonner` | Avisos (toasts) de sucesso e erro das ações |
+| `@fontsource-variable/geist`, `@fontsource-variable/geist-mono` | Fontes do mockup, servidas localmente |
+| `vitest`, `@vitest/coverage-v8`, `jsdom`, `@testing-library/*` (dev) | Testes de componentes, hooks e telas |
+| `oxlint`, `oxlint-tsgolint`, `prettier`, `prettier-plugin-tailwindcss` (dev) | Lint e formatação |
+| `typescript`, `@types/*` (dev) | Tipagem |
+
+### Raiz do repositório
+| Biblioteca | Motivo |
+|---|---|
+| `lefthook`, `@commitlint/cli`, `@commitlint/config-conventional` | Hooks de Git e padrão de mensagens de commit |
 
 ## Arquitetura
 ```
@@ -196,17 +263,33 @@ Seguem o padrão de frontend da FCx:
 - **Modais de confirmação:** só exibem; quem chama a API é o hook da página, via `useAction`. Diálogos com formulário têm hook próprio.
 - **Validação:** os formulários replicam os limites da API (`player-form.validation.ts`). A tela não recalcula valores que a API devolve.
 
-## Testes
-```bash
-cd backend
-npm test            # unitários (domínio, use cases, schemas)
-npm run test:cov    # com cobertura (mínimo 60%)
-npm run test:e2e    # e2e — requer banco com migrations
+## Testes, lint e formatação
+Precisam do Node.js 22 e das dependências instaladas (`npm ci` em cada pasta). Os testes não usam banco e terminam sozinhos, sem modo de observação.
 
-cd frontend
-npm test            # componentes, hooks, validações e telas
-npm run test:cov    # com cobertura (mínimo 60%)
+Backend (na pasta `backend`):
+```bash
+npm ci
+npm test               # testes unitários: domínio (valor de mercado, overall, multa, comissão, partida), casos de uso e validações
+npm run test:cov       # os mesmos testes, com cobertura (mínimo 60%)
+npm run lint           # oxlint, falha com qualquer aviso
+npm run format:check   # Prettier, só verifica (não altera arquivos)
 ```
+
+Frontend (na pasta `frontend`):
+```bash
+npm ci
+npm test               # testes de componentes, hooks, validações e telas (Vitest + Testing Library)
+npm run test:cov       # os mesmos testes, com cobertura (mínimo 60%)
+npm run lint           # oxlint, falha com qualquer aviso
+npm run format:check   # Prettier, só verifica (não altera arquivos)
+```
+
+## Logs
+Cada requisição gera uma linha na saída da API (`nestjs-pino`), com data e hora de Brasília, método, caminho e status. Com Docker, veja com `docker compose logs -f api`; sem Docker, a linha aparece no terminal do `npm run start:dev`:
+```text
+[2026-10-15T18:13:00-03:00] INFO: GET /api/v1/players/999999 404
+```
+Com Docker (`NODE_ENV=production`), a mesma linha sai em JSON: `{"level":30,"time":"2026-10-15T18:13:12-03:00",...,"msg":"GET /api/v1/players/999999 404"}`.
 
 ## Qualidade: CI e hooks de Git
 
@@ -225,7 +308,7 @@ Roda em todo push e pull request (`.github/workflows/ci.yml`).
 |---|---|
 | Segredos | gitleaks em todo o histórico |
 | Commits | commitlint |
-| Backend | lint, formatação, typecheck, testes com cobertura ≥ 60%, migrations num Postgres 16, testes e2e, build |
+| Backend | lint, formatação, typecheck, testes com cobertura ≥ 60%, migrations num Postgres 16, build |
 | Frontend | lint, formatação, typecheck, testes com cobertura ≥ 60%, build |
 | Imagens Docker | `docker compose build` |
 
@@ -246,5 +329,11 @@ Os ADRs completos estão em [`docs/adr/`](docs/adr).
 Todo o fluxo do desafio está implementado: jogadores → clubes → compra → venda → histórico → escalação → partidas e classificação.
 
 ## Uso de inteligência artificial
-- **Claude Code:** usado no frontend, nas telas inicial, de jogadores e de clubes (layout a partir do Figma, componentização no padrão FCx e testes). Também foi usado na verificação visual com Playwright e na redação deste README. Todo o código gerado foi revisado e validado com testes, lint e typecheck.
-- _(complementar com as demais partes em que a IA ajudou e o que foi alterado manualmente)_
+- **Ferramenta:** Claude Code (Anthropic), no terminal. Os commits feitos com ela trazem a linha `Co-Authored-By: Claude` no histórico do Git.
+- **Onde:**
+  - Frontend: tela inicial, jogadores, clubes (lista, elenco, venda, escalação e histórico), partidas e classificação, estados de carregando, vazio e erro, e os testes dessas telas.
+  - Backend: compra, venda, histórico de transações e exportação CSV, escalação, partidas e classificação, e os testes desses módulos.
+  - Documentação: `docs/` e este README.
+  - Revisão final: conferência do projeto contra o enunciado e o barema, com um roteiro automatizado de chamadas à API, e as correções que ela apontou (Node 22, normalização do `search`, linha de log, formatação e dependências sem uso).
+- **Como e por quê:** a partir das regras do enunciado e do mockup do Figma, para acelerar a implementação e os testes. A verificação visual das telas foi feita com Playwright. Todo o código gerado foi revisado e validado com testes, lint e typecheck antes do commit.
+- **O que foi aceito, alterado ou descartado:** _(a preencher pela autora)_

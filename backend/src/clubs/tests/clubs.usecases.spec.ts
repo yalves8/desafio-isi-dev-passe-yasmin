@@ -41,7 +41,7 @@ describe('Club Use Cases (Clean Architecture)', () => {
       repositoryMock.findByNormalizedName.mockResolvedValue(null);
       repositoryMock.findByAcronym.mockResolvedValue(null);
       repositoryMock.create.mockResolvedValue(
-        new ClubEntity(1, 'Águias FC', 'águias fc', 'AGU', 300.0, null),
+        new ClubEntity(1, 'Águias FC', 'águias fc', 'AGU', 300.0),
       );
 
       const result = await createClubUseCase.execute({
@@ -144,7 +144,14 @@ describe('Club Use Cases (Clean Architecture)', () => {
         25.0,
         'APTO',
         1,
-        { pace: 80, shooting: 85, passing: 70, dribbling: 75, defending: 30, physical: 70 },
+        {
+          pace: 80,
+          shooting: 85,
+          passing: 70,
+          dribbling: 75,
+          defending: 30,
+          physical: 70,
+        },
         85,
         null,
         new Date(),
@@ -160,7 +167,14 @@ describe('Club Use Cases (Clean Architecture)', () => {
         20.0,
         'APTO',
         1,
-        { pace: 50, shooting: 20, passing: 60, dribbling: 40, defending: 85, physical: 80 },
+        {
+          pace: 50,
+          shooting: 20,
+          passing: 60,
+          dribbling: 40,
+          defending: 85,
+          physical: 80,
+        },
         82,
         null,
         new Date(),
@@ -195,13 +209,70 @@ describe('Club Use Cases (Clean Architecture)', () => {
   describe('ClubEntity (Domain)', () => {
     it('deve ordenar o elenco respeitando posição (RN11), nome e ID', () => {
       const club = new ClubEntity(1, 'FC Teste', 'fc teste', 'FCT', 100.0);
-      const p1 = new PlayerEntity(1, 'Zico', 'MEI', 80, 25, 20.0, 'APTO', 1, { pace: 70, shooting: 70, passing: 70, dribbling: 70, defending: 70, physical: 70 }, 80);
-      const p2 = new PlayerEntity(2, 'Ademir', 'MEI', 80, 25, 20.0, 'APTO', 1, { pace: 70, shooting: 70, passing: 70, dribbling: 70, defending: 70, physical: 70 }, 80);
-      const p3 = new PlayerEntity(3, 'Barbosa', 'GOL', 80, 25, 20.0, 'APTO', 1, { pace: 70, shooting: 70, passing: 70, dribbling: 70, defending: 70, physical: 70 }, 80);
+      const p1 = new PlayerEntity(
+        1,
+        'Zico',
+        'MEI',
+        80,
+        25,
+        20.0,
+        'APTO',
+        1,
+        {
+          pace: 70,
+          shooting: 70,
+          passing: 70,
+          dribbling: 70,
+          defending: 70,
+          physical: 70,
+        },
+        80,
+      );
+      const p2 = new PlayerEntity(
+        2,
+        'Ademir',
+        'MEI',
+        80,
+        25,
+        20.0,
+        'APTO',
+        1,
+        {
+          pace: 70,
+          shooting: 70,
+          passing: 70,
+          dribbling: 70,
+          defending: 70,
+          physical: 70,
+        },
+        80,
+      );
+      const p3 = new PlayerEntity(
+        3,
+        'Barbosa',
+        'GOL',
+        80,
+        25,
+        20.0,
+        'APTO',
+        1,
+        {
+          pace: 70,
+          shooting: 70,
+          passing: 70,
+          dribbling: 70,
+          defending: 70,
+          physical: 70,
+        },
+        80,
+      );
 
       const sorted = club.sortSquad([p1, p2, p3]);
-      expect(sorted.map((p) => p.getName())).toEqual(['Barbosa', 'Ademir', 'Zico']);
+      expect(sorted.map((p) => p.getName())).toEqual([
+        'Barbosa',
+        'Ademir',
+        'Zico',
+      ]);
     });
   });
 });
-

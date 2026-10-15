@@ -11,7 +11,7 @@ import { AGE_LIMITS, ATTRIBUTE_FIELDS, MAX_ATTRIBUTES_TOTAL } from './players.co
 const POSITIONS = ['GOL', 'ZAG', 'LAT', 'MEI', 'ATA'] as const satisfies readonly Position[]
 
 /** Mesma normalização da API: espaços repetidos viram um só */
-export const normalizeName = (value: string) => value.trim().replace(/\s+/g, ' ')
+const normalizeName = (value: string) => value.trim().replace(/\s+/g, ' ')
 
 const nameField = z
   .string()

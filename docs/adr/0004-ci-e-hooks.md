@@ -16,9 +16,9 @@ A avaliação pede CI verde no último commit, commits descritivos e nenhum segr
 ## Decisão
 - `pre-commit`: gitleaks nos arquivos staged, Prettier (corrige e re-adiciona) e oxlint com `--deny-warnings` nos arquivos alterados.
 - `commit-msg`: commitlint.
-- CI em todo push e PR: gitleaks no histórico inteiro, commitlint, lint/format/typecheck/testes com cobertura mínima de 60% em cada projeto, e2e do backend contra Postgres real, build e `docker compose build`.
+- CI em todo push e PR: gitleaks no histórico inteiro, commitlint, lint/format/typecheck/testes com cobertura mínima de 60% em cada projeto, migrations do backend num Postgres real, build e `docker compose build`.
 
 ## Consequências
 - O hook é a barreira rápida e local; o CI é a garantia (hooks podem ser pulados com `--no-verify`).
 - O `package.json` da raiz existe só para essas ferramentas: backend e frontend continuam independentes (ADR 0001).
-- A cobertura unitária do backend mede `application/` e `common/`; controllers e repositories são exercitados pelos testes e2e.
+- A cobertura unitária do backend mede `domain/`, `application/` e `common/`; o comportamento dos endpoints é conferido pela API em execução.

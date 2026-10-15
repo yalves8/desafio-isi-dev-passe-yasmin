@@ -3,30 +3,44 @@ import { squadPlayerFixture } from '../../clubs.fixtures'
 import { LineupSlots } from './lineup-slots'
 
 describe('LineupSlots', () => {
-  it('deve mostrar titular, overall e atributos usados, e travar a vaga sem candidatos', () => {
-    const gol = squadPlayerFixture()
+  it('deve mostrar titular e overall, e travar a vaga sem candidatos', () => {
+    const goalkeeper = squadPlayerFixture()
     render(
       <LineupSlots
         rows={[
-          {
-            slot: { key: 'GOL-1', sector: 'GOL' },
-            player: gol,
-            candidates: [gol],
-            attributes: [{ label: 'Defesa', value: 77 }],
-          },
-          { slot: { key: 'MID-1', sector: 'MID' }, candidates: [], attributes: [] },
+          { slot: { key: 'GK-1', sector: 'GK' }, player: goalkeeper, candidates: [goalkeeper] },
+          { slot: { key: 'MID-1', sector: 'MID' }, candidates: [] },
         ]}
         onSelect={vi.fn()}
       />,
     )
 
-    const golRow = screen.getByText('Goleiro').closest('tr')!
-    expect(within(golRow).getByRole('combobox')).toHaveTextContent('Bruno Tavares (GOL)')
-    expect(within(golRow).getByText('71')).toBeInTheDocument()
-    expect(within(golRow).getByText('77')).toBeInTheDocument()
+    const goalkeeperRow = screen.getByText('Goleiro').closest('tr')!
+    expect(within(goalkeeperRow).getByRole('combobox')).toHaveTextContent('Bruno Tavares (GOL)')
+    expect(within(goalkeeperRow).getByText('71')).toBeInTheDocument()
 
     const midRow = screen.getByText('Meio').closest('tr')!
     expect(within(midRow).getByRole('combobox')).toBeDisabled()
     expect(within(midRow).getByRole('combobox')).toHaveTextContent('Sem MEI no elenco')
+  })
+
+  it('deve mostrar a mensagem junto à vaga vazia', () => {
+    const goalkeeper = squadPlayerFixture()
+    render(
+      <LineupSlots
+        rows={[
+          {
+            slot: { key: 'GK-1', sector: 'GK' },
+            candidates: [goalkeeper],
+            error: 'Escolha o titular.',
+          },
+        ]}
+        onSelect={vi.fn()}
+      />,
+    )
+
+    const combobox = screen.getByRole('combobox')
+    expect(combobox).toHaveAttribute('aria-invalid', 'true')
+    expect(combobox).toHaveAccessibleDescription('Escolha o titular.')
   })
 })

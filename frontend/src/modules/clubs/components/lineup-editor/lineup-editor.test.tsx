@@ -4,13 +4,18 @@ import { lineupFixture, squadPlayerFixture as player } from '../../clubs.fixture
 import { LineupEditor } from './lineup-editor'
 import type { LineupEditorProps } from './lineup-editor.types'
 
-const gol = player({ id: 1, name: 'Bruno Tavares', position: 'GOL' })
-const zag = player({ id: 2, name: 'Felipe Moura', position: 'ZAG' })
-const lat = player({ id: 3, name: 'Diego Ramos', position: 'LAT', condition: 'MAL_CONDICIONADO' })
-const mei = player({ id: 4, name: 'Sávio Lima', position: 'MEI' })
-const ata = player({ id: 5, name: 'João Silva', position: 'ATA' })
+const goalkeeper = player({ id: 1, name: 'Bruno Tavares', position: 'GOL' })
+const centerBack = player({ id: 2, name: 'Felipe Moura', position: 'ZAG' })
+const fullBack = player({
+  id: 3,
+  name: 'Diego Ramos',
+  position: 'LAT',
+  condition: 'MAL_CONDICIONADO',
+})
+const midfielder = player({ id: 4, name: 'Sávio Lima', position: 'MEI' })
+const striker = player({ id: 5, name: 'João Silva', position: 'ATA' })
 const sick = player({ id: 6, name: 'Lucas Ferraz', position: 'MEI', condition: 'DOENTE' })
-const squad = [gol, zag, lat, mei, ata, sick]
+const squad = [goalkeeper, centerBack, fullBack, midfielder, striker, sick]
 
 function renderEditor(props: Partial<LineupEditorProps> = {}) {
   const onSave = vi.fn()
@@ -21,7 +26,7 @@ function renderEditor(props: Partial<LineupEditorProps> = {}) {
       lineup={lineupFixture({
         formation: '2-1-1',
         complete: true,
-        players: [gol, zag, lat, mei, ata],
+        players: [goalkeeper, centerBack, fullBack, midfielder, striker],
       })}
       isSaving={false}
       onSave={onSave}
@@ -44,22 +49,58 @@ describe('LineupEditor', () => {
     expect(onSave).toHaveBeenCalledWith('2-1-1', [1, 2, 3, 4, 5])
   })
 
-  it('deve travar o salvar quando a nova formação deixa vaga sem titular', async () => {
+  it('deve apontar a vaga vazia ao salvar, sem enviar', async () => {
     const user = userEvent.setup()
-    renderEditor()
+    const onSave = renderEditor()
 
     await user.click(screen.getByRole('radio', { name: /1-2-1/ }))
-
-    const emptyMid = screen.getAllByText('Meio')[0].closest('tr')!
-    expect(within(emptyMid).getByRole('combobox')).toBeDisabled()
-    expect(screen.getByRole('button', { name: /salvar escalação/i })).toBeDisabled()
     expect(
       screen.getByText('Escolha a formação e um titular para cada vaga para salvar.'),
     ).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /salvar escalação/i }))
+
+    expect(onSave).not.toHaveBeenCalled()
+    const emptyMid = screen.getAllByText('Meio')[0].closest('tr')!
+    expect(within(emptyMid).getByRole('combobox')).toBeDisabled()
+    expect(within(emptyMid).getByRole('combobox')).toHaveAttribute('aria-invalid', 'true')
+    expect(
+      within(emptyMid).getByText('Nenhum jogador disponível para esta vaga: troque a formação.'),
+    ).toBeInTheDocument()
+  })
+
+  it('deve pedir o titular na vaga vazia e salvar depois de escolher', async () => {
+    const user = userEvent.setup()
+    const onSave = renderEditor({
+      lineup: lineupFixture({
+        formation: '2-1-1',
+        complete: false,
+        players: [goalkeeper, fullBack, midfielder, striker],
+      }),
+    })
+
+    await user.click(screen.getByRole('button', { name: /salvar escalação/i }))
+    expect(onSave).not.toHaveBeenCalled()
+    const emptyDefense = screen.getByRole('combobox', {
+      name: /defesa/i,
+      description: 'Escolha o titular.',
+    })
+
+    await user.click(emptyDefense)
+    await user.click(await screen.findByRole('option', { name: 'Felipe Moura (ZAG)' }))
+    expect(screen.queryByText('Escolha o titular.')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /salvar escalação/i }))
+
+    expect(onSave).toHaveBeenCalledWith('2-1-1', [1, 2, 3, 4, 5])
+  })
+
+  it('deve travar o salvar enquanto envia', () => {
+    renderEditor({ isSaving: true })
+
+    expect(screen.getByRole('button', { name: /salvando/i })).toBeDisabled()
   })
 
   it('deve avisar que o clube sem escalação não joga', () => {
-    renderEditor({ squad: [gol, ata], lineup: lineupFixture() })
+    renderEditor({ squad: [goalkeeper, striker], lineup: lineupFixture() })
 
     expect(
       screen.getByText('Escalação incompleta: o Águias FC não pode jogar partidas'),
@@ -72,13 +113,17 @@ describe('LineupEditor', () => {
     expect(
       screen.getByText('Nenhum reserva: os 2 jogadores do elenco estão escolhidos.'),
     ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /salvar escalação/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /salvar escalação/i })).toBeEnabled()
   })
 
   it('deve mostrar a recusa da API e a escalação salva que ficou incompleta', () => {
     renderEditor({
       saveError: 'Lucas Ferraz está DOENTE e não pode ser escalado.',
-      lineup: lineupFixture({ formation: '2-1-1', complete: false, players: [gol, lat, mei, ata] }),
+      lineup: lineupFixture({
+        formation: '2-1-1',
+        complete: false,
+        players: [goalkeeper, fullBack, midfielder, striker],
+      }),
     })
 
     expect(screen.getByRole('alert')).toHaveTextContent('A escalação foi recusada')

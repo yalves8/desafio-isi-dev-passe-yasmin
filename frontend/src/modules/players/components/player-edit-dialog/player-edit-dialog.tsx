@@ -44,25 +44,31 @@ export function PlayerEditDialog({ player, onClose, onUpdated }: PlayerEditDialo
           />
         </FormField>
 
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Posição</span>
+        <FormField
+          id="edit-position"
+          label="Posição"
+          hint={
+            lockedPosition
+              ? 'Jogador com clube não muda de posição: as outras posições ficam desabilitadas.'
+              : undefined
+          }
+          error={errors.position?.message}
+          group
+        >
           <Controller
             control={form.control}
             name="position"
             render={({ field }) => (
               <PositionPicker
+                id="edit-position"
                 value={field.value}
                 onChange={field.onChange}
                 lockedTo={lockedPosition}
+                invalid={!!errors.position}
               />
             )}
           />
-          {lockedPosition && (
-            <p className="text-xs text-muted-foreground">
-              Jogador com clube não muda de posição: as outras posições ficam desabilitadas.
-            </p>
-          )}
-        </div>
+        </FormField>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <NumberField

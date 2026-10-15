@@ -5,7 +5,7 @@ import type { LineupRow, LineupSector } from '../../clubs.types'
 import type { LineupPitchProps } from './lineup-pitch.types'
 
 /** De cima para baixo: ataque, meio, defesa e goleiro */
-const ROW_ORDER: LineupSector[] = ['ATT', 'MID', 'DEF', 'GOL']
+const ROW_ORDER: LineupSector[] = ['ATT', 'MID', 'DEF', 'GK']
 
 function PitchSpot({ row }: { row: LineupRow }) {
   const { player } = row

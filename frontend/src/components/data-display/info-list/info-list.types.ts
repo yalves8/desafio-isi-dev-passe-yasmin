@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-export interface InfoListItem {
+interface InfoListItem {
   label: string
   value: ReactNode
   description?: string

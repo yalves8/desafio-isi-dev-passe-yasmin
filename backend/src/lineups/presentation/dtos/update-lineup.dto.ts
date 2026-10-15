@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { FORMATION_VALUES, LINEUP_SIZE } from '../../domain/formation.js';
-
-const MAX_ID = 2_147_483_647;
+import { MAX_ID } from '../../../common/utils/id.js';
 
 /**
  * Schema Zod do corpo da escalação (PUT /api/v1/clubs/{id}/lineup).

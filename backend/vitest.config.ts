@@ -7,8 +7,7 @@ export default defineConfig({
     root: './',
     include: ['src/**/*.spec.ts'],
     coverage: {
-      // Unitários medem as regras: application/ e common/. Controllers, repositories Prisma
-      // e módulos são cobertos pelos testes e2e (test/e2e), que rodam contra o banco no CI.
+      // Unitários medem as regras: domain/, application/ e common/.
       include: [
         'src/**/application/**/*.ts',
         'src/**/domain/**/*.ts',

@@ -1,5 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
-import { containsControlChars } from '../../../common/utils/text.js';
+import {
+  containsControlChars,
+  charCount,
+  normalizeSpaces,
+} from '../../../common/utils/text.js';
+import { MAX_ID, POSITIVE_INT_REGEX } from '../../../common/utils/id.js';
 import { FindPlayersInput } from '../../application/usecases/find-players/find-players.input.js';
 import { POSITIONS } from './create-player.dto.js';
 import { CONDITIONS } from './update-condition.dto.js';
@@ -15,7 +20,6 @@ const SORT_FIELDS = new Set([
   'position',
 ]);
 
-const POSITIVE_INT_REGEX = /^[1-9]\d*$/;
 const DECIMAL_REGEX = /^(0|[1-9]\d*)(\.\d{1,2})?$/;
 
 /**
@@ -44,16 +48,17 @@ export function parseQueryPlayers(
 
   let search: string | undefined;
   if (query.search !== undefined) {
+    const normalized = normalizeSpaces(query.search);
     if (
       containsControlChars(query.search) ||
-      query.search.length < 2 ||
-      query.search.length > 100
+      charCount(normalized) < 2 ||
+      charCount(normalized) > 100
     ) {
       throw new BadRequestException(
         'search deve ter entre 2 e 100 caracteres e sem caracteres de controle',
       );
     }
-    search = query.search;
+    search = normalized;
   }
 
   let position: (typeof POSITIONS)[number] | undefined;
@@ -89,7 +94,7 @@ export function parseQueryPlayers(
       throw new BadRequestException('club_id deve ser um inteiro positivo');
     }
     const parsed = Number(query.club_id);
-    if (parsed > 2_147_483_647) {
+    if (parsed > MAX_ID) {
       throw new BadRequestException('club_id excede o limite');
     }
     club_id = parsed;

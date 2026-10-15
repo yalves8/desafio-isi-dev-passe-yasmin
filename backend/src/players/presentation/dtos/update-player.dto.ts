@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
   containsControlChars,
+  charCount,
   normalizeSpaces,
 } from '../../../common/utils/text.js';
 import { POSITIONS } from './create-player.dto.js';
@@ -18,7 +19,7 @@ export const updatePlayerSchema = z
         message: 'Caracteres de controle não são permitidos no nome',
       })
       .transform((v) => normalizeSpaces(v))
-      .refine((v) => v.length >= 3 && v.length <= 100, {
+      .refine((v) => charCount(v) >= 3 && charCount(v) <= 100, {
         message: 'Nome deve ter entre 3 e 100 caracteres',
       })
       .refine((v) => !/\d/.test(v), {

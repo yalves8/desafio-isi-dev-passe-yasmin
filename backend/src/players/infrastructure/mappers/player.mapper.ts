@@ -5,10 +5,9 @@ import { PlayerEntity } from '../../domain/entities/player.entity.js';
 /**
  * Linha da tabela `jogadores` com os campos usados pela entidade.
  *
- * @export
  * @interface PlayerRow
  */
-export interface PlayerRow {
+interface PlayerRow {
   id: number;
   nome: string;
   posicao: string;

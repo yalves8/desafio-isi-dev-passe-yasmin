@@ -67,8 +67,10 @@ const MATCH: Match = {
 
 describe('league utils', () => {
   it('deve montar os 5 titulares de cada clube a partir dos duelos gravados', () => {
-    const aguias = startersFromDuels(DUELS, 1)
-    expect(aguias.map((s) => [s.slot, s.name, s.values.map((v) => v.value), s.scored])).toEqual([
+    const homeStarters = startersFromDuels(DUELS, 1)
+    expect(
+      homeStarters.map((s) => [s.slot, s.name, s.values.map((v) => v.value), s.scored]),
+    ).toEqual([
       ['GK', 'Rui Prado', [77], false],
       [1, 'Téo Brandão', [84], false],
       [2, 'Davi Lins', [63, 56], false],

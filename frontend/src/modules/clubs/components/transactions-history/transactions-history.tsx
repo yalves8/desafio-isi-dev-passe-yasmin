@@ -1,4 +1,5 @@
-import { Check, CircleAlert, Download, History, UserRound } from 'lucide-react'
+import { Check, Download, UserRound } from 'lucide-react'
+import { AlertMessage } from '@/components/feedback/alert-message/alert-message'
 import { ErrorState } from '@/components/feedback/states'
 import { Button } from '@/components/ui/button'
 import {
@@ -8,7 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
 import { formatMoney } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { INITIAL_CASH } from '../../clubs.constants'
@@ -129,48 +129,21 @@ export function TransactionsHistory({ club, version }: TransactionsHistoryProps)
         </div>
 
         {history.error ? (
-          filters.hasFilters ? (
+          filters.hasFilters && (
             <div className="p-4">
-              <div
-                role="alert"
-                className="flex gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-              >
-                <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
-                <p>
-                  <span className="font-medium">O filtro foi recusado</span>
-                  <br />
-                  {history.error}
-                </p>
-              </div>
+              <AlertMessage variant="error" title="O filtro foi recusado">
+                {history.error}
+              </AlertMessage>
             </div>
-          ) : null
-        ) : !data ? (
-          <div role="status" aria-label="Carregando histórico" className="flex flex-col gap-2 p-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-40 w-full" />
-          </div>
+          )
         ) : (
           <>
-            {data.data.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 px-6 py-12 text-center">
-                <span className="mb-2 flex size-12 items-center justify-center rounded-xl bg-muted">
-                  <History className="size-5 text-muted-foreground" aria-hidden />
-                </span>
-                <p className="font-semibold">
-                  {filters.hasFilters
-                    ? 'Nenhuma transação com esses filtros'
-                    : 'Nenhuma transação ainda'}
-                </p>
-                <p className="max-w-md text-sm text-muted-foreground">
-                  {filters.hasFilters
-                    ? 'Nenhuma compra ou venda do clube atende aos filtros escolhidos.'
-                    : 'As compras e vendas do clube aparecem aqui, com os totais logo abaixo.'}
-                </p>
-              </div>
-            ) : (
-              <TransactionsTable transactions={data.data} />
-            )}
-            <TransactionsSummary summary={data.summary} />
+            <TransactionsTable
+              transactions={data?.data ?? []}
+              loading={!data}
+              hasFilters={filters.hasFilters}
+            />
+            {data && <TransactionsSummary summary={data.summary} />}
           </>
         )}
       </section>

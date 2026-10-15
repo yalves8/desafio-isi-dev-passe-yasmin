@@ -1,7 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-
-const MAX_ID = 2_147_483_647;
-const ID_REGEX = /^[1-9]\d*$/;
+import { MAX_ID, POSITIVE_INT_REGEX } from '../../../common/utils/id.js';
 
 /**
  * Valida o filtro de GET /matches: `club_id` inteiro positivo só com dígitos, sem zeros à
@@ -21,7 +19,7 @@ export function parseMatchesQuery(query: Record<string, unknown>): {
   }
   if (
     typeof value !== 'string' ||
-    !ID_REGEX.test(value) ||
+    !POSITIVE_INT_REGEX.test(value) ||
     Number(value) > MAX_ID
   ) {
     throw new BadRequestException('club_id deve ser um inteiro positivo');

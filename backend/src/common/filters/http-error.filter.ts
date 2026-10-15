@@ -22,7 +22,7 @@ const STATUS = new Map<Function, number>([
   [ConflictError, HttpStatus.CONFLICT],
 ]);
 
-export interface ErrorResponse {
+interface ErrorResponse {
   message: string;
 }
 

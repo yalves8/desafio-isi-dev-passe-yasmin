@@ -8,12 +8,11 @@ describe('LineupPitch', () => {
       <LineupPitch
         rows={[
           {
-            slot: { key: 'GOL-1', sector: 'GOL' },
+            slot: { key: 'GK-1', sector: 'GK' },
             player: squadPlayerFixture({ condition: 'MAL_CONDICIONADO' }),
             candidates: [],
-            attributes: [],
           },
-          { slot: { key: 'MID-1', sector: 'MID' }, candidates: [], attributes: [] },
+          { slot: { key: 'MID-1', sector: 'MID' }, candidates: [] },
         ]}
       />,
     )
