@@ -1,11 +1,11 @@
 import { NotFoundError } from '../../../../common/errors/domain.errors.js';
-import { formatBrasiliaDateTime } from '../../../../common/utils/date.js';
 import { IClubRepository } from '../../interfaces/repositories/club.repository.interface.js';
 import { FindClubByIdInput } from './find-club-by-id.input.js';
 import {
-  ClubPlayerItemOutput,
-  FindClubByIdOutput,
-} from './find-club-by-id.output.js';
+  toClubOutput,
+  toSquadPlayerOutput,
+} from '../../presenters/club.presenter.js';
+import { FindClubByIdOutput } from './find-club-by-id.output.js';
 
 /**
  * Caso de uso responsável por consultar detalhadamente um clube e seu elenco ordenado.
@@ -48,56 +48,10 @@ export class FindClubByIdUseCase {
     const { club, players } = data;
     const now = new Date();
 
-    const sortedPlayers = club.sortSquad(players);
-    const squadValue = club.calculateSquadValue(sortedPlayers);
-    const netWorth = club.calculateNetWorth(sortedPlayers);
-
-    const squad: ClubPlayerItemOutput[] = sortedPlayers.map((player) => {
-      const activeContract = player.getActiveContract();
-      const penalty = player.calculateContractPenalty(now);
-
-      const contractInfo: ClubPlayerItemOutput['contract'] =
-        activeContract && penalty
-          ? {
-              purchase_value: activeContract.purchaseValue,
-              loyalty_until: formatBrasiliaDateTime(
-                activeContract.loyaltyUntil,
-              ),
-              remaining_days: penalty.daysRemaining,
-              penalty_rate: penalty.percent,
-            }
-          : null;
-
-      return {
-        id: player.id,
-        name: player.getName(),
-        position: player.getPosition(),
-        agility: player.getAgility(),
-        age: player.getAge(),
-        condition: player.getCondition(),
-        base_value: player.baseValue,
-        market_value: player.calculateMarketValue(),
-        pace: player.attributes.pace,
-        shooting: player.attributes.shooting,
-        passing: player.attributes.passing,
-        dribbling: player.attributes.dribbling,
-        defending: player.attributes.defending,
-        physical: player.attributes.physical,
-        potential: player.potential,
-        overall: player.calculateOverall(),
-        club_id: club.id,
-        contract: contractInfo,
-      };
-    });
-
+    const squad = club.sortSquad(players);
     return {
-      id: club.id,
-      name: club.name,
-      acronym: club.acronym,
-      cash: club.getCash(),
-      squad_value: squadValue,
-      net_worth: netWorth,
-      players: squad,
+      ...toClubOutput(club, squad),
+      players: squad.map((player) => toSquadPlayerOutput(club, player, now)),
     };
   }
 }

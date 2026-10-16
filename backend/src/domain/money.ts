@@ -30,3 +30,10 @@ export function formatCents(cents: Cents): string {
   const abs = Math.abs(cents);
   return `${sign}${Math.floor(abs / 100)},${String(abs % 100).padStart(2, '0')}`;
 }
+
+/** Metade exata de um valor, sem arredondar (limite de 50% do caixa, RN13): 261,15 → "130,575" */
+export function formatHalfCents(cents: Cents): string {
+  return cents % 2 === 0
+    ? formatCents(cents / 2)
+    : `${formatCents((cents - 1) / 2)}5`;
+}

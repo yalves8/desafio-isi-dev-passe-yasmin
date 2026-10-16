@@ -4,6 +4,7 @@ import {
   baseValue,
   overall,
 } from '../../../../domain/player-rating.js';
+import { toPlayerOutput } from '../../presenters/player.presenter.js';
 import { IPlayerRepository } from '../../interfaces/repositories/player.repository.interface.js';
 import { CreatePlayerInput } from './create-player.input.js';
 import { CreatePlayerOutput } from './create-player.output.js';
@@ -39,7 +40,7 @@ export class CreatePlayerUseCase {
    * @returns {Promise<CreatePlayerOutput>} Atleta cadastrado com overall e valor base calculados.
    */
   async execute(input: CreatePlayerInput): Promise<CreatePlayerOutput> {
-    const attr: Attributes = {
+    const attributes: Attributes = {
       pace: input.pace,
       shooting: input.shooting,
       passing: input.passing,
@@ -47,46 +48,19 @@ export class CreatePlayerUseCase {
       defending: input.defending,
       physical: input.physical,
     };
-
-    const ovr = overall(input.position, attr);
-    const baseValCents = baseValue(ovr, input.potential, input.age);
-    const calculatedBase = fromCents(baseValCents);
+    // RN06: o valor base sai do overall e da idade do cadastro, uma única vez
+    const ovr = overall(input.position, attributes);
 
     const created = await this.playerRepository.create({
       name: input.name,
       position: input.position,
       agility: input.agility,
       age: input.age,
-      baseValue: calculatedBase,
-      attributes: {
-        pace: input.pace,
-        shooting: input.shooting,
-        passing: input.passing,
-        dribbling: input.dribbling,
-        defending: input.defending,
-        physical: input.physical,
-      },
+      baseValue: fromCents(baseValue(ovr, input.potential, input.age)),
+      attributes,
       potential: input.potential,
     });
 
-    return {
-      id: created.id,
-      name: created.getName(),
-      position: created.getPosition(),
-      agility: created.getAgility(),
-      age: created.getAge(),
-      condition: created.getCondition(),
-      base_value: created.baseValue,
-      market_value: created.calculateMarketValue(),
-      pace: created.attributes.pace,
-      shooting: created.attributes.shooting,
-      passing: created.attributes.passing,
-      dribbling: created.attributes.dribbling,
-      defending: created.attributes.defending,
-      physical: created.attributes.physical,
-      potential: created.potential,
-      overall: created.calculateOverall(),
-      club_id: created.getClubId(),
-    };
+    return toPlayerOutput(created);
   }
 }

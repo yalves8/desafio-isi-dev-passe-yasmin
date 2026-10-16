@@ -2,14 +2,14 @@ import {
   ConflictError,
   NotFoundError,
 } from '../../../../common/errors/domain.errors.js';
-import { formatBrasiliaDateTime } from '../../../../common/utils/date.js';
-import { fromCents, toCents } from '../../../../domain/money.js';
-import { loyaltyPenalty, saleCommission } from '../../../../domain/trade.js';
+import { toCents } from '../../../../domain/money.js';
+import { saleSettlement } from '../../../../domain/trade.js';
 import {
   ITransferRepository,
   SaleRecord,
   SaleState,
 } from '../../interfaces/repositories/transfer.repository.interface.js';
+import { toSaleOutput } from '../../presenters/transaction.presenter.js';
 import { SellPlayerInput } from './sell-player.input.js';
 import { SellPlayerOutput } from './sell-player.output.js';
 
@@ -53,25 +53,7 @@ export class SellPlayerUseCase {
       input.playerId,
       (state) => this.decide(state, now),
     );
-
-    return {
-      id: transactionId,
-      club_id: record.clubId,
-      player_id: record.playerId,
-      player_name: record.playerName,
-      type: 'VENDA',
-      value: fromCents(record.value),
-      fee: fromCents(record.commission),
-      penalty: fromCents(record.penalty),
-      profit: fromCents(record.profit),
-      cash_change: fromCents(record.credit),
-      created_at: formatBrasiliaDateTime(record.now),
-      purchase_value: fromCents(record.purchaseValue),
-      remaining_days: record.remainingDays,
-      penalty_rate: record.penaltyRate,
-      contract_status: record.contractStatus,
-      club_cash: fromCents(record.newCash),
-    };
+    return toSaleOutput(transactionId, record);
   }
 
   /** Regras da venda sobre o estado travado; lançar aqui desfaz a transação */
@@ -92,26 +74,28 @@ export class SellPlayerUseCase {
     }
 
     const value = toCents(player.calculateMarketValue());
-    const penalty = loyaltyPenalty(value, contract.loyaltyUntil, now);
-    const profit = value - contract.purchaseValue;
-    const commission = saleCommission(profit);
-    const credit = value - penalty.amount - commission;
+    const settlement = saleSettlement(
+      value,
+      contract.purchaseValue,
+      contract.loyaltyUntil,
+      now,
+    );
 
     return {
       playerId: player.id,
       playerName: name,
       clubId: club.id,
       contractId: contract.id,
-      contractStatus: penalty.amount > 0 ? 'RESCINDIDO' : 'ENCERRADO',
+      contractStatus: settlement.contractStatus,
       purchaseValue: contract.purchaseValue,
       value,
-      penalty: penalty.amount,
-      penaltyRate: penalty.percent,
-      remainingDays: penalty.daysRemaining,
-      profit,
-      commission,
-      credit,
-      newCash: club.cash + credit,
+      penalty: settlement.penalty.amount,
+      penaltyRate: settlement.penalty.percent,
+      remainingDays: settlement.penalty.daysRemaining,
+      profit: settlement.profit,
+      commission: settlement.commission,
+      credit: settlement.credit,
+      newCash: club.cash + settlement.credit,
       now,
     };
   }

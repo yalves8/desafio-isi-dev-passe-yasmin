@@ -1,16 +1,7 @@
-import { formatBrasiliaDateTime } from '../../../../common/utils/date.js';
-import { formatCents } from '../../../../domain/money.js';
 import { ITransferRepository } from '../../interfaces/repositories/transfer.repository.interface.js';
-import { loadClubTransactions } from '../find-club-transactions/find-club-transactions.usecase.js';
+import { toTransactionsCsv } from '../../presenters/transactions-csv.presenter.js';
+import { loadClubTransactions } from '../../services/load-club-transactions.js';
 import { FindClubTransactionsInput } from '../find-club-transactions/find-club-transactions.input.js';
-
-const HEADER =
-  'data_hora;tipo;jogador;valor;taxa_ou_comissao;multa;lucro;variacao_caixa';
-
-/** Nome com `;` ou aspas vai entre aspas, com cada aspa interna duplicada (RN18, item 6) */
-function csvText(value: string): string {
-  return /[;"]/.test(value) ? `"${value.replaceAll('"', '""')}"` : value;
-}
 
 /**
  * Caso de uso da exportação do histórico em CSV (RN18).
@@ -43,18 +34,6 @@ export class ExportClubTransactionsUseCase {
       this.transferRepository,
       input,
     );
-    const lines = transactions.map((t) =>
-      [
-        formatBrasiliaDateTime(t.createdAt),
-        t.type,
-        csvText(t.playerName),
-        formatCents(t.value),
-        formatCents(t.fee),
-        formatCents(t.penalty),
-        t.profit === null ? '' : formatCents(t.profit),
-        formatCents(t.cashChange),
-      ].join(';'),
-    );
-    return [HEADER, ...lines].map((line) => `${line}\n`).join('');
+    return toTransactionsCsv(transactions);
   }
 }

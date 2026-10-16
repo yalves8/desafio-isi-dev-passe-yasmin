@@ -253,7 +253,8 @@ Controller (presentation) → Use case (application) → Repositório abstrato
 ```
 - **Controller:** só recebe e devolve. A entrada é validada com schemas zod.
 - **Use case:** orquestra a regra de negócio e lança erros de domínio, sem depender do HTTP do Nest.
-- **Domínio:** cálculos de valor de mercado, overall e dinheiro (em centavos) com testes próprios.
+- **Presenter:** monta a resposta no formato da API (snake_case, moedas com 2 casas, datas em Brasília, CSV), fora do caso de uso.
+- **Domínio:** cálculos de valor de mercado, overall, compra, venda, listagem e dinheiro (em centavos) e os limites da liga (`domain/league.ts`, `domain/trade.ts`), com testes próprios.
 - **Filtro de erros:** é o único lugar que traduz erros para HTTP.
 
 ### Frontend: padrões

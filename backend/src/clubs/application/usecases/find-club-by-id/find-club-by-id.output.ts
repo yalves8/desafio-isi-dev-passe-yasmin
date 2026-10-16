@@ -1,25 +1,9 @@
-import { Condition } from '../../../../domain/market-value.js';
-import { Position } from '../../../../domain/player-rating.js';
+import { FindPlayerByIdOutput } from '../../../../players/application/usecases/find-player-by-id/find-player-by-id.output.js';
 
-export interface ClubPlayerItemOutput {
-  id: number;
-  name: string;
-  position: Position;
-  agility: number;
-  age: number;
-  condition: Condition;
-  base_value: number;
-  market_value: number;
-  pace: number;
-  shooting: number;
-  passing: number;
-  dribbling: number;
-  defending: number;
-  physical: number;
-  potential: number;
-  overall: number;
+/** Jogador do elenco: os campos de GET /players/{id} e o contrato ativo (RN11, RN15) */
+export interface ClubPlayerItemOutput extends FindPlayerByIdOutput {
   club_id: number;
-  contract?: {
+  contract: {
     purchase_value: number;
     loyalty_until: string;
     remaining_days: number;

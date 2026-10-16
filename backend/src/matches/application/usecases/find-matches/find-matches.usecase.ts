@@ -1,9 +1,8 @@
+import { FindMatchesInput } from './find-matches.input.js';
 import { NotFoundError } from '../../../../common/errors/domain.errors.js';
 import { IMatchRepository } from '../../interfaces/repositories/match.repository.interface.js';
-import {
-  MatchOutput,
-  toMatchOutput,
-} from '../../presenters/match.presenter.js';
+import { toMatchOutput } from '../../presenters/match.presenter.js';
+import { MatchOutput } from '../find-match-by-id/match.output.js';
 
 /**
  * Caso de uso do histórico de partidas (GET /matches, RN21).
@@ -29,7 +28,7 @@ export class FindMatchesUseCase {
    * @returns {Promise<MatchOutput[]>} Partidas sem duelos.
    * @throws {NotFoundError} Clube do filtro inexistente.
    */
-  async execute({ clubId }: { clubId?: number }): Promise<MatchOutput[]> {
+  async execute({ clubId }: FindMatchesInput): Promise<MatchOutput[]> {
     if (
       clubId !== undefined &&
       !(await this.matchRepository.clubExists(clubId))

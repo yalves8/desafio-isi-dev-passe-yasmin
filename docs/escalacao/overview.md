@@ -10,8 +10,9 @@ A escalação tem um módulo próprio no backend, `lineups`, porque cruza clube 
 
 | Camada | Caminho | Responsabilidade |
 |--------|---------|------------------|
-| Domínio | `backend/src/lineups/domain/formation.ts` | `FORMATIONS` (3-1, 2-2, 2-1-1, 1-2-1), `sectorOf`, `fitsFormation` e `formationRequirement` |
-| Caso de uso | `backend/src/lineups/application/usecases/get-lineup/` | `GetLineupUseCase` e `toLineupOutput`: titulares na ordem do elenco e `complete` |
+| Domínio | `backend/src/lineups/domain/formation.ts` | `FORMATIONS` (3-1, 2-2, 2-1-1, 1-2-1), `fitsFormation`, `formationRequirement` e `isLineupComplete` (formação salva e 5 titulares; também usado pela partida) |
+| Caso de uso | `backend/src/lineups/application/usecases/get-lineup/` | `GetLineupUseCase`: escalação do clube (404 se o clube não existe) |
+| Presenter | `backend/src/lineups/application/presenters/lineup.presenter.ts` | `toLineupOutput`: titulares na ordem do elenco e `complete`; usado pela consulta e pela troca |
 | Caso de uso | `backend/src/lineups/application/usecases/update-lineup/` | `UpdateLineupUseCase`: regras da RN19 sobre o estado travado e substituição da escalação |
 | Contrato do repositório | `backend/src/lineups/application/interfaces/repositories/lineup.repository.interface.ts` | `findByClub` e `replace` (unidade de trabalho com validação) |
 | Repositório Prisma | `backend/src/lineups/infrastructure/repositories/prisma-lineup.repository.ts` | Lê `clubes.formacao` e `escalacoes`; na troca, trava jogadores e clube e regrava tudo numa transação |

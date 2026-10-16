@@ -1,5 +1,6 @@
-import { computeStandings, StandingRow } from '../../../domain/standings.js';
+import { computeStandings } from '../../../domain/standings.js';
 import { IMatchRepository } from '../../interfaces/repositories/match.repository.interface.js';
+import { GetStandingsOutput } from './get-standings.output.js';
 
 /**
  * Caso de uso da classificação (GET /standings, RN21): todos os clubes, calculada a cada
@@ -19,9 +20,9 @@ export class GetStandingsUseCase {
   /**
    * Executa o cálculo.
    *
-   * @returns {Promise<StandingRow[]>} Classificação de 1 ao total de clubes.
+   * @returns {Promise<GetStandingsOutput>} Classificação de 1 ao total de clubes.
    */
-  async execute(): Promise<StandingRow[]> {
+  async execute(): Promise<GetStandingsOutput> {
     const { clubs, scores } = await this.matchRepository.findStandingsData();
     return computeStandings(clubs, scores);
   }

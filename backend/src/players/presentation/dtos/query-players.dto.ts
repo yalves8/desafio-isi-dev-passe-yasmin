@@ -6,19 +6,22 @@ import {
 } from '../../../common/utils/text.js';
 import { MAX_ID, POSITIVE_INT_REGEX } from '../../../common/utils/id.js';
 import { FindPlayersInput } from '../../application/usecases/find-players/find-players.input.js';
+import { PlayerSortCriteria } from '../../domain/player-listing.js';
 import { POSITIONS } from './create-player.dto.js';
 import { CONDITIONS } from './update-condition.dto.js';
 
 const POS_SET = new Set<string>(POSITIONS);
 const COND_SET = new Set<string>(CONDITIONS);
-const SORT_FIELDS = new Set([
+const SORT_FIELDS = new Set<string>([
   'name',
   'value_asc',
   'value_desc',
   'age_asc',
   'age_desc',
   'position',
-]);
+] satisfies PlayerSortCriteria[]);
+/** Filtros 1: min_value e max_value vão de 0 a 550 */
+const MAX_VALUE_FILTER = 550;
 
 const DECIMAL_REGEX = /^(0|[1-9]\d*)(\.\d{1,2})?$/;
 
@@ -88,7 +91,7 @@ export function parseQueryPlayers(
     }
   }
 
-  let club_id: number | undefined;
+  let clubId: number | undefined;
   if (query.club_id !== undefined) {
     if (!POSITIVE_INT_REGEX.test(query.club_id)) {
       throw new BadRequestException('club_id deve ser um inteiro positivo');
@@ -97,76 +100,76 @@ export function parseQueryPlayers(
     if (parsed > MAX_ID) {
       throw new BadRequestException('club_id excede o limite');
     }
-    club_id = parsed;
+    clubId = parsed;
   }
 
-  if (free === true && club_id !== undefined) {
+  if (free === true && clubId !== undefined) {
     throw new BadRequestException(
       'free=true não pode ser combinado com club_id',
     );
   }
 
-  let min_age: number | undefined;
+  let minAge: number | undefined;
   if (query.min_age !== undefined) {
     if (!POSITIVE_INT_REGEX.test(query.min_age)) {
       throw new BadRequestException('min_age deve ser um inteiro positivo');
     }
-    min_age = Number(query.min_age);
-    if (min_age < 16 || min_age > 45) {
+    minAge = Number(query.min_age);
+    if (minAge < 16 || minAge > 45) {
       throw new BadRequestException('min_age deve estar entre 16 e 45');
     }
   }
 
-  let max_age: number | undefined;
+  let maxAge: number | undefined;
   if (query.max_age !== undefined) {
     if (!POSITIVE_INT_REGEX.test(query.max_age)) {
       throw new BadRequestException('max_age deve ser um inteiro positivo');
     }
-    max_age = Number(query.max_age);
-    if (max_age < 16 || max_age > 45) {
+    maxAge = Number(query.max_age);
+    if (maxAge < 16 || maxAge > 45) {
       throw new BadRequestException('max_age deve estar entre 16 e 45');
     }
   }
 
-  if (min_age !== undefined && max_age !== undefined && min_age > max_age) {
+  if (minAge !== undefined && maxAge !== undefined && minAge > maxAge) {
     throw new BadRequestException('min_age não pode ser maior que max_age');
   }
 
-  let min_value: number | undefined;
+  let minValue: number | undefined;
   if (query.min_value !== undefined) {
     if (!DECIMAL_REGEX.test(query.min_value)) {
       throw new BadRequestException(
         'min_value deve ser um número decimal válido com até 2 casas',
       );
     }
-    min_value = Number(query.min_value);
-    if (min_value < 0 || min_value > 550) {
-      throw new BadRequestException('min_value deve estar entre 0 e 550');
+    minValue = Number(query.min_value);
+    if (minValue < 0 || minValue > MAX_VALUE_FILTER) {
+      throw new BadRequestException(
+        `min_value deve estar entre 0 e ${MAX_VALUE_FILTER}`,
+      );
     }
   }
 
-  let max_value: number | undefined;
+  let maxValue: number | undefined;
   if (query.max_value !== undefined) {
     if (!DECIMAL_REGEX.test(query.max_value)) {
       throw new BadRequestException(
         'max_value deve ser um número decimal válido com até 2 casas',
       );
     }
-    max_value = Number(query.max_value);
-    if (max_value < 0 || max_value > 550) {
-      throw new BadRequestException('max_value deve estar entre 0 e 550');
+    maxValue = Number(query.max_value);
+    if (maxValue < 0 || maxValue > MAX_VALUE_FILTER) {
+      throw new BadRequestException(
+        `max_value deve estar entre 0 e ${MAX_VALUE_FILTER}`,
+      );
     }
   }
 
-  if (
-    min_value !== undefined &&
-    max_value !== undefined &&
-    min_value > max_value
-  ) {
+  if (minValue !== undefined && maxValue !== undefined && minValue > maxValue) {
     throw new BadRequestException('min_value não pode ser maior que max_value');
   }
 
-  let sortList = ['name'];
+  let sortList: PlayerSortCriteria[] = ['name'];
   if (query.sort !== undefined) {
     const parts = query.sort.split(',');
     if (parts.length > 2) {
@@ -187,7 +190,7 @@ export function parseQueryPlayers(
       }
       fieldsSeen.add(baseField);
     }
-    sortList = parts;
+    sortList = parts as PlayerSortCriteria[];
   }
 
   let page = 1;
@@ -214,11 +217,11 @@ export function parseQueryPlayers(
     position,
     condition,
     free,
-    club_id,
-    min_age,
-    max_age,
-    min_value,
-    max_value,
+    clubId,
+    minAge,
+    maxAge,
+    minValue,
+    maxValue,
     sort: sortList,
     page,
     limit,

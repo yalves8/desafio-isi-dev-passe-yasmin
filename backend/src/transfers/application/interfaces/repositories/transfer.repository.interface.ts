@@ -1,4 +1,5 @@
 import { Cents } from '../../../../domain/money.js';
+import { ContractEnd } from '../../../../domain/trade.js';
 import { PlayerEntity } from '../../../../players/domain/entities/player.entity.js';
 
 /**
@@ -62,7 +63,7 @@ export interface SaleRecord {
   playerName: string;
   clubId: number;
   contractId: number;
-  contractStatus: 'RESCINDIDO' | 'ENCERRADO';
+  contractStatus: ContractEnd;
   purchaseValue: Cents;
   value: Cents;
   penalty: Cents;

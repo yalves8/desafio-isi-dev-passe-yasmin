@@ -14,6 +14,14 @@ export const FORMATION_VALUES = Object.keys(FORMATIONS) as Formation[];
 /** Titulares de uma escalação completa: 1 goleiro e 4 jogadores de linha */
 export const LINEUP_SIZE = 5;
 
+/** RN19: a escalação está completa com a formação salva e os 5 titulares; só assim o clube joga */
+export function isLineupComplete(
+  formation: Formation | null,
+  startersCount: number,
+): boolean {
+  return formation !== null && startersCount === LINEUP_SIZE;
+}
+
 type Sector = 'GK' | 'DEF' | 'MID' | 'ATT';
 
 /** Setor de cada posição: ZAG e LAT são defesa, MEI é meio e ATA é ataque */

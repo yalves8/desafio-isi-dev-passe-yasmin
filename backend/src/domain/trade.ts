@@ -1,6 +1,11 @@
 import { remainingDays } from '../common/utils/date.js';
 import { Cents, roundDiv } from './money.js';
 
+/** RN14: no máximo 12 jogadores por clube */
+export const MAX_SQUAD_SIZE = 12;
+/** Fim da fidelidade: até 1.095 dias depois da compra (Limites de cada campo) */
+export const MAX_LOYALTY_DAYS = 1095;
+
 const FEE_THRESHOLD: Cents = 3000;
 const PENALTY_CAP: Cents = 1000;
 const COMMISSION_BRACKET: Cents = 1000;
@@ -46,4 +51,36 @@ export function saleCommission(profit: Cents): Cents {
   const lowerBracket = Math.min(profit, COMMISSION_BRACKET);
   const upperBracket = profit - lowerBracket;
   return roundDiv(lowerBracket * 10 + upperBracket * 20, 100);
+}
+
+export type ContractEnd = 'RESCINDIDO' | 'ENCERRADO';
+
+interface SaleSettlement {
+  penalty: Penalty;
+  profit: Cents;
+  commission: Cents;
+  credit: Cents;
+  contractStatus: ContractEnd;
+}
+
+/**
+ * RN15 e RN16: acerto da venda pelo valor de mercado do momento. Com multa o contrato é
+ * rescindido; sem multa (fidelidade cumprida), encerrado.
+ */
+export function saleSettlement(
+  marketValue: Cents,
+  purchaseValue: Cents,
+  loyaltyUntil: Date,
+  now: Date,
+): SaleSettlement {
+  const penalty = loyaltyPenalty(marketValue, loyaltyUntil, now);
+  const profit = marketValue - purchaseValue;
+  const commission = saleCommission(profit);
+  return {
+    penalty,
+    profit,
+    commission,
+    credit: marketValue - penalty.amount - commission,
+    contractStatus: penalty.amount > 0 ? 'RESCINDIDO' : 'ENCERRADO',
+  };
 }

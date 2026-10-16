@@ -4,7 +4,8 @@ import {
 } from '../../../domain/enums/club-sort.enum.js';
 import { IClubRepository } from '../../interfaces/repositories/club.repository.interface.js';
 import { FindClubsInput } from './find-clubs.input.js';
-import { ClubSummaryItemOutput, FindClubsOutput } from './find-clubs.output.js';
+import { toClubOutput } from '../../presenters/club.presenter.js';
+import { FindClubsOutput } from './find-clubs.output.js';
 
 /**
  * Caso de uso responsável por listar os clubes participantes da liga.
@@ -39,15 +40,8 @@ export class FindClubsUseCase {
     const sort = input?.sort ?? ClubSortEnum.NAME;
     const rawClubs = await this.clubRepository.findAllWithSquad();
 
-    const result: ClubSummaryItemOutput[] = rawClubs.map(
-      ({ club, players }) => ({
-        id: club.id,
-        name: club.name,
-        acronym: club.acronym,
-        cash: club.getCash(),
-        squad_value: club.calculateSquadValue(players),
-        net_worth: club.calculateNetWorth(players),
-      }),
+    const result = rawClubs.map(({ club, players }) =>
+      toClubOutput(club, players),
     );
 
     result.sort((a, b) => compareClubsBySortCriteria(a, b, sort));

@@ -3,34 +3,26 @@ import {
   NotFoundError,
   ValidationError,
 } from '../../../../common/errors/domain.errors.js';
+import { addDays } from '../../../../common/utils/date.js';
 import {
-  addDays,
-  formatBrasiliaDateTime,
-} from '../../../../common/utils/date.js';
-import {
-  Cents,
   formatCents,
-  fromCents,
+  formatHalfCents,
   toCents,
 } from '../../../../domain/money.js';
-import { isWithinCashLimit, purchaseFee } from '../../../../domain/trade.js';
+import {
+  isWithinCashLimit,
+  MAX_LOYALTY_DAYS,
+  MAX_SQUAD_SIZE,
+  purchaseFee,
+} from '../../../../domain/trade.js';
 import {
   ITransferRepository,
   PurchaseRecord,
   PurchaseState,
 } from '../../interfaces/repositories/transfer.repository.interface.js';
+import { toPurchaseOutput } from '../../presenters/transaction.presenter.js';
 import { BuyPlayerInput } from './buy-player.input.js';
 import { BuyPlayerOutput } from './buy-player.output.js';
-
-const MAX_LOYALTY_DAYS = 1095;
-const MAX_SQUAD = 12;
-
-/** Metade exata do caixa, sem arredondar (RN13): 261,15 → "130,575" */
-function formatHalf(cash: Cents): string {
-  return cash % 2 === 0
-    ? formatCents(cash / 2)
-    : `${formatCents((cash - 1) / 2)}5`;
-}
 
 /**
  * Caso de uso responsável pela compra de um jogador livre por um clube (RN12 a RN14).
@@ -77,7 +69,7 @@ export class BuyPlayerUseCase {
       input.loyaltyUntil.getTime() > addDays(now, MAX_LOYALTY_DAYS).getTime()
     ) {
       throw new ValidationError(
-        'O fim da fidelidade pode ser no máximo 1.095 dias depois da compra',
+        `O fim da fidelidade pode ser no máximo ${MAX_LOYALTY_DAYS.toLocaleString('pt-BR')} dias depois da compra`,
       );
     }
 
@@ -86,27 +78,7 @@ export class BuyPlayerUseCase {
       input.clubId,
       (state) => this.decide(state, input, now),
     );
-
-    const cost = record.value + record.fee;
-    return {
-      id: transactionId,
-      club_id: record.clubId,
-      player_id: record.playerId,
-      player_name: record.playerName,
-      type: 'COMPRA',
-      value: fromCents(record.value),
-      fee: fromCents(record.fee),
-      penalty: 0,
-      profit: null,
-      cash_change: fromCents(-cost),
-      created_at: formatBrasiliaDateTime(record.now),
-      contract: {
-        purchase_value: fromCents(record.value),
-        loyalty_until: formatBrasiliaDateTime(record.loyaltyUntil),
-        status: 'ATIVO',
-      },
-      club_cash: fromCents(record.newCash),
-    };
+    return toPurchaseOutput(transactionId, record);
   }
 
   /** Regras da compra sobre o estado travado; lançar aqui desfaz a transação */
@@ -129,9 +101,9 @@ export class BuyPlayerUseCase {
         `O ${club.name} já vendeu o ${name} e não pode comprá-lo de novo.`,
       );
     }
-    if (squadSize >= MAX_SQUAD) {
+    if (squadSize >= MAX_SQUAD_SIZE) {
       throw new ConflictError(
-        `O elenco do ${club.name} já tem ${MAX_SQUAD} jogadores, o limite da liga.`,
+        `O elenco do ${club.name} já tem ${MAX_SQUAD_SIZE} jogadores, o limite da liga.`,
       );
     }
 
@@ -140,7 +112,7 @@ export class BuyPlayerUseCase {
     const cost = value + fee;
     if (!isWithinCashLimit(cost, club.cash)) {
       throw new ConflictError(
-        `O custo da compra (${formatCents(cost)}) passa do limite de 50% do caixa (${formatHalf(club.cash)}).`,
+        `O custo da compra (${formatCents(cost)}) passa do limite de 50% do caixa (${formatHalfCents(club.cash)}).`,
       );
     }
 

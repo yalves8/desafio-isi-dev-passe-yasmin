@@ -1,4 +1,5 @@
 import { NotFoundError } from '../../../../common/errors/domain.errors.js';
+import { toPlayerOutput } from '../../presenters/player.presenter.js';
 import { IPlayerRepository } from '../../interfaces/repositories/player.repository.interface.js';
 import { UpdatePlayerConditionInput } from './update-player-condition.input.js';
 import { UpdatePlayerConditionOutput } from './update-player-condition.output.js';
@@ -38,25 +39,7 @@ export class UpdatePlayerConditionUseCase {
     }
 
     if (player.getCondition() === input.condition) {
-      return {
-        id: player.id,
-        name: player.getName(),
-        position: player.getPosition(),
-        agility: player.getAgility(),
-        age: player.getAge(),
-        condition: player.getCondition(),
-        base_value: player.baseValue,
-        market_value: player.calculateMarketValue(),
-        pace: player.attributes.pace,
-        shooting: player.attributes.shooting,
-        passing: player.attributes.passing,
-        dribbling: player.attributes.dribbling,
-        defending: player.attributes.defending,
-        physical: player.attributes.physical,
-        potential: player.potential,
-        overall: player.calculateOverall(),
-        club_id: player.getClubId(),
-      };
+      return toPlayerOutput(player);
     }
 
     // Regra de negócio na Entidade (DDD)
@@ -64,24 +47,6 @@ export class UpdatePlayerConditionUseCase {
 
     const updated = await this.playerRepository.updateCondition(player);
 
-    return {
-      id: updated.id,
-      name: updated.getName(),
-      position: updated.getPosition(),
-      agility: updated.getAgility(),
-      age: updated.getAge(),
-      condition: updated.getCondition(),
-      base_value: updated.baseValue,
-      market_value: updated.calculateMarketValue(),
-      pace: updated.attributes.pace,
-      shooting: updated.attributes.shooting,
-      passing: updated.attributes.passing,
-      dribbling: updated.attributes.dribbling,
-      defending: updated.attributes.defending,
-      physical: updated.attributes.physical,
-      potential: updated.potential,
-      overall: updated.calculateOverall(),
-      club_id: updated.getClubId(),
-    };
+    return toPlayerOutput(updated);
   }
 }

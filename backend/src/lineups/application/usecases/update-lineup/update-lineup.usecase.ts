@@ -10,7 +10,7 @@ import {
   ILineupRepository,
   LineupChangeState,
 } from '../../interfaces/repositories/lineup.repository.interface.js';
-import { toLineupOutput } from '../get-lineup/get-lineup.usecase.js';
+import { toLineupOutput } from '../../presenters/lineup.presenter.js';
 import { LineupOutput } from '../get-lineup/lineup.output.js';
 import { UpdateLineupInput } from './update-lineup.input.js';
 

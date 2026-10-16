@@ -2,8 +2,12 @@ import {
   ConflictError,
   NotFoundError,
 } from '../../../../common/errors/domain.errors.js';
+import { PlayMatchInput } from './play-match.input.js';
 import { playMatch, Starter } from '../../../../domain/match-engine.js';
-import { LINEUP_SIZE } from '../../../../lineups/domain/formation.js';
+import {
+  isLineupComplete,
+  LINEUP_SIZE,
+} from '../../../../lineups/domain/formation.js';
 import { compareSquadOrder } from '../../../../players/domain/squad-order.js';
 import {
   DuelPlayerRecord,
@@ -12,10 +16,8 @@ import {
   MatchTeamState,
   PlayMatchState,
 } from '../../interfaces/repositories/match.repository.interface.js';
-import {
-  MatchOutput,
-  toMatchOutput,
-} from '../../presenters/match.presenter.js';
+import { toMatchOutput } from '../../presenters/match.presenter.js';
+import { MatchOutput } from '../find-match-by-id/match.output.js';
 
 /** Titulares na ordem do elenco: o goleiro e os jogadores de linha do 1º ao 4º (RN20, passo 2) */
 function startersOf(team: MatchTeamState): Starter[] {
@@ -74,7 +76,7 @@ export class PlayMatchUseCase {
    * @throws {ConflictError} Escalação incompleta no mandante ou no visitante.
    */
   async execute(
-    input: { homeClubId: number; awayClubId: number },
+    input: PlayMatchInput,
     now: Date = new Date(),
   ): Promise<MatchOutput> {
     const match = await this.matchRepository.play(
@@ -90,7 +92,7 @@ export class PlayMatchUseCase {
     if (!home) throw new NotFoundError('Clube mandante não encontrado');
     if (!away) throw new NotFoundError('Clube visitante não encontrado');
     for (const team of [home, away]) {
-      if (team.formation === null || team.starters.length !== LINEUP_SIZE) {
+      if (!isLineupComplete(team.formation, team.starters.length)) {
         throw new ConflictError(
           `Escalação incompleta: o ${team.name} não tem os ${LINEUP_SIZE} titulares.`,
         );

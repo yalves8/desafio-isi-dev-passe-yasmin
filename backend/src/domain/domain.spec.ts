@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { baseValue, overall } from './player-rating.js';
 import { marketValue } from './market-value.js';
-import { formatCents, roundDiv, toCents } from './money.js';
+import { formatCents, formatHalfCents, roundDiv, toCents } from './money.js';
 import {
   isWithinCashLimit,
   loyaltyPenalty,
   purchaseFee,
   saleCommission,
+  saleSettlement,
 } from './trade.js';
 
 describe('money', () => {
@@ -141,5 +142,36 @@ describe('compra e venda (RN13, RN15, RN16)', () => {
     [-750, 0],
   ])('comissão do lucro %i => %i', (profit, expected) => {
     expect(saleCommission(profit)).toBe(expected);
+  });
+});
+
+describe('acerto da venda (RN15 e RN16, tabela do enunciado)', () => {
+  const now = new Date('2026-11-05T12:00:00Z');
+  const inDays = (days: number) => new Date(now.getTime() + days * 86_400_000);
+
+  it.each([
+    // compra, venda, dias até o fim da fidelidade, multa, lucro, comissão, crédito, situação
+    [3700, 4000, 117, 400, 300, 30, 3570, 'RESCINDIDO'],
+    [5000, 4250, 200, 850, -750, 0, 3400, 'RESCINDIDO'],
+    [2615, 3000, 11, 150, 385, 39, 2811, 'RESCINDIDO'],
+    [2500, 2500, -1, 0, 0, 0, 2500, 'ENCERRADO'],
+    [6000, 7500, 200, 1000, 1500, 200, 6300, 'RESCINDIDO'],
+  ] as const)(
+    'compra %i, venda %i, %i dias → multa %i, lucro %i, comissão %i, crédito %i, %s',
+    (purchase, value, days, penalty, profit, commission, credit, status) => {
+      const result = saleSettlement(value, purchase, inDays(days), now);
+      expect(result.penalty.amount).toBe(penalty);
+      expect(result.profit).toBe(profit);
+      expect(result.commission).toBe(commission);
+      expect(result.credit).toBe(credit);
+      expect(result.contractStatus).toBe(status);
+    },
+  );
+});
+
+describe('formatHalfCents (limite de 50% do caixa, RN13)', () => {
+  it('mostra a metade exata, sem arredondar', () => {
+    expect(formatHalfCents(26115)).toBe('130,575');
+    expect(formatHalfCents(30000)).toBe('150,00');
   });
 });

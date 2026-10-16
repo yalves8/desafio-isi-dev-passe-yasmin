@@ -1,4 +1,7 @@
 import { ConflictError } from '../../../../common/errors/domain.errors.js';
+import { INITIAL_CASH, MAX_CLUBS } from '../../../../domain/league.js';
+import { ClubEntity } from '../../../domain/entities/club.entity.js';
+import { toClubOutput } from '../../presenters/club.presenter.js';
 import { IClubRepository } from '../../interfaces/repositories/club.repository.interface.js';
 import { CreateClubInput } from './create-club.input.js';
 import { CreateClubOutput } from './create-club.output.js';
@@ -36,11 +39,11 @@ export class CreateClubUseCase {
    */
   async execute(input: CreateClubInput): Promise<CreateClubOutput> {
     const totalClubs = await this.clubRepository.count();
-    if (totalClubs >= 20) {
-      throw new ConflictError('A liga aceita no máximo 20 clubes');
+    if (totalClubs >= MAX_CLUBS) {
+      throw new ConflictError(`A liga aceita no máximo ${MAX_CLUBS} clubes`);
     }
 
-    const normalizedName = input.name.toLowerCase();
+    const normalizedName = ClubEntity.normalizeName(input.name);
     const existingName =
       await this.clubRepository.findByNormalizedName(normalizedName);
     if (existingName) {
@@ -58,16 +61,10 @@ export class CreateClubUseCase {
       name: input.name,
       normalizedName,
       acronym: input.acronym,
-      cash: 300.0,
+      cash: INITIAL_CASH,
     });
 
-    return {
-      id: created.id,
-      name: created.name,
-      acronym: created.acronym,
-      cash: created.getCash(),
-      squad_value: 0.0,
-      net_worth: created.getCash(),
-    };
+    // Clube novo: sem jogadores, valor do elenco 0,00 e patrimônio igual ao caixa
+    return toClubOutput(created, []);
   }
 }

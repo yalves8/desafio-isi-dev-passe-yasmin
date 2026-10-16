@@ -3,15 +3,20 @@ import {
   DuelPlayerRecord,
   StoredMatch,
 } from '../interfaces/repositories/match.repository.interface.js';
+import {
+  DuelPlayerOutput,
+  MatchOutput,
+  MatchSideOutput,
+} from '../usecases/find-match-by-id/match.output.js';
 
-const sideOutput = (side: StoredMatch['home']) => ({
+const sideOutput = (side: StoredMatch['home']): MatchSideOutput => ({
   club_id: side.clubId,
   club_name: side.clubName,
   formation: side.formation,
   goals: side.goals,
 });
 
-const duelPlayerOutput = (p: DuelPlayerRecord) => ({
+const duelPlayerOutput = (p: DuelPlayerRecord): DuelPlayerOutput => ({
   player_id: p.playerId,
   player_name: p.playerName,
   position: p.position,
@@ -26,9 +31,12 @@ const duelPlayerOutput = (p: DuelPlayerRecord) => ({
  *
  * @param {StoredMatch} match - Partida gravada.
  * @param {boolean} withDuels - Inclui `duels` (POST e GET /matches/{id}); a listagem não traz.
- * @returns Partida no formato da API.
+ * @returns {MatchOutput} Partida no formato da API.
  */
-export function toMatchOutput(match: StoredMatch, withDuels: boolean) {
+export function toMatchOutput(
+  match: StoredMatch,
+  withDuels: boolean,
+): MatchOutput {
   return {
     id: match.id,
     played_at: formatBrasiliaDateTime(match.playedAt),
@@ -48,5 +56,3 @@ export function toMatchOutput(match: StoredMatch, withDuels: boolean) {
       : {}),
   };
 }
-
-export type MatchOutput = ReturnType<typeof toMatchOutput>;

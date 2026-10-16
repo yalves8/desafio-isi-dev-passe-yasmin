@@ -1,3 +1,4 @@
+import { INITIAL_CASH } from '../../../domain/league.js';
 import { fromCents, toCents } from '../../../domain/money.js';
 import { PlayerEntity } from '../../../players/domain/entities/player.entity.js';
 import { compareSquadOrder } from '../../../players/domain/squad-order.js';
@@ -27,9 +28,17 @@ export class ClubEntity {
     public readonly name: string,
     public readonly normalizedName: string,
     public readonly acronym: string,
-    private readonly cash: number = 300.0,
+    private readonly cash: number = INITIAL_CASH,
     public readonly createdAt: Date = new Date(),
   ) {}
+
+  /**
+   * Nome usado na unicidade (RN10): sem diferenciar maiúsculas e minúsculas, mas com acentos.
+   * Os espaços já chegam normalizados pela validação (V4).
+   */
+  public static normalizeName(name: string): string {
+    return name.toLowerCase();
+  }
 
   /**
    * Obtém o saldo financeiro atual do caixa do clube.

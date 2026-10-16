@@ -14,7 +14,7 @@ import {
 } from '../../application/interfaces/repositories/match.repository.interface.js';
 import { PlayedScore } from '../../domain/standings.js';
 
-type MatchRow = {
+interface MatchRow {
   id: number;
   mandante_id: number;
   visitante_id: number;
@@ -42,7 +42,7 @@ type MatchRow = {
     valor_defesa: number;
     gol: boolean;
   }[];
-};
+}
 
 function toStored(row: MatchRow): StoredMatch {
   return {

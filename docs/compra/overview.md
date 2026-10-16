@@ -12,10 +12,10 @@ A compra fica no módulo `transfers` do backend (junto com a venda), separado do
 |--------|---------|------------------|
 | Controller | `backend/src/transfers/presentation/controllers/transfers.controller.ts` | Recebe `POST /players/:id/buy`, valida o id com `ParseIdPipe` e o corpo com `ZodValidationPipe`, responde `200` |
 | DTO | `backend/src/transfers/presentation/dtos/buy-player.dto.ts` | Schema zod `buyPlayerSchema`: `club_id` inteiro positivo e `loyalty_until` no formato da RN01, já convertido em instante |
-| Caso de uso | `backend/src/transfers/application/usecases/buy-player/` | `BuyPlayerUseCase`: valida a janela da fidelidade, chama o repositório e, no método `decide`, aplica as regras RN12 a RN14 sobre o estado travado; monta a resposta |
+| Caso de uso | `backend/src/transfers/application/usecases/buy-player/` | `BuyPlayerUseCase`: valida a janela da fidelidade, chama o repositório e, no método `decide`, aplica as regras RN12 a RN14 sobre o estado travado; a resposta sai do presenter `toPurchaseOutput` (`application/presenters/transaction.presenter.ts`) |
 | Contrato do repositório | `backend/src/transfers/application/interfaces/repositories/transfer.repository.interface.ts` | `ITransferRepository.purchase(playerId, clubId, decide)` e os tipos `PurchaseState` (o que é lido) e `PurchaseRecord` (o que é gravado) |
 | Repositório Prisma | `backend/src/transfers/infrastructure/repositories/prisma-transfer.repository.ts` | Transação interativa: trava jogador e clube com `SELECT ... FOR UPDATE`, lê o estado, chama `decide` e grava tudo ou nada |
-| Domínio | `backend/src/domain/trade.ts`, `backend/src/domain/money.ts` | `purchaseFee` (taxa de 5%), `isWithinCashLimit` (limite de 50%), dinheiro em centavos (`toCents`, `fromCents`, `formatCents`, `roundDiv`) |
+| Domínio | `backend/src/domain/trade.ts`, `backend/src/domain/money.ts` | `purchaseFee` (taxa de 5%), `isWithinCashLimit` (limite de 50%), `MAX_SQUAD_SIZE` e `MAX_LOYALTY_DAYS`, `formatHalfCents` (metade exata do caixa na mensagem), dinheiro em centavos (`toCents`, `fromCents`, `formatCents`, `roundDiv`) |
 | Datas | `backend/src/common/utils/date.ts` | `parseBrasiliaDateTime` (RN01), `formatBrasiliaDateTime` (formato das respostas) e `addDays` |
 | Erros | `backend/src/common/errors/domain.errors.ts`, `backend/src/common/filters/http-error.filter.ts` | `ValidationError` → 400, `NotFoundError` → 404, `ConflictError` → 409, sempre como `{ "message": "..." }` |
 | Módulo | `backend/src/transfers/transfers.module.ts` | Liga `ITransferRepository` a `PrismaTransferRepository` e cria o `BuyPlayerUseCase` |
@@ -144,11 +144,11 @@ Quando há mais de um problema no corpo, o `ZodValidationPipe` devolve a primeir
 
 ### RN14 — Limite de elenco
 
-No máximo **12 jogadores** por clube (`MAX_SQUAD = 12`). O tamanho do elenco é contado no banco considerando só jogadores não excluídos (`excluido_em: null`); com 12, a compra é recusada com `409`.
+No máximo **12 jogadores** por clube (`MAX_SQUAD_SIZE = 12`, em `domain/trade.ts`). O tamanho do elenco é contado no banco considerando só jogadores não excluídos (`excluido_em: null`); com 12, a compra é recusada com `409`.
 
 ### Janela da fidelidade
 
-`loyalty_until` precisa ser **depois do momento da compra** e **até 1.095 dias depois dele** (`MAX_LOYALTY_DAYS = 1095`; o limite é inclusivo). Vale o relógio do servidor no instante da operação (RN01). O formato é verificado no DTO; a janela, no caso de uso, porque depende do instante da compra.
+`loyalty_until` precisa ser **depois do momento da compra** e **até 1.095 dias depois dele** (`MAX_LOYALTY_DAYS = 1095`, em `domain/trade.ts`; o limite é inclusivo). Vale o relógio do servidor no instante da operação (RN01). O formato é verificado no DTO; a janela, no caso de uso, porque depende do instante da compra.
 
 ### Ordem das verificações no código
 

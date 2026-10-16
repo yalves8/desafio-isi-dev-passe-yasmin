@@ -11,7 +11,9 @@ O backend segue camadas de arquitetura limpa dentro do módulo NestJS `ClubsModu
 | Camada | Caminho | Responsabilidade |
 |--------|---------|------------------|
 | Módulo (backend) | `backend/src/clubs/clubs.module.ts` | Liga o controller, os casos de uso e o repositório (`IClubRepository` → `PrismaClubRepository`) |
-| Domínio (backend) | `backend/src/clubs/domain/entities/club.entity.ts` | `ClubEntity`: caixa, formação, cálculo do valor do elenco e do patrimônio, ordenação do elenco (RN11) |
+| Domínio (backend) | `backend/src/clubs/domain/entities/club.entity.ts` | `ClubEntity`: caixa (padrão `INITIAL_CASH`), `normalizeName` (unicidade da RN10), valor do elenco, patrimônio e ordenação do elenco (RN11) |
+| Domínio compartilhado (backend) | `backend/src/domain/league.ts` | `MAX_CLUBS = 20` e `INITIAL_CASH = 300` (RN10) |
+| Presenter (backend) | `backend/src/clubs/application/presenters/club.presenter.ts` | `toClubOutput` (caixa, valor do elenco e patrimônio) e `toSquadPlayerOutput` (jogador com o contrato) |
 | Domínio (backend) | `backend/src/clubs/domain/enums/club-sort.enum.ts` | `ClubSortEnum` (`name`, `net_worth_asc`, `net_worth_desc`) e `compareClubsBySortCriteria` (desempate por nome e id) |
 | Domínio (backend) | `backend/src/contracts/domain/entities/contract.entity.ts` | `ContractEntity`: vigência do contrato e `calculatePenalty` (dias restantes e % de multa, RN15) |
 | Domínio compartilhado (backend) | `backend/src/domain/trade.ts`, `backend/src/common/utils/date.ts` | `loyaltyPenalty` (faixas de 0/5/10/20% e teto de 10,00) e `remainingDays` |

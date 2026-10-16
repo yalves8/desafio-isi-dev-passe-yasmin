@@ -11,10 +11,10 @@ A venda fica no módulo `transfers` do backend, junto com a compra, separada do 
 | Camada | Caminho | Responsabilidade |
 |--------|---------|------------------|
 | Controller | `backend/src/transfers/presentation/controllers/transfers.controller.ts` | Rota `POST /players/:id/sell`; valida o id com `ParseIdPipe` e chama o caso de uso. Não lê corpo |
-| Caso de uso | `backend/src/transfers/application/usecases/sell-player/` | `SellPlayerUseCase`: regras da venda no método `decide` e montagem da resposta (`SellPlayerInput`, `SellPlayerOutput`) |
+| Caso de uso | `backend/src/transfers/application/usecases/sell-player/` | `SellPlayerUseCase`: regras da venda no método `decide`; a resposta sai do presenter `toSaleOutput` (`application/presenters/transaction.presenter.ts`) |
 | Contrato do repositório | `backend/src/transfers/application/interfaces/repositories/transfer.repository.interface.ts` | `ITransferRepository.sale(playerId, decide)` e os tipos `SaleState` (o que é lido) e `SaleRecord` (o que é gravado) |
 | Repositório Prisma | `backend/src/transfers/infrastructure/repositories/prisma-transfer.repository.ts` | `PrismaTransferRepository.sale`: transação interativa, travas `SELECT ... FOR UPDATE`, leitura do estado e gravação |
-| Domínio (cálculos) | `backend/src/domain/trade.ts` | `loyaltyPenalty` (RN15) e `saleCommission` (RN16) |
+| Domínio (cálculos) | `backend/src/domain/trade.ts` | `loyaltyPenalty` (RN15), `saleCommission` (RN16) e `saleSettlement` (multa, lucro, comissão, crédito e situação do contrato, num lugar só) |
 | Domínio (dinheiro) | `backend/src/domain/money.ts` | Centavos inteiros (`Cents`), `roundDiv`, `toCents`, `fromCents` |
 | Utilitário de data | `backend/src/common/utils/date.ts` | `remainingDays` (dias restantes arredondados para cima) e `formatBrasiliaDateTime` |
 | Erros | `backend/src/common/errors/domain.errors.ts`, `backend/src/common/filters/http-error.filter.ts` | `NotFoundError` → 404, `ConflictError` → 409; resposta no formato `{ "message": "..." }` |

@@ -1,3 +1,5 @@
+import { ContractEnd } from '../../../../domain/trade.js';
+
 /**
  * Resposta da venda: a transação `VENDA`, os cálculos da RN15/RN16 e o novo caixa (2.3.2).
  *
@@ -19,6 +21,6 @@ export interface SellPlayerOutput {
   purchase_value: number;
   remaining_days: number;
   penalty_rate: number;
-  contract_status: 'RESCINDIDO' | 'ENCERRADO';
+  contract_status: ContractEnd;
   club_cash: number;
 }

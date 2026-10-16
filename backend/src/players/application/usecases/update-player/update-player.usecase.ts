@@ -1,4 +1,5 @@
 import { NotFoundError } from '../../../../common/errors/domain.errors.js';
+import { toPlayerOutput } from '../../presenters/player.presenter.js';
 import { IPlayerRepository } from '../../interfaces/repositories/player.repository.interface.js';
 import { UpdatePlayerInput } from './update-player.input.js';
 import { UpdatePlayerOutput } from './update-player.output.js';
@@ -48,24 +49,6 @@ export class UpdatePlayerUseCase {
 
     const updated = await this.playerRepository.update(player);
 
-    return {
-      id: updated.id,
-      name: updated.getName(),
-      position: updated.getPosition(),
-      agility: updated.getAgility(),
-      age: updated.getAge(),
-      condition: updated.getCondition(),
-      base_value: updated.baseValue,
-      market_value: updated.calculateMarketValue(),
-      pace: updated.attributes.pace,
-      shooting: updated.attributes.shooting,
-      passing: updated.attributes.passing,
-      dribbling: updated.attributes.dribbling,
-      defending: updated.attributes.defending,
-      physical: updated.attributes.physical,
-      potential: updated.potential,
-      overall: updated.calculateOverall(),
-      club_id: updated.getClubId(),
-    };
+    return toPlayerOutput(updated);
   }
 }
