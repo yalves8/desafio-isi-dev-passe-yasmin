@@ -43,4 +43,23 @@ describe('LineupSlots', () => {
     expect(combobox).toHaveAttribute('aria-invalid', 'true')
     expect(combobox).toHaveAccessibleDescription('Escolha o titular.')
   })
+
+  it('deve numerar as vagas do mesmo setor para cada uma ter nome único', () => {
+    render(
+      <LineupSlots
+        rows={[
+          { slot: { key: 'GK-1', sector: 'GK' }, candidates: [] },
+          { slot: { key: 'DEF-1', sector: 'DEF' }, candidates: [] },
+          { slot: { key: 'DEF-2', sector: 'DEF' }, candidates: [] },
+        ]}
+        onSelect={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByRole('combobox', { name: 'Goleiro GOL' })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Defesa 1 ZAG ou LAT' })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Defesa 2 ZAG ou LAT' })).toBe(
+      screen.getByTestId('slot-DEF-2'),
+    )
+  })
 })

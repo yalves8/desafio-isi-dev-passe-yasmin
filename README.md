@@ -150,7 +150,7 @@ Prefixo `/api/v1`, exceto `/health`. A documentação completa está no Swagger 
 | POST | `/players/:id/buy` | Compra jogador livre: desconta o caixa, cria o contrato `ATIVO` e grava a transação `COMPRA` numa única operação (RN12 a RN14) |
 | POST | `/players/:id/sell` | Venda pelo clube atual: multa por fidelidade, comissão sobre o lucro, contrato `RESCINDIDO` ou `ENCERRADO`, saída da escalação e transação `VENDA` numa única operação (RN15 e RN16) |
 
-Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro global de erros.
+Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro global de erros. JSON malformado responde `400` com "O corpo da requisição não é um JSON válido" (adaptador Express em `common/adapters`), e um campo enviado com o tipo errado responde "<campo> deve ser um número" (ou texto, lista…), em vez de "<campo> é obrigatório", que fica para o campo ausente.
 
 ## Estrutura de pastas
 ```
@@ -158,7 +158,7 @@ Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro glo
 ├─ backend/
 │  ├─ prisma/                 (schema.prisma com 7 tabelas e migrations/)
 │  ├─ src/
-│  │  ├─ common/              (config/ validada com zod, errors/, filters/, pipes/ zod, prisma/, utils/)
+│  │  ├─ common/              (adapters/ Express, config/ validada com zod, errors/, filters/, pipes/ zod, prisma/, utils/)
 │  │  ├─ domain/              (regras puras: valor de mercado, overall, dinheiro, negociação, motor de partida)
 │  │  ├─ players/             (application/, domain/, infrastructure/, presentation/, tests/)
 │  │  ├─ clubs/               (mesma divisão de camadas)
@@ -175,10 +175,10 @@ Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro glo
 │  │  ├─ api/                 (client Axios + um service por recurso + tipos da API)
 │  │  ├─ components/
 │  │  │  ├─ ui/               (shadcn)
-│  │  │  ├─ layout/           (AppLayout, sidebar, PageHeader)
-│  │  │  ├─ feedback/         (ActionDialog, AlertMessage, DisabledHint, estados de vazio/erro)
-│  │  │  ├─ form/             (FormField, FieldMessage, InputWithIcon, NumberField)
-│  │  │  └─ data-display/     (DataTable, Tag, InfoList, StatCard)
+│  │  │  ├─ layout/           (AppLayout, sidebar, PageHeader, SectionCard, BackLink)
+│  │  │  ├─ feedback/         (ActionDialog, AlertMessage, DisabledHint, InfoNote, PageSkeleton, estados de vazio/erro)
+│  │  │  ├─ form/             (FormField, FieldMessage, InputWithIcon, NumberField, ClubSelect, FilterSelect, SortMenu, RadioCard)
+│  │  │  └─ data-display/     (DataTable, Tag, InfoList, StatCard, DateTime, LegendItem, Pitch)
 │  │  ├─ contexts/            (LeagueData: recarrega lista e sidebar após cada ação)
 │  │  ├─ hooks/               (useFetch, useAction, useBreadcrumbDetail, useLeagueData)
 │  │  ├─ modules/clubs/            (lista, detalhe, elenco, venda, escalação e histórico)
@@ -260,7 +260,8 @@ Controller (presentation) → Use case (application) → Repositório abstrato
 
 ### Frontend: padrões
 - **Página e hook:** a página só desestrutura o seu `*.hook.ts`, que concentra estado, buscas e handlers.
-- **Componentes:** cada um tem sua pasta, com tipos e teste próprios. Componentes reaproveitáveis entre telas ficam em `modules/<domínio>/components` ou em `components/`.
+- **Componentes:** cada um tem sua pasta, com tipos e teste próprios. Componentes reaproveitáveis entre telas ficam em `modules/<domínio>/components` ou em `components/`. Padrões que se repetem viram componente compartilhado, como o cartão de seção (`SectionCard`), o campo de futebol (`Pitch`), a ordenação (`SortMenu`), os filtros em select (`FilterSelect`, `ClubSelect`), as notas dos diálogos (`InfoNote`) e o jogador com avatar (`PlayerIdentity`, em `modules/players`). Um componente usado por dois módulos que já dependem um do outro fica em `components/`, para não criar importação circular.
+- **Seletores de teste:** os testes encontram os elementos pelo papel e pelo nome acessível (`getByRole`, `getByLabelText`), e cada nome é único na tela (ex.: "Comprar {nome}", "Vender {nome}", "Ações de {nome}", "Defesa 2"). Onde há repetição, há `data-testid` com o id do registro: linhas (`player-row-{id}`, `club-row-{id}`, `squad-row-{id}`, `match-row-{id}`, `transaction-row-{id}`, `standing-row-{id}`), ações duplicadas (`players-create` / `players-empty-create` e equivalentes), abas (`players-tab-{aba}`, `club-tab-{aba}`), menu (`nav-{tela}`, `nav-club-{id}`) e vagas da escalação (`slot-{vaga}`).
 - **Modais de confirmação:** só exibem; quem chama a API é o hook da página, via `useAction`. Diálogos com formulário têm hook próprio.
 - **Validação:** os formulários replicam os limites da API (`player-form.validation.ts`). A tela não recalcula valores que a API devolve.
 
@@ -336,6 +337,7 @@ Todo o fluxo do desafio está implementado: jogadores → clubes → compra → 
   - Backend: compra, venda, histórico de transações e exportação CSV, escalação, partidas e classificação, e os testes desses módulos.
   - Documentação: `docs/` e este README.
   - Revisão final: conferência do projeto contra o enunciado e o barema, com um roteiro automatizado de chamadas à API, e as correções que ela apontou (Node 22, normalização do `search`, linha de log, formatação e dependências sem uso).
+  - Qualidade do frontend: seletores únicos para testes automatizados, testes exploratórios de ponta a ponta das regras de cálculo com Playwright, mensagens de validação mais precisas (idade negativa, tipo errado e JSON malformado na API) e a extração de trechos repetidos em componentes compartilhados.
 - **Como e por quê:** a partir das regras do enunciado e do mockup do Figma, para acelerar a implementação e os testes. A verificação visual das telas foi feita com Playwright. Todo o código gerado foi revisado e validado com testes, lint e typecheck antes do commit.
 - **O que foi aceito, alterado ou descartado:**
   - **Aceito:** a auditoria do projeto contra o enunciado e o barema, com um roteiro automatizado que chama a API item a item (B01 a B22) e foi usado para validar cada mudança; a troca do Node 24 pelo 22, a normalização do `search`, o log de requisições, o README completo e a remoção de código sem uso (dependências e variáveis do template, seed vazio, arquivos e exports não usados); os componentes compartilhados do frontend (`DataTable`, `AlertMessage`, `FieldMessage`); os presenters e as regras e limites movidos para o domínio no backend; e o plano de testes de interface com Playwright, executado tela a tela.

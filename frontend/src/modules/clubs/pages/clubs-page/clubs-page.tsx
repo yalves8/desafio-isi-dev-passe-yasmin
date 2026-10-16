@@ -17,7 +17,7 @@ export function ClubsPage() {
         title="Clubes"
         description={`Cada clube começa com ${formatMoney(INITIAL_CASH)} em caixa e sem jogadores. A liga aceita no máximo ${MAX_CLUBS} clubes.`}
         actions={
-          <Button size="md" onClick={header.onCreate}>
+          <Button size="md" onClick={header.onCreate} data-testid="clubs-create">
             <Plus /> Novo clube
           </Button>
         }

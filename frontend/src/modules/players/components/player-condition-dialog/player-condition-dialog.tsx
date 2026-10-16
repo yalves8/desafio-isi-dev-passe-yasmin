@@ -1,8 +1,8 @@
 import { Lock } from 'lucide-react'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
 import { AlertMessage } from '@/components/feedback/alert-message/alert-message'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { cn } from '@/lib/utils'
+import { RadioCard } from '@/components/form/radio-card/radio-card'
+import { RadioGroup } from '@/components/ui/radio-group'
 import { CONDITION_OPTIONS } from '../../players.constants'
 import { ConditionBadge } from '../condition-badge/condition-badge'
 import { PlayerSummary } from '../player-summary/player-summary'
@@ -43,39 +43,46 @@ export function PlayerConditionDialog({
         {CONDITION_OPTIONS.map((option) => {
           const blocked = isBlocked(option.value)
           return (
-            <label
+            <RadioCard
               key={option.value}
-              htmlFor={`condition-${option.value}`}
-              className={cn(
-                'flex cursor-pointer gap-3 rounded-xl border px-4 py-3 transition-colors hover:bg-muted/50',
-                selected === option.value && 'border-primary bg-blue-50/70 hover:bg-blue-50/70',
-                blocked && 'cursor-not-allowed opacity-60 hover:bg-transparent',
-              )}
+              id={`condition-${option.value}`}
+              value={option.value}
+              checked={selected === option.value}
+              disabled={blocked}
+              labelledBy={`condition-${option.value}-label`}
+              describedBy={`condition-${option.value}-description`}
             >
-              <RadioGroupItem
-                id={`condition-${option.value}`}
-                value={option.value}
-                disabled={blocked}
-                className="mt-0.5"
-              />
-              <span className="flex flex-col gap-0.5">
-                <span className="flex items-center gap-2 font-medium">
-                  {option.label}
-                  {option.value === player.condition && (
-                    <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium">
-                      Atual
+              {(radio) => (
+                <>
+                  <span className="mt-0.5 flex">{radio}</span>
+                  <span className="flex flex-col gap-0.5">
+                    <span className="flex items-center gap-2 font-medium">
+                      <span id={`condition-${option.value}-label`}>{option.label}</span>
+                      {option.value === player.condition && (
+                        <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium">
+                          Atual
+                        </span>
+                      )}
                     </span>
-                  )}
-                </span>
-                <span className="text-xs text-muted-foreground">{option.description}</span>
-                {blocked && (
-                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Lock className="size-3" aria-hidden />
-                    De Doente não passa direto para Apto.
+                    <span
+                      id={`condition-${option.value}-description`}
+                      className="flex flex-col gap-0.5 text-xs text-muted-foreground"
+                    >
+                      {option.value === player.condition && (
+                        <span className="sr-only">Atual. </span>
+                      )}
+                      {option.description}
+                      {blocked && (
+                        <span className="flex items-center gap-1">
+                          <Lock className="size-3" aria-hidden />
+                          De Doente não passa direto para Apto.
+                        </span>
+                      )}
+                    </span>
                   </span>
-                )}
-              </span>
-            </label>
+                </>
+              )}
+            </RadioCard>
           )
         })}
       </RadioGroup>

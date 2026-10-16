@@ -23,6 +23,8 @@ const COLUMNS: DataTableColumn[] = [
 
 /** Uma linha por vaga: titular escolhido, condição e overall devolvidos pela API */
 export function LineupSlots({ rows, onSelect }: LineupSlotsProps) {
+  // Setor com mais de uma vaga leva o número no nome ("Defesa 2"), para cada vaga ter nome único
+  const repeated = (sector: string) => rows.filter((r) => r.slot.sector === sector).length > 1
   return (
     <DataTable
       columns={COLUMNS}
@@ -32,11 +34,20 @@ export function LineupSlots({ rows, onSelect }: LineupSlotsProps) {
       renderRow={({ slot, player, candidates, error }) => {
         const sector = SECTORS[slot.sector]
         const id = `slot-${slot.key}`
+        const number = repeated(slot.sector) ? slot.key.split('-')[1] : undefined
         return (
           <TableRow className="h-15">
             <TableCell className="pl-4">
               <label htmlFor={id} className="flex flex-col leading-tight">
-                <span className="font-medium">{sector.label}</span>
+                <span className="font-medium">
+                  {sector.label}
+                  {number && (
+                    <>
+                      {' '}
+                      <span className="sr-only">{number}</span>
+                    </>
+                  )}
+                </span>{' '}
                 <span className="text-xs text-muted-foreground">{sector.positions}</span>
               </label>
             </TableCell>
@@ -49,6 +60,7 @@ export function LineupSlots({ rows, onSelect }: LineupSlotsProps) {
                 >
                   <SelectTrigger
                     id={id}
+                    data-testid={id}
                     className="h-9 w-full"
                     aria-invalid={!!error}
                     aria-describedby={error ? `${id}-message` : undefined}

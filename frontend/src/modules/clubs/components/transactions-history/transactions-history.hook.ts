@@ -52,9 +52,9 @@ export function useTransactionsHistory({ club, version }: { club: Club; version:
       /** O último tipo marcado não pode ser desmarcado */
       isTypeLocked: (type: TransactionType) => types.length === 1 && types[0] === type,
       playerId,
-      playerLabel: playerName ?? 'todos',
       playerOptions: options,
-      onPlayerChange: (value: string) => setPlayerId(value === 'ALL' ? undefined : Number(value)),
+      onPlayerChange: (value?: string) =>
+        setPlayerId(value === undefined ? undefined : Number(value)),
       hasFilters,
       clear,
     },

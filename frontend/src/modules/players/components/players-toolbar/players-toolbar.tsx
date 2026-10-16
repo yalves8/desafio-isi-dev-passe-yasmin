@@ -1,15 +1,5 @@
-import { ArrowUpDown, ChevronDown } from 'lucide-react'
-import type { PlayerSort } from '@/api/types'
 import { DisabledHint } from '@/components/feedback/disabled-hint/disabled-hint'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { SortMenu } from '@/components/form/sort-menu/sort-menu'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SORT_OPTIONS } from '../../players.constants'
 import type { PlayersTab } from '../../players.types'
@@ -23,8 +13,6 @@ const TABS: { value: PlayersTab; label: string }[] = [
 
 /** Abas Todos/Livres/Em clubes com contagem e o menu de ordenação */
 export function PlayersToolbar({ tabs, sort }: PlayersToolbarProps) {
-  const current = SORT_OPTIONS.find((o) => o.value === sort.value) ?? SORT_OPTIONS[0]
-
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 p-4">
       {/* Manual: troca no clique ou Enter; no foco também, cada troca empilharia no histórico */}
@@ -38,7 +26,12 @@ export function PlayersToolbar({ tabs, sort }: PlayersToolbarProps) {
             const reason = tab.value === 'free' ? tabs.freeDisabledReason : undefined
             return (
               <DisabledHint key={tab.value} reason={reason} className="h-full">
-                <TabsTrigger value={tab.value} disabled={!!reason} className="gap-1.5 px-2.5">
+                <TabsTrigger
+                  value={tab.value}
+                  disabled={!!reason}
+                  data-testid={`players-tab-${tab.value}`}
+                  className="gap-1.5 px-2.5"
+                >
                   {tab.label}
                   <span className="text-muted-foreground tabular-nums">
                     {tabs.counts[tab.value] ?? '–'}
@@ -50,28 +43,7 @@ export function PlayersToolbar({ tabs, sort }: PlayersToolbarProps) {
         </TabsList>
       </Tabs>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="md" className="gap-2 px-3 font-normal">
-            <ArrowUpDown className="size-4 text-muted-foreground" />
-            Ordenar: {current.short}
-            <ChevronDown className="size-4 text-muted-foreground" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="min-w-64">
-          <DropdownMenuLabel>Ordenar por</DropdownMenuLabel>
-          <DropdownMenuRadioGroup
-            value={sort.value}
-            onValueChange={(v) => sort.onChange(v as PlayerSort)}
-          >
-            {SORT_OPTIONS.map((o) => (
-              <DropdownMenuRadioItem key={o.value} value={o.value}>
-                {o.label}
-              </DropdownMenuRadioItem>
-            ))}
-          </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <SortMenu options={SORT_OPTIONS} value={sort.value} onChange={sort.onChange} />
     </div>
   )
 }

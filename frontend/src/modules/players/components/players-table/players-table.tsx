@@ -11,7 +11,7 @@ import { AgilityBar } from '../agility-bar/agility-bar'
 import { BuyButton } from '../buy-button/buy-button'
 import { ClubTag } from '../club-tag/club-tag'
 import { ConditionBadge } from '../condition-badge/condition-badge'
-import { PlayerAvatar } from '../player-avatar/player-avatar'
+import { PlayerIdentity } from '../player-identity/player-identity'
 import { PlayerRowMenu } from '../player-row-menu/player-row-menu'
 import { PlayersPagination } from '../players-pagination/players-pagination'
 import { PlayersToolbar } from '../players-toolbar/players-toolbar'
@@ -90,7 +90,12 @@ export function PlayersTable({ tabs, sort, list, actions, pagination }: PlayersT
                 description:
                   'Confira a grafia ou tire alguns filtros. A busca ignora maiúsculas, minúsculas e acentos.',
                 action: (
-                  <Button variant="outline" size="md" onClick={empty.onClear}>
+                  <Button
+                    variant="outline"
+                    size="md"
+                    onClick={empty.onClear}
+                    data-testid="players-empty-clear"
+                  >
                     <X /> Limpar filtros
                   </Button>
                 ),
@@ -101,7 +106,12 @@ export function PlayersTable({ tabs, sort, list, actions, pagination }: PlayersT
                 description:
                   'Com o banco recém-criado, a lista começa vazia. Cadastre o primeiro jogador da liga.',
                 action: (
-                  <Button variant="outline" size="md" onClick={empty.onCreate}>
+                  <Button
+                    variant="outline"
+                    size="md"
+                    onClick={empty.onCreate}
+                    data-testid="players-empty-create"
+                  >
                     <UserPlus /> Novo jogador
                   </Button>
                 ),
@@ -122,17 +132,16 @@ export function PlayersTable({ tabs, sort, list, actions, pagination }: PlayersT
         footer={<PlayersPagination {...pagination} />}
         renderRow={(player) => (
           <TableRow
+            data-testid={`player-row-${player.id}`}
             data-highlighted={player.id === list.highlightId || undefined}
             className="h-14 data-highlighted:bg-blue-50/70"
           >
             <TableCell className="px-2 pl-4">
-              <div className="flex items-center gap-3">
-                <PlayerAvatar id={player.id} name={player.name} />
-                <div className="leading-tight">
-                  <p className="font-medium">{player.name}</p>
-                  <p className="text-xs text-muted-foreground">{POSITION_LABEL[player.position]}</p>
-                </div>
-              </div>
+              <PlayerIdentity
+                id={player.id}
+                name={player.name}
+                detail={POSITION_LABEL[player.position]}
+              />
             </TableCell>
             <TableCell className="px-2">
               <PositionBadge position={player.position} />
@@ -163,6 +172,7 @@ export function PlayersTable({ tabs, sort, list, actions, pagination }: PlayersT
                 {player.club_id === null && (
                   <BuyButton
                     size="sm"
+                    playerName={player.name}
                     onClick={() => actions.onBuy(player)}
                     disabledReason={actions.buyDisabledReason}
                   />

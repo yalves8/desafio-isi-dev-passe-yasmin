@@ -62,7 +62,7 @@ export function StandingsTable({
           </p>
         }
         renderRow={(row) => (
-          <TableRow className="h-13">
+          <TableRow data-testid={`standing-row-${row.club_id}`} className="h-13">
             <TableCell className="pl-4 text-center">
               <span
                 className={cn(

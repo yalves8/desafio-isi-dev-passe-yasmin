@@ -50,14 +50,14 @@ export function ClubsTable({
           title: 'Nenhum clube cadastrado',
           description: `Crie o primeiro clube com nome e sigla. Ele começa com ${formatMoney(INITIAL_CASH)} em caixa e sem jogadores.`,
           action: (
-            <Button variant="outline" size="md" onClick={onCreate}>
+            <Button variant="outline" size="md" onClick={onCreate} data-testid="clubs-empty-create">
               <Plus /> Novo clube
             </Button>
           ),
         }}
         toolbar={<ClubsToolbar total={clubs.length} sort={sort} onSortChange={onSortChange} />}
         renderRow={(club) => (
-          <TableRow className="h-15">
+          <TableRow data-testid={`club-row-${club.id}`} className="h-15">
             <TableCell className="px-2 pl-4">
               <span className="flex items-center gap-3 font-medium">
                 <ClubBadge acronym={club.acronym} />

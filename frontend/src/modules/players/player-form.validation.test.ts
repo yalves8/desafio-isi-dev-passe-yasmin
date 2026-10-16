@@ -50,6 +50,15 @@ describe('createPlayerSchema', () => {
     )
   })
 
+  it.each([
+    ['-5', 'Use uma idade de 16 a 45 anos.'],
+    ['-0', 'Use uma idade de 16 a 45 anos.'],
+    ['16.5', 'Use um número inteiro.'],
+    ['abc', 'Use um número inteiro.'],
+  ])('deve tratar a idade "%s" com a mensagem certa', (age, message) => {
+    expect(messages(createPlayerSchema.safeParse({ ...valid, age }))).toEqual([message])
+  })
+
   it('deve limitar a agilidade a 85 com 35 anos ou mais', () => {
     const result = createPlayerSchema.safeParse({ ...valid, age: '35', agility: '86' })
 

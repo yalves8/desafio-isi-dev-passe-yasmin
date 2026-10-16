@@ -1,14 +1,9 @@
 import { Check, Download, UserRound } from 'lucide-react'
 import { AlertMessage } from '@/components/feedback/alert-message/alert-message'
 import { ErrorState } from '@/components/feedback/states'
+import { FilterSelect } from '@/components/form/filter-select/filter-select'
+import { SectionCard } from '@/components/layout/section-card/section-card'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { formatMoney } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { INITIAL_CASH } from '../../clubs.constants'
@@ -39,25 +34,16 @@ export function TransactionsHistory({ club, version }: TransactionsHistoryProps)
 
   return (
     <div className="flex flex-col gap-6">
-      <section
-        aria-labelledby="history-title"
-        className="overflow-hidden rounded-xl border bg-card shadow-2xs"
-      >
-        <header className="flex flex-wrap items-start justify-between gap-3 px-4 py-3.5">
-          <div>
-            <h2 id="history-title" className="text-base font-semibold">
-              Histórico de transações
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              Da mais recente para a mais antiga, com o nome e os valores do momento de cada
-              operação.
-            </p>
-          </div>
+      <SectionCard
+        title="Histórico de transações"
+        description="Da mais recente para a mais antiga, com o nome e os valores do momento de cada operação."
+        headerClassName="border-b-0 px-4 py-3.5"
+        actions={
           <Button variant="outline" size="md" onClick={() => void onExport()} disabled={exporting}>
             <Download /> {exporting ? 'Exportando…' : 'Exportar CSV'}
           </Button>
-        </header>
-
+        }
+      >
         <div className="flex flex-wrap items-center gap-2 border-b px-4 pb-3">
           <span id="history-type-label" className="mr-1 text-sm font-medium text-muted-foreground">
             Tipo
@@ -100,27 +86,16 @@ export function TransactionsHistory({ club, version }: TransactionsHistoryProps)
             })}
           </div>
           <span aria-hidden className="mx-1 h-5 w-px bg-border" />
-          <Select
-            value={filters.playerId === undefined ? 'ALL' : String(filters.playerId)}
-            onValueChange={filters.onPlayerChange}
+          <FilterSelect
+            icon={UserRound}
+            label="Filtrar por jogador"
+            prefix="Jogador"
+            allLabel="Todos os jogadores"
+            options={filters.playerOptions}
+            value={filters.playerId === undefined ? undefined : String(filters.playerId)}
+            onChange={filters.onPlayerChange}
             disabled={filters.playerOptions.length === 0}
-          >
-            <SelectTrigger
-              className="h-9 w-auto gap-2 pl-3 text-left text-muted-foreground"
-              aria-label="Filtrar por jogador"
-            >
-              <UserRound aria-hidden />
-              <SelectValue>Jogador: {filters.playerLabel}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">Todos os jogadores</SelectItem>
-              {filters.playerOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          />
           {filters.hasFilters && (
             <Button variant="link" size="md" className="px-3" onClick={filters.clear}>
               Limpar filtros
@@ -146,7 +121,7 @@ export function TransactionsHistory({ club, version }: TransactionsHistoryProps)
             {data && <TransactionsSummary summary={data.summary} />}
           </>
         )}
-      </section>
+      </SectionCard>
 
       {data && !history.error && (
         <p className="text-xs text-muted-foreground">

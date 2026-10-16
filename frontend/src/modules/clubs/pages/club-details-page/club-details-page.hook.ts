@@ -21,6 +21,7 @@ export function useClubDetailsPage() {
   const { version, refresh } = useLeagueData()
   const [dialog, setDialog] = useState<ClubDetailsDialog>(null)
   const [lineupError, setLineupError] = useState<string>()
+  const [sellError, setSellError] = useState<string>()
 
   const club = useFetch(`club:${clubId}:${version}`, () => clubsService.get(clubId), {
     keepPreviousData: true,
@@ -36,9 +37,12 @@ export function useClubDetailsPage() {
   useBreadcrumbDetail(club.data?.name ?? (notFound ? `Clube ${id}` : undefined))
 
   const squad = club.data?.players ?? []
+  const starterIds = new Set(lineup.data?.players.map((player) => player.id))
 
+  // A recusa da venda aparece no diálogo, com o `message` da API (409/404)
   const sellAction = useAction((player: Player) => playersService.sell(player.id), {
-    errorTitle: 'Não foi possível vender',
+    errorTitle: 'A venda foi recusada',
+    toastOnError: false,
   })
   // A recusa da escalação aparece no card, com o `message` da API (409/404)
   const lineupAction = useAction(
@@ -48,10 +52,19 @@ export function useClubDetailsPage() {
   )
 
   const sell = async (player: Player) => {
+    setSellError(undefined)
     const result = await sellAction.run(player)
-    if (!result.ok) return
-    setDialog({ type: 'sold', sale: result.data })
+    if (!result.ok) {
+      setSellError(result.error)
+      return
+    }
+    setDialog({ type: 'sold', sale: result.data, wasStarter: starterIds.has(player.id) })
     refresh()
+  }
+
+  const changeTab = (next: ClubDetailsTab) => {
+    setLineupError(undefined)
+    setSearchParams(clubTabParams(next))
   }
 
   const saveLineup = async (formation: Formation, playerIds: number[]) => {
@@ -83,10 +96,7 @@ export function useClubDetailsPage() {
         squad: club.data ? squad.length : undefined,
         history: history.data?.data.length,
       },
-      onChange: (next: ClubDetailsTab) => {
-        setLineupError(undefined)
-        setSearchParams(clubTabParams(next))
-      },
+      onChange: changeTab,
     },
     lineup: {
       data: lineup.data,
@@ -101,8 +111,17 @@ export function useClubDetailsPage() {
     dialog: {
       current: dialog,
       close: () => setDialog(null),
-      openSell: (player: Player) => setDialog({ type: 'sell', player }),
+      openSell: (player: Player) => {
+        setSellError(undefined)
+        setDialog({ type: 'sell', player })
+      },
+      isStarter: (player: Player) => starterIds.has(player.id),
       isSelling: sellAction.isPending,
+      sellError,
+      viewHistory: () => {
+        setDialog(null)
+        changeTab('history')
+      },
       confirmSell: (player: Player) => void sell(player),
     },
   }

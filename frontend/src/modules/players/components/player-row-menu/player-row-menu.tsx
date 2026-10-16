@@ -1,4 +1,5 @@
 import { Eye, HeartPulse, MoreHorizontal, Pencil, ShoppingCart, Trash2 } from 'lucide-react'
+import { useId } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -10,9 +11,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import type { PlayerRowMenuProps } from './player-row-menu.types'
 
-/** Menu "…" da linha; Excluir só fica disponível para jogador livre (RN09) */
+/**
+ * Menu "…" da linha; Excluir só fica disponível para jogador livre (RN09). O motivo entra
+ * como descrição do item, e o nome fica curto ("Comprar", "Excluir").
+ */
 export function PlayerRowMenu({ player, actions }: PlayerRowMenuProps) {
   const isFree = player.club_id === null
+  const id = useId()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -39,13 +44,15 @@ export function PlayerRowMenu({ player, actions }: PlayerRowMenuProps) {
             <DropdownMenuItem
               disabled={!!actions.buyDisabledReason}
               onSelect={() => actions.onBuy(player)}
+              aria-labelledby={`${id}-buy`}
+              aria-describedby={actions.buyDisabledReason ? `${id}-buy-reason` : undefined}
               className="flex-col items-start gap-0.5"
             >
-              <span className="flex items-center gap-2">
+              <span id={`${id}-buy`} className="flex items-center gap-2">
                 <ShoppingCart /> Comprar
               </span>
               {actions.buyDisabledReason && (
-                <span className="pl-6 text-xs text-muted-foreground">
+                <span id={`${id}-buy-reason`} className="pl-6 text-xs text-muted-foreground">
                   {actions.buyDisabledReason}
                 </span>
               )}
@@ -57,12 +64,14 @@ export function PlayerRowMenu({ player, actions }: PlayerRowMenuProps) {
           variant="destructive"
           disabled={!isFree}
           onSelect={() => actions.onDelete(player)}
+          aria-labelledby={`${id}-delete`}
+          aria-describedby={`${id}-delete-reason`}
           className="flex-col items-start gap-0.5"
         >
-          <span className="flex items-center gap-2">
+          <span id={`${id}-delete`} className="flex items-center gap-2">
             <Trash2 /> Excluir
           </span>
-          <span className="pl-6 text-xs text-muted-foreground">
+          <span id={`${id}-delete-reason`} className="pl-6 text-xs text-muted-foreground">
             {isFree
               ? 'Disponível porque o jogador está livre.'
               : 'Só jogador livre pode ser excluído.'}

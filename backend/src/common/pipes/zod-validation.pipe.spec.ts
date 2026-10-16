@@ -46,4 +46,53 @@ describe('ZodValidationPipe', () => {
       BadRequestException,
     );
   });
+
+  describe('mensagem de tipo', () => {
+    const typed = new ZodValidationPipe(
+      z.object({
+        name: z.string({ error: 'name é obrigatório' }),
+        age: z.number({ error: 'age é obrigatório' }).int(),
+        club_id: z
+          .number({ error: 'club_id é obrigatório e deve ser um inteiro' })
+          .optional(),
+        ids: z
+          .array(z.number({ error: 'ids deve ter só inteiros positivos' }))
+          .optional(),
+      }),
+    );
+    const messageOf = (value: unknown) => {
+      try {
+        typed.transform(value, { type: 'body' });
+      } catch (error) {
+        return (error as BadRequestException).message;
+      }
+      return undefined;
+    };
+
+    it.each([
+      [{ name: 'Teste' }, 'age é obrigatório'],
+      [{ name: 'Teste', age: null }, 'age é obrigatório'],
+      [{ name: 'Teste', age: '30' }, 'age deve ser um número'],
+      [{ name: 'Teste', age: true }, 'age deve ser um número'],
+      [{ name: 123, age: 30 }, 'name deve ser um texto'],
+    ])('deve explicar o tipo errado em %j', (value, message) => {
+      expect(messageOf(value)).toBe(message);
+    });
+
+    it.each([
+      [
+        { name: 'Teste', age: 30, club_id: '1' },
+        'club_id é obrigatório e deve ser um inteiro',
+      ],
+      [
+        { name: 'Teste', age: 30, ids: ['a'] },
+        'ids deve ter só inteiros positivos',
+      ],
+    ])(
+      'deve manter a mensagem de tipo específica do schema em %j',
+      (value, message) => {
+        expect(messageOf(value)).toBe(message);
+      },
+    );
+  });
 });

@@ -1,17 +1,12 @@
-import { Calendar, Clock, Info, Loader2, RefreshCw, Shield, ShoppingCart } from 'lucide-react'
+import { Calendar, Clock, Loader2, RefreshCw, ShoppingCart } from 'lucide-react'
 import type { MouseEvent } from 'react'
 import { Controller } from 'react-hook-form'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
 import { AlertMessage } from '@/components/feedback/alert-message/alert-message'
+import { InfoNote } from '@/components/feedback/info-note/info-note'
+import { ClubSelect } from '@/components/form/club-select/club-select'
 import { FormField } from '@/components/form/form-field/form-field'
 import { InputWithIcon } from '@/components/form/input-with-icon/input-with-icon'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { formatMoney } from '@/lib/format'
 import { PlayerSummary } from '../player-summary/player-summary'
 import { useBuyPlayerDialog } from './buy-player-dialog.hook'
@@ -63,17 +58,7 @@ export function BuyPlayerDialog({ player, clubs, onClose, onBought }: BuyPlayerD
         </AlertMessage>
       )}
 
-      <PlayerSummary
-        player={player}
-        aside={
-          <p className="text-right leading-tight">
-            <span className="block text-xs text-muted-foreground">Valor de mercado</span>
-            <span className="text-lg font-semibold tabular-nums">
-              {formatMoney(player.market_value)}
-            </span>
-          </p>
-        }
-      />
+      <PlayerSummary player={player} showMarketValue />
 
       <form id={FORM_ID} noValidate onSubmit={onSubmit} className="flex flex-col gap-5">
         <FormField
@@ -90,25 +75,16 @@ export function BuyPlayerDialog({ player, clubs, onClose, onBought }: BuyPlayerD
             control={form.control}
             name="clubId"
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange} disabled={isSubmitting}>
-                <SelectTrigger
-                  id="buy-club"
-                  className="h-9 w-full gap-2 pl-3 text-left *:data-[slot=select-value]:flex-1"
-                  aria-invalid={!!errors.clubId}
-                  aria-describedby="buy-club-message"
-                  onBlur={field.onBlur}
-                >
-                  <Shield className="text-muted-foreground" aria-hidden />
-                  <SelectValue placeholder="Escolha o clube" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clubs.map((c) => (
-                    <SelectItem key={c.id} value={String(c.id)}>
-                      {c.name} ({c.acronym}) · caixa {formatMoney(c.cash)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <ClubSelect
+                id="buy-club"
+                clubs={clubs}
+                showCash
+                value={field.value ? Number(field.value) : undefined}
+                onChange={(clubId) => field.onChange(String(clubId))}
+                onBlur={field.onBlur}
+                invalid={!!errors.clubId}
+                disabled={isSubmitting}
+              />
             )}
           />
         </FormField>
@@ -151,19 +127,15 @@ export function BuyPlayerDialog({ player, clubs, onClose, onBought }: BuyPlayerD
         </FormField>
       </form>
 
-      <p className="flex gap-2.5 rounded-lg border bg-muted/50 px-3 py-2.5 text-xs text-muted-foreground">
-        <Info className="mt-px size-4 shrink-0" aria-hidden />A taxa é de 5% do valor de mercado, só
-        quando ele passa de 30,00. Taxa, custo e novo caixa são calculados ao confirmar.
-      </p>
+      <InfoNote>
+        A taxa é de 5% do valor de mercado, só quando ele passa de 30,00. Taxa, custo e novo caixa
+        são calculados ao confirmar.
+      </InfoNote>
 
       {isSubmitting && (
-        <p
-          role="status"
-          className="flex items-center gap-2 rounded-lg border px-3 py-2 text-xs text-muted-foreground"
-        >
-          <Info className="size-3.5 shrink-0" aria-hidden />
+        <InfoNote variant="outline" role="status">
           Enviando a compra. Os botões ficam desabilitados até a resposta.
-        </p>
+        </InfoNote>
       )}
     </ActionDialog>
   )

@@ -1,7 +1,7 @@
-import { ArrowLeft, SearchX } from 'lucide-react'
-import { Link } from 'react-router'
+import { SearchX } from 'lucide-react'
+import { PageSkeleton } from '@/components/feedback/page-skeleton/page-skeleton'
 import { EmptyState, ErrorState } from '@/components/feedback/states'
-import { Button } from '@/components/ui/button'
+import { BackLink } from '@/components/layout/back-link/back-link'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ClubHeader } from '../../components/club-header/club-header'
 import { ClubStats } from '../../components/club-stats/club-stats'
@@ -17,13 +17,7 @@ export function ClubDetailsPage() {
   const { club, squad, tabs, lineup, version, dialog } = useClubDetailsPage()
   const current = dialog.current
 
-  const backToClubs = (
-    <Button variant="outline" size="md" asChild>
-      <Link to="/clubes">
-        <ArrowLeft /> Voltar para clubes
-      </Link>
-    </Button>
-  )
+  const backToClubs = <BackLink to="/clubes" label="Voltar para clubes" />
   if (club.notFound) {
     return (
       <EmptyState
@@ -51,7 +45,7 @@ export function ClubDetailsPage() {
 
   if (!club.data) {
     return (
-      <div role="status" aria-label="Carregando clube" className="flex flex-col gap-6">
+      <PageSkeleton label="Carregando clube">
         <Skeleton className="h-12 w-72" />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }, (_, i) => (
@@ -59,7 +53,7 @@ export function ClubDetailsPage() {
           ))}
         </div>
         <Skeleton className="h-64 w-full" />
-      </div>
+      </PageSkeleton>
     )
   }
 
@@ -109,12 +103,22 @@ export function ClubDetailsPage() {
         <SellPlayerDialog
           player={current.player}
           clubName={club.data.name}
+          isStarter={dialog.isStarter(current.player)}
           isSelling={dialog.isSelling}
+          error={dialog.sellError}
           onClose={dialog.close}
           onConfirm={() => dialog.confirmSell(current.player)}
         />
       )}
-      {current?.type === 'sold' && <SaleResultDialog sale={current.sale} onClose={dialog.close} />}
+      {current?.type === 'sold' && (
+        <SaleResultDialog
+          sale={current.sale}
+          clubName={club.data.name}
+          wasStarter={current.wasStarter}
+          onClose={dialog.close}
+          onViewHistory={dialog.viewHistory}
+        />
+      )}
     </div>
   )
 }

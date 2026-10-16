@@ -1,5 +1,6 @@
 import { ChartColumn, Coins, HeartPulse, Pencil, Tag as TagIcon, TrendingUp } from 'lucide-react'
 import { InfoList } from '@/components/data-display/info-list/info-list'
+import { LegendItem } from '@/components/data-display/legend-item/legend-item'
 import { StatCard } from '@/components/data-display/stat-card/stat-card'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet'
@@ -92,13 +93,10 @@ export function PlayerDetailsSheet({
               ))}
             </ul>
             <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <span className="size-2 rounded-sm bg-primary" aria-hidden /> Valor do atributo
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="size-2 rounded-sm bg-blue-200" aria-hidden />
+              <LegendItem color="bg-primary">Valor do atributo</LegendItem>
+              <LegendItem color="bg-blue-200">
                 Até o potencial ({player.potential}), que nenhum atributo passa
-              </span>
+              </LegendItem>
             </p>
           </section>
 
@@ -119,7 +117,12 @@ export function PlayerDetailsSheet({
             <HeartPulse /> Alterar condição
           </Button>
           {player.club_id === null && (
-            <BuyButton className="ml-auto" onClick={onBuy} disabledReason={buyDisabledReason} />
+            <BuyButton
+              className="ml-auto"
+              playerName={player.name}
+              onClick={onBuy}
+              disabledReason={buyDisabledReason}
+            />
           )}
         </div>
       </SheetContent>

@@ -39,6 +39,16 @@ export function formatSigned(value: number) {
   return `${value > 0 ? '+' : '-'}${formatMoney(Math.abs(value))}`
 }
 
+/**
+ * Cor do valor com sinal, par do `formatSigned`: verde na entrada, vermelho na saída.
+ * O zero fica com `zeroTone` (ex.: acinzentado na tabela, cor normal nos totais).
+ */
+export function signedTone(value: number, zeroTone?: string) {
+  if (value > 0) return 'text-green-700'
+  if (value < 0) return 'text-red-600'
+  return zeroTone
+}
+
 /** Inteiro com separador de milhar (ex.: 1.089) */
 export function formatInteger(value: number) {
   return integerFormat.format(value)

@@ -1,3 +1,4 @@
+import { CircleCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -24,7 +25,7 @@ const SIZES: Record<ActionDialogSize, string> = {
 export function ActionDialog({
   title,
   description,
-  icon,
+  success = false,
   size = 'md',
   className,
   alert = false,
@@ -52,7 +53,14 @@ export function ActionDialog({
         )}
       >
         <DialogHeader className="gap-1.5">
-          {icon && <span className="mb-2">{icon}</span>}
+          {success && (
+            <span
+              data-slot="dialog-success-icon"
+              className="mb-2 flex size-9 items-center justify-center rounded-full bg-green-50 text-green-700"
+            >
+              <CircleCheck className="size-5" aria-hidden />
+            </span>
+          )}
           <DialogTitle className="text-lg font-semibold">{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>

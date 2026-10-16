@@ -19,7 +19,7 @@ export function MatchesPage() {
         title="Partidas"
         description="Jogue partidas entre clubes com os 5 titulares escalados e acompanhe o histórico."
         actions={
-          <Button size="md" onClick={header.onCreate}>
+          <Button size="md" onClick={header.onCreate} data-testid="matches-create">
             <Plus /> Nova partida
           </Button>
         }
@@ -33,7 +33,12 @@ export function MatchesPage() {
             title="Nenhuma partida jogada"
             description="Escale os 5 titulares de dois clubes e jogue a primeira partida. O resultado aparece aqui e na classificação."
             action={
-              <Button variant="outline" size="md" onClick={header.onCreate}>
+              <Button
+                variant="outline"
+                size="md"
+                onClick={header.onCreate}
+                data-testid="matches-empty-create"
+              >
                 <Plus /> Nova partida
               </Button>
             }
@@ -56,7 +61,10 @@ export function MatchesPage() {
                     clubsById={clubsById}
                     action={
                       <Button variant="outline" size="md" asChild>
-                        <Link to={`/partidas/${latest.match.id}`}>
+                        <Link
+                          to={`/partidas/${latest.match.id}`}
+                          aria-label="Ver duelos da última partida"
+                        >
                           Ver duelos <ChevronRight />
                         </Link>
                       </Button>

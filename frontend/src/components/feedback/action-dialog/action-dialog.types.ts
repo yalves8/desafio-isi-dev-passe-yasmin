@@ -17,8 +17,8 @@ interface ActionDialogConfirm {
 export interface ActionDialogProps {
   title: string
   description?: ReactNode
-  /** Ícone acima do título (ex.: sucesso) */
-  icon?: ReactNode
+  /** Resultado de uma ação concluída: ícone de sucesso acima do título */
+  success?: boolean
   /** sm 460px · md 520px · lg 560px · xl 852px */
   size?: ActionDialogSize
   className?: string

@@ -43,6 +43,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
                 key={to}
                 to={to}
                 onClick={onNavigate}
+                data-testid={`nav-${to.slice(1)}`}
                 className={({ isActive }) =>
                   cn(navItemClass, isActive && 'border-border bg-white font-medium shadow-xs')
                 }
@@ -58,7 +59,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         ))}
       </nav>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-2">
+      <nav aria-label="Clubes" className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-2">
         <div className="flex h-8 items-center justify-between px-2">
           <p className="text-xs text-muted-foreground">Clubes</p>
           <Link
@@ -78,6 +79,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
             key={club.id}
             to={`/clubes/${club.id}`}
             onClick={onNavigate}
+            data-testid={`nav-club-${club.id}`}
             className={({ isActive }) =>
               cn(navItemClass, isActive && 'border-border bg-white font-medium shadow-xs')
             }
@@ -98,7 +100,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
             )}
           </NavLink>
         ))}
-      </div>
+      </nav>
 
       <div className="mx-2 flex flex-col gap-3 rounded-lg border bg-white p-3 shadow-2xs">
         <div className="flex items-center gap-2.5">

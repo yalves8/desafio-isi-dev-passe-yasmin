@@ -26,7 +26,12 @@ export function ActiveFilters({ chips, searchOnly, onRemove, onClear }: ActiveFi
           </button>
         </span>
       ))}
-      <Button variant="link" className="h-7 px-1" onClick={onClear}>
+      <Button
+        variant="link"
+        className="h-7 px-1"
+        onClick={onClear}
+        data-testid="active-filters-clear"
+      >
         Limpar filtros
       </Button>
     </div>

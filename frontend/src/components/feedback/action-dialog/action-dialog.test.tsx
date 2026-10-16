@@ -56,4 +56,20 @@ describe('ActionDialog', () => {
 
     expect(screen.getByRole('alertdialog', { name: 'Excluir?' })).toBeInTheDocument()
   })
+
+  it('deve mostrar o ícone de sucesso só nos diálogos de resultado', () => {
+    const { rerender } = render(
+      <ActionDialog
+        title="Compra concluída"
+        success
+        onClose={vi.fn()}
+        confirm={{ label: 'Fechar' }}
+      />,
+    )
+    const icon = () => document.querySelector('[data-slot="dialog-success-icon"]')
+    expect(icon()).toBeInTheDocument()
+
+    rerender(<ActionDialog title="Comprar" onClose={vi.fn()} confirm={{ label: 'Confirmar' }} />)
+    expect(icon()).not.toBeInTheDocument()
+  })
 })

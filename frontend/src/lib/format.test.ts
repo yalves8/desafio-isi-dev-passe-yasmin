@@ -4,6 +4,7 @@ import {
   formatInteger,
   formatMoney,
   formatSigned,
+  signedTone,
   formatTime,
   getInitials,
   normalizeText,
@@ -31,5 +32,12 @@ describe('format', () => {
   it('deve gerar iniciais e normalizar texto', () => {
     expect(getInitials('Ênio Carvalho')).toBe('ÊC')
     expect(normalizeText('Águias FC')).toBe('aguias fc')
+  })
+
+  it('deve dar verde à entrada, vermelho à saída e a cor pedida ao zero', () => {
+    expect(signedTone(3)).toBe('text-green-700')
+    expect(signedTone(-0.5)).toBe('text-red-600')
+    expect(signedTone(0)).toBeUndefined()
+    expect(signedTone(0, 'text-muted-foreground')).toBe('text-muted-foreground')
   })
 })

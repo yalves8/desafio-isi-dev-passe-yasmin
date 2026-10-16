@@ -1,6 +1,7 @@
 import { Lock, UserRound } from 'lucide-react'
 import { Controller } from 'react-hook-form'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
+import { InfoNote } from '@/components/feedback/info-note/info-note'
 import { FormField } from '@/components/form/form-field/form-field'
 import { InputWithIcon } from '@/components/form/input-with-icon/input-with-icon'
 import { NumberField } from '@/components/form/number-field/number-field'
@@ -87,11 +88,10 @@ export function PlayerEditDialog({ player, onClose, onUpdated }: PlayerEditDialo
           />
         </div>
 
-        <p className="flex items-center gap-2 rounded-lg border border-dashed px-3 py-2.5 text-xs text-muted-foreground">
-          <Lock className="size-3.5 shrink-0" aria-hidden />
+        <InfoNote icon={Lock} variant="dashed">
           Não mudam depois do cadastro: valor base ({formatMoney(player.base_value)}), indicadores e
           potencial.
-        </p>
+        </InfoNote>
       </form>
     </ActionDialog>
   )

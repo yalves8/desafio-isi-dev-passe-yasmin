@@ -31,11 +31,9 @@ describe('PlayerRowMenu', () => {
 
     await user.click(screen.getByRole('button', { name: 'Ações de André Lacerda' }))
 
-    expect(screen.getByRole('menuitem', { name: /excluir/i })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    )
-    expect(screen.getByText('Só jogador livre pode ser excluído.')).toBeInTheDocument()
+    const remove = screen.getByRole('menuitem', { name: 'Excluir' })
+    expect(remove).toHaveAttribute('aria-disabled', 'true')
+    expect(remove).toHaveAccessibleDescription('Só jogador livre pode ser excluído.')
   })
 
   it('deve abrir a compra do jogador livre', async () => {
@@ -44,7 +42,7 @@ describe('PlayerRowMenu', () => {
     render(<PlayerRowMenu player={player} actions={actions} />)
 
     await user.click(screen.getByRole('button', { name: 'Ações de André Lacerda' }))
-    await user.click(screen.getByRole('menuitem', { name: /comprar/i }))
+    await user.click(screen.getByRole('menuitem', { name: 'Comprar' }))
 
     expect(actions.onBuy).toHaveBeenCalledWith(player)
   })
@@ -60,10 +58,8 @@ describe('PlayerRowMenu', () => {
 
     await user.click(screen.getByRole('button', { name: 'Ações de André Lacerda' }))
 
-    expect(screen.getByRole('menuitem', { name: /comprar/i })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    )
-    expect(screen.getByText('Cadastre um clube para comprar.')).toBeInTheDocument()
+    const buy = screen.getByRole('menuitem', { name: 'Comprar' })
+    expect(buy).toHaveAttribute('aria-disabled', 'true')
+    expect(buy).toHaveAccessibleDescription('Cadastre um clube para comprar.')
   })
 })

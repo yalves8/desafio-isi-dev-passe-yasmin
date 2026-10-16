@@ -14,9 +14,7 @@ import {
 } from '../responses/transaction.response.js';
 
 /** Transação gravada no formato da API (2.3.3), com os valores e o nome do momento (RN17) */
-function toTransactionResponse(
-  t: TransactionRecord,
-): TransactionResponse {
+function toTransactionResponse(t: TransactionRecord): TransactionResponse {
   return {
     id: t.id,
     club_id: t.clubId,

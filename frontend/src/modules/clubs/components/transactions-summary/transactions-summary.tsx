@@ -6,7 +6,7 @@ import {
   TrendingUp,
   TriangleAlert,
 } from 'lucide-react'
-import { formatMoney, formatSigned } from '@/lib/format'
+import { formatMoney, formatSigned, signedTone } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { TransactionsSummaryProps } from './transactions-summary.types'
 
@@ -43,7 +43,7 @@ export function TransactionsSummary({ summary }: TransactionsSummaryProps) {
       hint: 'Soma dos lucros, com sinal',
       icon: profit < 0 ? TrendingDown : TrendingUp,
       value: formatSigned(profit),
-      tone: profit > 0 ? 'text-green-700' : profit < 0 ? 'text-red-600' : undefined,
+      tone: signedTone(profit),
     },
   ]
   return (

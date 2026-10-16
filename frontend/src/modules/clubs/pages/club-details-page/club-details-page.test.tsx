@@ -95,11 +95,36 @@ describe('ClubDetailsPage', () => {
     renderDetails()
 
     await user.click(await screen.findByRole('button', { name: 'Vender Felipe Moura' }))
-    await user.click(screen.getByRole('button', { name: 'Vender jogador' }))
+    expect(screen.getByText('Felipe Moura é titular')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Confirmar venda' }))
 
     expect(playersService.sell).toHaveBeenCalledWith(2)
-    expect(await screen.findByText('Jogador vendido')).toBeInTheDocument()
+    expect(await screen.findByText('Venda concluída')).toBeInTheDocument()
+    expect(
+      screen.getByText('Felipe Moura voltou a ficar livre e saiu da escalação.'),
+    ).toBeInTheDocument()
     expect(screen.getByText('98,38')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Ver histórico' }))
+    expect(screen.queryByText('Venda concluída')).not.toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: /histórico/i })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('deve mostrar a recusa da venda dentro do diálogo, com o message da API', async () => {
+    const user = userEvent.setup()
+    vi.mocked(playersService.sell).mockRejectedValue(
+      conflict('Felipe Moura já está livre e não pode ser vendido.'),
+    )
+    renderDetails()
+
+    await user.click(await screen.findByRole('button', { name: 'Vender Felipe Moura' }))
+    await user.click(screen.getByRole('button', { name: 'Confirmar venda' }))
+
+    const alert = await screen.findByRole('alert')
+    expect(alert).toHaveTextContent('A venda foi recusada')
+    expect(alert).toHaveTextContent('Felipe Moura já está livre e não pode ser vendido.')
+    expect(screen.queryByText('Felipe Moura é titular')).not.toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'Vender Felipe Moura?' })).toBeInTheDocument()
   })
 
   it('deve salvar a escalação com a formação e os 5 titulares', async () => {

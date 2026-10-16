@@ -28,12 +28,13 @@ const nameField = z
       ),
   )
 
+/** Inteiro em texto; negativo também passa aqui e cai na mensagem de faixa, que diz o que usar */
 function intField(min: number, max: number, required: string, range: string) {
   return z
     .string()
     .trim()
     .min(1, required)
-    .regex(/^\d+$/, 'Use um número inteiro.')
+    .regex(/^-?\d+$/, 'Use um número inteiro.')
     .transform(Number)
     .pipe(z.number().min(min, range).max(max, range))
 }

@@ -25,7 +25,7 @@ export function PlayersPage() {
         title="Jogadores"
         description="Cadastre jogadores, acompanhe os indicadores e compre os que estão livres."
         actions={
-          <Button size="md" onClick={header.onCreate}>
+          <Button size="md" onClick={header.onCreate} data-testid="players-create">
             <Plus /> Novo jogador
           </Button>
         }

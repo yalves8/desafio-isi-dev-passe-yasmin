@@ -1,4 +1,4 @@
-import { CircleCheck, Eye } from 'lucide-react'
+import { Eye } from 'lucide-react'
 import { InfoList } from '@/components/data-display/info-list/info-list'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
 import { Button } from '@/components/ui/button'
@@ -11,11 +11,7 @@ export function PlayerCreatedDialog({ player, onClose, onDetails }: PlayerCreate
   return (
     <ActionDialog
       className="sm:max-w-[540px]"
-      icon={
-        <span className="flex size-9 items-center justify-center rounded-full bg-green-50 text-green-700">
-          <CircleCheck className="size-5" aria-hidden />
-        </span>
-      }
+      success
       title="Jogador cadastrado"
       description={`${player.name} entrou livre e Apto. Valores em moedas, calculados pela API ao salvar.`}
       onClose={onClose}

@@ -5,7 +5,7 @@ import type { DataTableColumn } from '@/components/data-display/data-table/data-
 import { Tag } from '@/components/data-display/tag/tag'
 import { TableCell, TableRow } from '@/components/ui/table'
 import { plural } from '@/lib/format'
-import { PlayerAvatar } from '@/modules/players'
+import { PlayerIdentity } from '@/modules/players'
 import { ATTRIBUTE_LABEL } from '../../league.constants'
 import { slotLabel, startersFromDuels } from '../../league.utils'
 import type { DuelsTableProps } from './duels-table.types'
@@ -18,18 +18,6 @@ const COLUMNS: DataTableColumn[] = [
   { label: 'Defesa' },
   { label: 'Resultado' },
 ]
-
-function PlayerCell({ player, detail }: { player: DuelPlayer; detail: string }) {
-  return (
-    <span className="flex items-center gap-2.5">
-      <PlayerAvatar id={player.player_id} name={player.player_name} />
-      <span className="leading-tight">
-        <span className="block font-medium">{player.player_name}</span>
-        <span className="text-xs text-muted-foreground">{detail}</span>
-      </span>
-    </span>
-  )
-}
 
 function ValueCell({ player }: { player: DuelPlayer }) {
   return (
@@ -88,13 +76,21 @@ export function DuelsTable({ match, clubsById }: DuelsTableProps) {
                 <Tag className="tabular-nums">{duel.order}</Tag>
               </TableCell>
               <TableCell className="px-2">
-                <PlayerCell player={duel.attacker} detail={attackerDetail(duel)} />
+                <PlayerIdentity
+                  id={duel.attacker.player_id}
+                  name={duel.attacker.player_name}
+                  detail={attackerDetail(duel)}
+                />
               </TableCell>
               <TableCell className="px-2">
                 <ValueCell player={duel.attacker} />
               </TableCell>
               <TableCell className="px-2">
-                <PlayerCell player={duel.defender} detail={defenderDetail(duel)} />
+                <PlayerIdentity
+                  id={duel.defender.player_id}
+                  name={duel.defender.player_name}
+                  detail={defenderDetail(duel)}
+                />
               </TableCell>
               <TableCell className="px-2">
                 <ValueCell player={duel.defender} />

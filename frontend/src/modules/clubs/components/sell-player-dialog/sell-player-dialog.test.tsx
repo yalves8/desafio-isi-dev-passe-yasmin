@@ -2,39 +2,58 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { squadPlayerFixture } from '../../clubs.fixtures'
 import { SellPlayerDialog } from './sell-player-dialog'
+import type { SellPlayerDialogProps } from './sell-player-dialog.types'
+
+function renderDialog(props: Partial<SellPlayerDialogProps> = {}) {
+  return render(
+    <SellPlayerDialog
+      player={squadPlayerFixture({ market_value: 40 })}
+      clubName="Águias FC"
+      isStarter={false}
+      isSelling={false}
+      onClose={vi.fn()}
+      onConfirm={vi.fn()}
+      {...props}
+    />,
+  )
+}
 
 describe('SellPlayerDialog', () => {
-  it('deve mostrar o contrato e confirmar a venda', async () => {
+  it('deve mostrar o valor de mercado e o contrato e confirmar a venda', async () => {
     const user = userEvent.setup()
     const onConfirm = vi.fn()
-    render(
-      <SellPlayerDialog
-        player={squadPlayerFixture({ market_value: 40 })}
-        clubName="Águias FC"
-        isSelling={false}
-        onClose={vi.fn()}
-        onConfirm={onConfirm}
-      />,
-    )
+    renderDialog({ onConfirm })
 
-    expect(screen.getByRole('alertdialog', { name: 'Vender Bruno Tavares?' })).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'Vender Bruno Tavares?' })).toBeInTheDocument()
+    expect(
+      screen.getByText('O jogador sai do elenco do Águias FC e volta a ficar livre.'),
+    ).toBeInTheDocument()
     expect(screen.getByText('40,00')).toBeInTheDocument()
+    expect(screen.getByText('% de multa se vender agora')).toBeInTheDocument()
     expect(screen.getByText('20%')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Vender jogador' }))
+    expect(screen.queryByRole('note')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Confirmar venda' }))
     expect(onConfirm).toHaveBeenCalledOnce()
   })
 
+  it('deve avisar quando o jogador é titular', () => {
+    renderDialog({ isStarter: true })
+
+    expect(screen.getByRole('note')).toHaveTextContent('Bruno Tavares é titular')
+  })
+
+  it('deve mostrar a recusa da API no lugar do aviso de titular', () => {
+    renderDialog({ isStarter: true, error: 'Bruno Tavares já está livre e não pode ser vendido.' })
+
+    expect(screen.getByRole('alert')).toHaveTextContent('A venda foi recusada')
+    expect(screen.queryByText('Bruno Tavares é titular')).not.toBeInTheDocument()
+  })
+
   it('deve travar enquanto vende', () => {
-    render(
-      <SellPlayerDialog
-        player={squadPlayerFixture()}
-        clubName="Águias FC"
-        isSelling
-        onClose={vi.fn()}
-        onConfirm={vi.fn()}
-      />,
-    )
+    renderDialog({ isSelling: true })
 
     expect(screen.getByRole('button', { name: 'Vendendo…' })).toBeDisabled()
+    expect(screen.getByRole('status')).toHaveTextContent('Enviando a venda.')
   })
 })

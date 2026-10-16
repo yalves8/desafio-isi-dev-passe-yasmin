@@ -100,11 +100,12 @@ Todo erro tem o corpo `{ "message": "..." }`, sem stack trace, e nada é gravado
 |--------|--------|-----------------------------|
 | 404 | Id da URL inválido (ex.: `abc`, `0`, `01`) | `Recurso não encontrado` |
 | 400 | Corpo que não é objeto JSON (ex.: array) | `O corpo da requisição deve ser um objeto JSON` |
-| 400 | JSON malformado | `Corpo da requisição inválido` |
+| 400 | JSON malformado | `O corpo da requisição não é um JSON válido` |
 | 400 | `club_id` ausente ou não numérico | `club_id é obrigatório e deve ser um inteiro` |
 | 400 | `club_id` com parte fracionária | `club_id deve ser um inteiro` |
 | 400 | `club_id` `0` ou negativo | `club_id deve ser um inteiro positivo` |
-| 400 | `loyalty_until` ausente ou não texto | `loyalty_until é obrigatório` |
+| 400 | `loyalty_until` ausente | `loyalty_until é obrigatório` |
+| 400 | `loyalty_until` que não é texto (ex.: número) | `loyalty_until deve ser um texto` |
 | 400 | `loyalty_until` fora do formato da RN01 ou data inexistente | `loyalty_until deve ser uma data e hora existente no formato AAAA-MM-DDTHH:MM-03:00` |
 | 400 | Fim da fidelidade igual ou anterior ao momento da compra | `O fim da fidelidade precisa ser depois do momento da compra` |
 | 400 | Fim da fidelidade mais de 1.095 dias depois da compra | `O fim da fidelidade pode ser no máximo 1.095 dias depois da compra` |

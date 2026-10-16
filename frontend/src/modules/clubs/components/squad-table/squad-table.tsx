@@ -1,11 +1,12 @@
 import { HandCoins, Shirt, Users } from 'lucide-react'
 import { Link } from 'react-router'
+import { DateTime } from '@/components/data-display/date-time/date-time'
 import { DataTable } from '@/components/data-display/data-table/data-table'
 import type { DataTableColumn } from '@/components/data-display/data-table/data-table.types'
 import { Button } from '@/components/ui/button'
 import { TableCell, TableRow } from '@/components/ui/table'
-import { formatDate, formatInteger, formatMoney, formatTime } from '@/lib/format'
-import { ConditionBadge, PlayerAvatar, PositionBadge } from '@/modules/players'
+import { formatInteger, formatMoney } from '@/lib/format'
+import { ConditionBadge, PlayerIdentity, PositionBadge } from '@/modules/players'
 import { MAX_SQUAD } from '../../clubs.constants'
 import { PenaltyRateTag } from '../penalty-rate-tag/penalty-rate-tag'
 import type { SquadTableProps } from './squad-table.types'
@@ -56,12 +57,9 @@ export function SquadTable({ players, onSell }: SquadTableProps) {
         renderRow={(player) => {
           const contract = player.contract
           return (
-            <TableRow className="h-15">
+            <TableRow data-testid={`squad-row-${player.id}`} className="h-15">
               <TableCell className="px-1.5 pl-4">
-                <span className="flex items-center gap-3 font-medium">
-                  <PlayerAvatar id={player.id} name={player.name} />
-                  {player.name}
-                </span>
+                <PlayerIdentity id={player.id} name={player.name} />
               </TableCell>
               <TableCell className="px-1.5">
                 <PositionBadge position={player.position} />
@@ -79,16 +77,7 @@ export function SquadTable({ players, onSell }: SquadTableProps) {
                 {contract ? formatMoney(contract.purchase_value) : '—'}
               </TableCell>
               <TableCell className="px-1.5">
-                {contract ? (
-                  <span className="flex flex-col leading-tight">
-                    <span className="tabular-nums">{formatDate(contract.loyalty_until)}</span>
-                    <span className="text-xs text-muted-foreground tabular-nums">
-                      {formatTime(contract.loyalty_until)}
-                    </span>
-                  </span>
-                ) : (
-                  '—'
-                )}
+                {contract ? <DateTime iso={contract.loyalty_until} stacked /> : '—'}
               </TableCell>
               <TableCell className="px-1.5 text-right tabular-nums">
                 {contract ? formatInteger(contract.remaining_days) : '—'}

@@ -2,6 +2,7 @@ import { Shield, Wallet } from 'lucide-react'
 import { Controller } from 'react-hook-form'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
 import { AlertMessage } from '@/components/feedback/alert-message/alert-message'
+import { InfoNote } from '@/components/feedback/info-note/info-note'
 import { FormField } from '@/components/form/form-field/form-field'
 import { InputWithIcon } from '@/components/form/input-with-icon/input-with-icon'
 import { Input } from '@/components/ui/input'
@@ -74,10 +75,9 @@ export function ClubCreateDialog({ onClose, onCreated }: ClubCreateDialogProps) 
           />
         </FormField>
 
-        <p className="flex items-center gap-2 rounded-lg border bg-muted/50 px-3 py-2.5 text-sm text-muted-foreground">
-          <Wallet className="size-4 shrink-0" aria-hidden />O clube começa com{' '}
-          {formatMoney(INITIAL_CASH)} em caixa e sem jogadores.
-        </p>
+        <InfoNote icon={Wallet}>
+          O clube começa com {formatMoney(INITIAL_CASH)} em caixa e sem jogadores.
+        </InfoNote>
       </form>
     </ActionDialog>
   )

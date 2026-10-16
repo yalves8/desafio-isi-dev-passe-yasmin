@@ -1,7 +1,9 @@
-import { ArrowLeft, HeartPulse, Volleyball } from 'lucide-react'
-import { Link } from 'react-router'
+import { HeartPulse, Volleyball } from 'lucide-react'
+import { LegendItem } from '@/components/data-display/legend-item/legend-item'
+import { PageSkeleton } from '@/components/feedback/page-skeleton/page-skeleton'
 import { ErrorState } from '@/components/feedback/states'
-import { Button } from '@/components/ui/button'
+import { BackLink } from '@/components/layout/back-link/back-link'
+import { SectionCard } from '@/components/layout/section-card/section-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DuelsTable } from '../../components/duels-table/duels-table'
 import { MatchPitch } from '../../components/match-pitch/match-pitch'
@@ -12,11 +14,7 @@ import { useMatchDetailsPage } from './match-details-page.hook'
 export function MatchDetailsPage() {
   const { match, clubsById } = useMatchDetailsPage()
   const back = (
-    <Button variant="ghost" size="md" className="self-start px-3" asChild>
-      <Link to="/partidas">
-        <ArrowLeft /> Voltar para partidas
-      </Link>
-    </Button>
+    <BackLink to="/partidas" label="Voltar para partidas" variant="ghost" className="self-start" />
   )
 
   if (match.error) {
@@ -34,10 +32,10 @@ export function MatchDetailsPage() {
   }
   if (!match.data) {
     return (
-      <div role="status" aria-label="Carregando partida" className="flex flex-col gap-6">
+      <PageSkeleton label="Carregando partida">
         <Skeleton className="h-28 w-full" />
         <Skeleton className="h-96 w-full" />
-      </div>
+      </PageSkeleton>
     )
   }
 
@@ -49,53 +47,37 @@ export function MatchDetailsPage() {
         <MatchScoreboard match={data} clubsById={clubsById} showFormation />
       </div>
 
-      <section
-        aria-labelledby="pitch-title"
-        className="overflow-hidden rounded-xl border bg-card shadow-2xs"
-      >
-        <header className="flex flex-wrap items-start justify-between gap-3 border-b px-5 py-4">
-          <div>
-            <h2 id="pitch-title" className="text-base font-semibold">
-              Em campo
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              Titulares de cada clube na formação da partida e os valores usados nos duelos, já com
-              o efeito da condição.
-            </p>
-          </div>
+      <SectionCard
+        title="Em campo"
+        description="Titulares de cada clube na formação da partida e os valores usados nos duelos, já com o efeito da condição."
+        actions={
           <p className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="flex size-4 items-center justify-center rounded-full bg-amber-600 text-white">
-                <HeartPulse className="size-2.5" aria-hidden />
-              </span>
+            <LegendItem
+              marker={
+                <span className="flex size-4 items-center justify-center rounded-full bg-amber-600 text-white">
+                  <HeartPulse className="size-2.5" aria-hidden />
+                </span>
+              }
+            >
               Mal condicionado
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Volleyball className="size-4" aria-hidden /> Gol no duelo
-            </span>
+            </LegendItem>
+            <LegendItem marker={<Volleyball className="size-4" aria-hidden />}>
+              Gol no duelo
+            </LegendItem>
           </p>
-        </header>
+        }
+      >
         <div className="p-4">
           <MatchPitch match={data} />
         </div>
-      </section>
+      </SectionCard>
 
-      <section
-        aria-labelledby="duels-title"
-        className="overflow-hidden rounded-xl border bg-card shadow-2xs"
+      <SectionCard
+        title="Duelos"
+        description="Os 3 ataques do mandante e depois os 3 do visitante. Os jogadores de linha vão do 1º (o mais recuado) ao 4º (o mais avançado), pela ordem do elenco: o 4º ataca o goleiro, o 3º ataca o 1º e o 2º ataca o 2º."
       >
-        <header className="border-b px-5 py-4">
-          <h2 id="duels-title" className="text-base font-semibold">
-            Duelos
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Os 3 ataques do mandante e depois os 3 do visitante. Os jogadores de linha vão do 1º (o
-            mais recuado) ao 4º (o mais avançado), pela ordem do elenco: o 4º ataca o goleiro, o 3º
-            ataca o 1º e o 2º ataca o 2º.
-          </p>
-        </header>
         <DuelsTable match={data} clubsById={clubsById} />
-      </section>
+      </SectionCard>
 
       <p className="text-xs text-muted-foreground">
         Os valores e a condição de cada titular vêm gravados nos duelos devolvidos pela API: mal

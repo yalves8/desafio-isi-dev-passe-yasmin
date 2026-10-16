@@ -120,7 +120,8 @@ describe('PlayersPage', () => {
     renderPlayers('/jogadores?search=zzz')
 
     expect(await screen.findByText('Nenhum jogador encontrado para “zzz”')).toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: 'Limpar filtros' }).length).toBeGreaterThan(0)
+    expect(screen.getByTestId('active-filters-clear')).toHaveAccessibleName('Limpar filtros')
+    expect(screen.getByTestId('players-empty-clear')).toHaveAccessibleName('Limpar filtros')
   })
 
   // Digita os 9 campos do cadastro: com cobertura e a suíte em paralelo passa dos 5 s padrão

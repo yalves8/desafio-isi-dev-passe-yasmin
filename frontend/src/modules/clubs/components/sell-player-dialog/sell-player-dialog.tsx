@@ -1,8 +1,10 @@
-import { HandCoins } from 'lucide-react'
+import { HandCoins, Loader2 } from 'lucide-react'
 import { InfoList } from '@/components/data-display/info-list/info-list'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
+import { AlertMessage } from '@/components/feedback/alert-message/alert-message'
+import { InfoNote } from '@/components/feedback/info-note/info-note'
 import { formatDateTime, formatInteger, formatMoney } from '@/lib/format'
-import { ConditionBadge, PlayerSummary } from '@/modules/players'
+import { PlayerSummary } from '@/modules/players'
 import { PenaltyRateTag } from '../penalty-rate-tag/penalty-rate-tag'
 import type { SellPlayerDialogProps } from './sell-player-dialog.types'
 
@@ -13,53 +15,65 @@ import type { SellPlayerDialogProps } from './sell-player-dialog.types'
 export function SellPlayerDialog({
   player,
   clubName,
+  isStarter,
   isSelling,
+  error,
   onClose,
   onConfirm,
 }: SellPlayerDialogProps) {
   const contract = player.contract
   return (
     <ActionDialog
-      alert
       title={`Vender ${player.name}?`}
-      description={`O jogador sai do ${clubName} e fica livre. Se for titular, sai da escalação.`}
+      description={`O jogador sai do elenco do ${clubName} e volta a ficar livre.`}
       busy={isSelling}
       onClose={onClose}
       confirm={{
-        label: 'Vender jogador',
+        label: 'Confirmar venda',
         busyLabel: 'Vendendo…',
-        icon: <HandCoins />,
+        icon: isSelling ? <Loader2 className="animate-spin" /> : <HandCoins />,
         onClick: onConfirm,
       }}
     >
-      <PlayerSummary player={player} aside={<ConditionBadge condition={player.condition} />} />
+      {error ? (
+        <AlertMessage variant="error" title="A venda foi recusada">
+          {error}
+        </AlertMessage>
+      ) : (
+        isStarter && (
+          <AlertMessage variant="warning" title={`${player.name} é titular`}>
+            Ao vender, ele sai da escalação, e o {clubName} só volta a jogar partidas depois de
+            escalar de novo os 5 titulares.
+          </AlertMessage>
+        )
+      )}
+
+      <PlayerSummary player={player} showMarketValue />
+
       {contract && (
         <InfoList
           items={[
-            {
-              label: 'Valor de mercado agora',
-              description: 'É o valor de venda',
-              value: formatMoney(player.market_value),
-              highlight: true,
-            },
             { label: 'Valor de compra', value: formatMoney(contract.purchase_value) },
-            {
-              label: 'Fim da fidelidade',
-              value: formatDateTime(contract.loyalty_until),
-            },
+            { label: 'Fim da fidelidade', value: formatDateTime(contract.loyalty_until) },
             { label: 'Dias restantes', value: formatInteger(contract.remaining_days) },
             {
-              label: 'Multa por fidelidade',
-              description: 'Sobre o valor de venda, com teto de 10,00',
+              label: '% de multa se vender agora',
               value: <PenaltyRateTag rate={contract.penalty_rate} />,
             },
           ]}
         />
       )}
-      <p className="text-xs text-muted-foreground">
-        A comissão só existe se houver lucro. Os valores finais são calculados pela API no momento
-        da venda.
-      </p>
+
+      <InfoNote>
+        A venda é pelo valor de mercado do momento. Multa (teto de 10,00), lucro, comissão e crédito
+        são calculados ao confirmar.
+      </InfoNote>
+
+      {isSelling && (
+        <InfoNote variant="outline" role="status">
+          Enviando a venda. Os botões ficam desabilitados até a resposta.
+        </InfoNote>
+      )}
     </ActionDialog>
   )
 }

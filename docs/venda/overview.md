@@ -257,10 +257,10 @@ Tabelas tocadas pela venda (`backend/prisma/schema.prisma`):
 A venda fica na página de detalhes do clube, aba **Elenco**.
 
 1. **Tabela do elenco** (`SquadTable`): cada jogador mostra posição, overall, condição, valor de mercado, valor de compra, fim da fidelidade, dias restantes e % de multa, calculados pela API "para uma venda agora". Cada linha tem o botão **Vender** (`aria-label` "Vender {nome}").
-2. **Confirmação** (`SellPlayerDialog`): diálogo de alerta "Vender {nome}?" com o aviso "O jogador sai do {clube} e fica livre. Se for titular, sai da escalação." e o contrato atual (valor de mercado agora, valor de compra, fim da fidelidade, dias restantes e multa por fidelidade, com teto de 10,00). A tela não calcula multa, comissão nem crédito: esses valores vêm da API no momento da venda. Enquanto a requisição está em andamento, o botão vira "Vendendo…" e fica desabilitado; um segundo clique é ignorado (`useAction`).
-3. **Resultado** (`SaleResultDialog`): "Jogador vendido", com "{nome} ficou livre. Contrato rescindido, com multa" ou "encerrado, sem multa", e a lista exatamente como a API devolveu: valor de venda, multa (percentual e dias restantes), lucro (sobre o valor de compra), comissão, crédito no caixa e novo caixa.
+2. **Confirmação** (`SellPlayerDialog`): diálogo "Vender {nome}?" com "O jogador sai do elenco do {clube} e volta a ficar livre.", o jogador com o valor de mercado à direita e o contrato atual (valor de compra, fim da fidelidade, dias restantes e "% de multa se vender agora"). Se o jogador é titular, um aviso âmbar diz que ele sai da escalação e que o clube só volta a jogar depois de escalar de novo os 5 titulares. Uma nota lembra que a venda é pelo valor de mercado do momento e que multa (teto de 10,00), lucro, comissão e crédito são calculados ao confirmar: a tela não calcula nenhum deles. Enquanto a requisição está em andamento, o botão vira "Vendendo…", fica desabilitado e aparece a nota "Enviando a venda"; um segundo clique é ignorado (`useAction`).
+3. **Resultado** (`SaleResultDialog`): "Venda concluída", com "{nome} voltou a ficar livre" (mais "e saiu da escalação" se era titular, e "A fidelidade já tinha terminado, então não houve multa." quando o contrato é encerrado), e a lista exatamente como a API devolveu: valor de compra, valor de venda, dias restantes, multa, lucro (verde ou vermelho), comissão, crédito no caixa, contrato (`RESCINDIDO` ou `ENCERRADO`) e novo caixa do clube. O botão "Ver histórico" fecha o diálogo e abre a aba Histórico.
 4. **Depois da venda:** o hook chama `refresh()`, que recarrega o clube, o elenco, a escalação e a contagem do histórico. O jogador some da lista do elenco e o caixa do cabeçalho é atualizado. Quando o endpoint de escalação existir, a aba Escalação passará a mostrar a escalação incompleta se ele era titular.
-5. **Recusa:** em caso de erro (por exemplo 409 porque o jogador já foi vendido em outra aba), aparece um toast "Não foi possível vender" com o `message` da API, e o diálogo de confirmação continua aberto.
+5. **Recusa:** em caso de erro (por exemplo 409 porque o jogador já foi vendido em outra aba), o diálogo de confirmação continua aberto e mostra, no lugar do aviso de titular, o alerta "A venda foi recusada" com o `message` da API.
 
 ---
 
@@ -369,5 +369,4 @@ Resultado esperado: uma linha `200` e nove `409`. No banco, uma única transaç�
 | `domain/trade.ts`, `domain/money.ts`, `common/utils/date.ts` | Cálculos da RN15 e RN16 em centavos e datas no horário de Brasília |
 | axios | Chamada `POST /players/{id}/sell` no frontend |
 | React, radix-ui, lucide-react | Tabela do elenco e diálogos de confirmação e resultado |
-| sonner | Toast de erro "Não foi possível vender" |
 | Vitest | Testes do backend e do frontend |

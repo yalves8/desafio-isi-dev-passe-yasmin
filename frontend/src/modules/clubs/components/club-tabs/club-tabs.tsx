@@ -29,6 +29,7 @@ export function ClubTabs({ value, counts, onChange }: ClubTabsProps) {
             <TabsTrigger
               key={tab}
               value={tab}
+              data-testid={`club-tab-${tab}`}
               className="group/tab h-11 flex-none gap-2 rounded-none px-0.5 py-0 text-muted-foreground group-data-horizontal/tabs:after:bottom-0 data-active:text-foreground group-data-[variant=line]/tabs-list:data-active:after:bg-primary"
             >
               <Icon className="size-4" />

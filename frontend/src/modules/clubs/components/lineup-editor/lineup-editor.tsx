@@ -1,6 +1,7 @@
 import { Check, CircleCheck, PencilLine, Swords, TriangleAlert } from 'lucide-react'
 import { Tag } from '@/components/data-display/tag/tag'
 import { AlertMessage } from '@/components/feedback/alert-message/alert-message'
+import { SectionCard } from '@/components/layout/section-card/section-card'
 import { Button } from '@/components/ui/button'
 import { FormationPicker } from '../formation-picker/formation-picker'
 import { LineupPitch } from '../lineup-pitch/lineup-pitch'
@@ -34,21 +35,14 @@ export function LineupEditor({
       )}
 
       <div className="grid items-start gap-6 xl:grid-cols-[1fr_320px]">
-        <section
-          aria-labelledby="starters-title"
-          className="overflow-hidden rounded-xl border bg-card"
-        >
-          <div className="flex items-start justify-between gap-3 border-b p-5">
-            <div>
-              <h3 id="starters-title" className="text-base font-semibold">
-                Titulares
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                1 goleiro e 4 jogadores de linha, na formação escolhida. Salvar troca os 5 de uma
-                vez.
-              </p>
-            </div>
-            {editor.hasChanges ? (
+        <SectionCard
+          title="Titulares"
+          description="1 goleiro e 4 jogadores de linha, na formação escolhida. Salvar troca os 5 de uma vez."
+          headingLevel={3}
+          shadow={false}
+          headerClassName="flex-nowrap p-5"
+          actions={
+            editor.hasChanges ? (
               <Tag variant="muted">
                 <PencilLine className="size-3" aria-hidden /> Alterações não salvas
               </Tag>
@@ -60,9 +54,9 @@ export function LineupEditor({
               <Tag variant="warning">
                 <TriangleAlert className="size-3" aria-hidden /> Incompleta
               </Tag>
-            )}
-          </div>
-
+            )
+          }
+        >
           <div className="flex flex-col gap-4 p-5">
             {saveError && (
               <AlertMessage variant="error" title="A escalação foi recusada">
@@ -116,22 +110,16 @@ export function LineupEditor({
               <Check /> {isSaving ? 'Salvando…' : 'Salvar escalação'}
             </Button>
           </div>
-        </section>
+        </SectionCard>
 
         <div className="flex flex-col gap-6">
-          <section
-            aria-labelledby="pitch-title"
-            className="overflow-hidden rounded-xl border bg-card"
+          <SectionCard
+            title="Em campo"
+            description={`Prévia da formação ${editor.formation}${editor.filled ? ', do goleiro ao ataque.' : '; as vagas vazias ficam tracejadas.'}`}
+            headingLevel={3}
+            shadow={false}
+            headerClassName="p-5"
           >
-            <div className="border-b p-5">
-              <h3 id="pitch-title" className="text-base font-semibold">
-                Em campo
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                Prévia da formação {editor.formation}
-                {editor.filled ? ', do goleiro ao ataque.' : '; as vagas vazias ficam tracejadas.'}
-              </p>
-            </div>
             <div className="p-4">
               <LineupPitch rows={editor.rows} />
             </div>
@@ -140,7 +128,7 @@ export function LineupEditor({
               Na partida, atacam os 3 jogadores de linha mais avançados e defendem o goleiro e os 2
               mais recuados. É gol quando o ataque é maior que a defesa.
             </p>
-          </section>
+          </SectionCard>
           <LineupReserves reserves={editor.reserves} squadSize={squad.length} />
         </div>
       </div>

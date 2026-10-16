@@ -17,7 +17,12 @@ export function StandingsPage() {
         title="Classificação"
         description="Todos os clubes, com 3 pontos por vitória e 1 por empate."
         actions={
-          <Button variant="outline" size="md" onClick={header.onCreate}>
+          <Button
+            variant="outline"
+            size="md"
+            onClick={header.onCreate}
+            data-testid="standings-create"
+          >
             <Plus /> Nova partida
           </Button>
         }

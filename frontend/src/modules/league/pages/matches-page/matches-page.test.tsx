@@ -58,7 +58,8 @@ describe('MatchesPage', () => {
     expect(await screen.findByText('Nenhuma partida jogada')).toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Última partida' })).not.toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Histórico de partidas' })).not.toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: /Nova partida/ })).toHaveLength(2)
+    expect(screen.getByTestId('matches-create')).toHaveAccessibleName('Nova partida')
+    expect(screen.getByTestId('matches-empty-create')).toHaveAccessibleName('Nova partida')
   })
 
   it('deve abrir a nova partida pela URL (?nova=1)', async () => {

@@ -1,21 +1,17 @@
 import { ChevronRight, Shield, Swords } from 'lucide-react'
 import { Link } from 'react-router'
+import { DateTime } from '@/components/data-display/date-time/date-time'
 import { DataTable } from '@/components/data-display/data-table/data-table'
 import type { DataTableColumn } from '@/components/data-display/data-table/data-table.types'
 import { Tag } from '@/components/data-display/tag/tag'
+import { FilterSelect } from '@/components/form/filter-select/filter-select'
+import { SectionCard } from '@/components/layout/section-card/section-card'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { TableCell, TableRow } from '@/components/ui/table'
-import { formatDate, formatTime, plural } from '@/lib/format'
-import { cn } from '@/lib/utils'
+import { plural } from '@/lib/format'
 import { RESULT_LABEL } from '../../league.constants'
-import { scoreLabel, winnerSide } from '../../league.utils'
+import { scoreLabel } from '../../league.utils'
+import { TeamName } from '../team-name/team-name'
 import type { MatchesTableProps } from './matches-table.types'
 
 const COLUMNS: DataTableColumn[] = [
@@ -37,43 +33,25 @@ export function MatchesTable({
   filter,
 }: MatchesTableProps) {
   const acronym = (clubId: number) => clubsById.get(clubId)?.acronym ?? '—'
-  const filterLabel =
-    filter.clubId === undefined ? 'todos' : (clubsById.get(filter.clubId)?.name ?? 'todos')
 
   return (
-    <section
-      aria-labelledby="matches-title"
-      className="overflow-hidden rounded-xl border bg-card shadow-2xs"
+    <SectionCard
+      title="Histórico de partidas"
+      description="Da mais recente para a mais antiga."
+      headerClassName="items-center border-b-0 px-4 py-3.5"
+      actions={
+        <FilterSelect
+          icon={Shield}
+          label="Filtrar por clube"
+          prefix="Clube"
+          allLabel="Todos os clubes"
+          className="w-56"
+          options={filter.clubs.map((club) => ({ value: String(club.id), label: club.name }))}
+          value={filter.clubId === undefined ? undefined : String(filter.clubId)}
+          onChange={(value) => filter.onChange(value === undefined ? undefined : Number(value))}
+        />
+      }
     >
-      <header className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
-        <div>
-          <h2 id="matches-title" className="text-base font-semibold">
-            Histórico de partidas
-          </h2>
-          <p className="text-xs text-muted-foreground">Da mais recente para a mais antiga.</p>
-        </div>
-        <Select
-          value={filter.clubId === undefined ? 'ALL' : String(filter.clubId)}
-          onValueChange={(value) => filter.onChange(value === 'ALL' ? undefined : Number(value))}
-        >
-          <SelectTrigger
-            className="h-9 w-56 gap-2 pl-3 text-left text-muted-foreground *:data-[slot=select-value]:flex-1"
-            aria-label="Filtrar por clube"
-          >
-            <Shield aria-hidden />
-            <SelectValue>Clube: {filterLabel}</SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">Todos os clubes</SelectItem>
-            {filter.clubs.map((club) => (
-              <SelectItem key={club.id} value={String(club.id)}>
-                {club.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </header>
-
       <DataTable
         columns={COLUMNS}
         rows={matches}
@@ -104,18 +82,14 @@ export function MatchesTable({
           </p>
         }
         renderRow={(match) => {
-          const winner = winnerSide(match)
           return (
-            <TableRow className="h-14">
-              <TableCell className="px-2 pl-4 tabular-nums">
-                {formatDate(match.played_at)}{' '}
-                <span className="ml-1 text-muted-foreground">{formatTime(match.played_at)}</span>
+            <TableRow data-testid={`match-row-${match.id}`} className="h-14">
+              <TableCell className="px-2 pl-4">
+                <DateTime iso={match.played_at} />
               </TableCell>
               <TableCell className="px-2 text-right">
                 <span className="inline-flex items-center gap-2">
-                  <span className={cn(winner === 'home' && 'font-semibold')}>
-                    {match.home.club_name}
-                  </span>
+                  <TeamName match={match} side="home" />
                   <Tag variant="muted">{acronym(match.home.club_id)}</Tag>
                 </span>
               </TableCell>
@@ -125,9 +99,7 @@ export function MatchesTable({
               <TableCell className="px-2">
                 <span className="inline-flex items-center gap-2">
                   <Tag variant="muted">{acronym(match.away.club_id)}</Tag>
-                  <span className={cn(winner === 'away' && 'font-semibold')}>
-                    {match.away.club_name}
-                  </span>
+                  <TeamName match={match} side="away" />
                 </span>
               </TableCell>
               <TableCell className="px-2">
@@ -147,6 +119,6 @@ export function MatchesTable({
           )
         }}
       />
-    </section>
+    </SectionCard>
   )
 }

@@ -1,4 +1,4 @@
-import { ArrowRight, CircleCheck } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { InfoList } from '@/components/data-display/info-list/info-list'
 import { Tag } from '@/components/data-display/tag/tag'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
@@ -17,11 +17,7 @@ export function PurchaseResultDialog({
   return (
     <ActionDialog
       className="sm:max-w-[500px]"
-      icon={
-        <span className="flex size-9 items-center justify-center rounded-full bg-green-50 text-green-700">
-          <CircleCheck className="size-5" aria-hidden />
-        </span>
-      }
+      success
       title="Compra concluída"
       description={`${purchase.player_name} agora é do ${clubName}.`}
       onClose={onClose}

@@ -17,8 +17,10 @@ describe('PlayerConditionDialog', () => {
       />,
     )
 
-    expect(screen.getByRole('radio', { name: /^apto/i })).toBeDisabled()
-    expect(screen.getByText('De Doente não passa direto para Apto.')).toBeInTheDocument()
+    const apto = screen.getByRole('radio', { name: 'Apto' })
+    expect(apto).toBeDisabled()
+    expect(apto).toHaveAccessibleDescription(/De Doente não passa direto para Apto\.$/)
+    expect(screen.getByRole('radio', { name: 'Doente' })).toHaveAccessibleDescription(/^Atual\./)
   })
 
   it('deve confirmar a condição escolhida e avisar sobre a escalação', async () => {
@@ -35,7 +37,7 @@ describe('PlayerConditionDialog', () => {
     )
 
     expect(screen.getByRole('button', { name: 'Salvar condição' })).toBeDisabled()
-    await user.click(screen.getByRole('radio', { name: /^doente/i }))
+    await user.click(screen.getByRole('radio', { name: 'Doente' }))
 
     expect(screen.getByRole('note')).toHaveTextContent('o Águias FC só volta a jogar')
     await user.click(screen.getByRole('button', { name: 'Salvar condição' }))

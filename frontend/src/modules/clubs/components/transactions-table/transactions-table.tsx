@@ -1,11 +1,12 @@
 import { HandCoins, History, ShoppingCart } from 'lucide-react'
+import { DateTime } from '@/components/data-display/date-time/date-time'
 import { DataTable } from '@/components/data-display/data-table/data-table'
 import type { DataTableColumn } from '@/components/data-display/data-table/data-table.types'
 import { Tag } from '@/components/data-display/tag/tag'
 import { TableCell, TableRow } from '@/components/ui/table'
-import { formatDate, formatMoney, formatSigned, formatTime } from '@/lib/format'
+import { formatMoney, formatSigned, signedTone } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { PlayerAvatar } from '@/modules/players'
+import { PlayerIdentity } from '@/modules/players'
 import type { TransactionsTableProps } from './transactions-table.types'
 
 /** Larguras do Figma (H01); o jogador ocupa o restante */
@@ -20,8 +21,7 @@ const COLUMNS: DataTableColumn[] = [
   { label: 'Variação do caixa', numeric: true, className: 'w-[140px]' },
 ]
 
-const toneOf = (value: number) =>
-  value > 0 ? 'text-green-700' : value < 0 ? 'text-red-600' : 'text-muted-foreground'
+const toneOf = (value: number) => signedTone(value, 'text-muted-foreground')
 
 /** Transações gravadas, da mais recente para a mais antiga; nada é recalculado (RN17) */
 export function TransactionsTable({ transactions, loading, hasFilters }: TransactionsTableProps) {
@@ -50,10 +50,9 @@ export function TransactionsTable({ transactions, loading, hasFilters }: Transac
       renderRow={(t) => {
         const isPurchase = t.type === 'COMPRA'
         return (
-          <TableRow className="h-13">
-            <TableCell className="px-2 pl-4 tabular-nums">
-              {formatDate(t.created_at)}{' '}
-              <span className="ml-1 text-muted-foreground">{formatTime(t.created_at)}</span>
+          <TableRow data-testid={`transaction-row-${t.id}`} className="h-13">
+            <TableCell className="px-2 pl-4">
+              <DateTime iso={t.created_at} />
             </TableCell>
             <TableCell className="px-2">
               <Tag variant={isPurchase ? 'outline' : 'muted'}>
@@ -66,10 +65,7 @@ export function TransactionsTable({ transactions, loading, hasFilters }: Transac
               </Tag>
             </TableCell>
             <TableCell className="px-2">
-              <span className="flex items-center gap-2.5 font-medium">
-                <PlayerAvatar id={t.player_id} name={t.player_name} />
-                {t.player_name}
-              </span>
+              <PlayerIdentity id={t.player_id} name={t.player_name} />
             </TableCell>
             <TableCell className="px-2 text-right tabular-nums">{formatMoney(t.value)}</TableCell>
             <TableCell className="px-2 text-right tabular-nums">{formatMoney(t.fee)}</TableCell>

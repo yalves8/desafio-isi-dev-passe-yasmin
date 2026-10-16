@@ -1,5 +1,6 @@
 import type { Formation } from '@/api/types'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { RadioCard } from '@/components/form/radio-card/radio-card'
+import { RadioGroup } from '@/components/ui/radio-group'
 import { cn } from '@/lib/utils'
 import { FORMATION_OPTIONS } from '../../clubs.constants'
 import type { FormationPickerProps } from './formation-picker.types'
@@ -34,25 +35,28 @@ export function FormationPicker({ value, onChange }: FormationPickerProps) {
       {FORMATION_OPTIONS.map((option) => {
         const checked = value === option.value
         return (
-          <label
+          <RadioCard
             key={option.value}
-            htmlFor={`formation-${option.value}`}
-            className={cn(
-              'flex cursor-pointer gap-2 rounded-[10px] border px-3 py-2.5 transition-colors hover:bg-muted/50',
-              checked && 'border-primary bg-blue-50 ring-1 ring-primary hover:bg-blue-50',
-            )}
+            id={`formation-${option.value}`}
+            value={option.value}
+            checked={checked}
+            className="gap-2 rounded-[10px] px-3 py-2.5"
           >
-            <FormationIcon formation={option.value} />
-            <span className="flex flex-col gap-0.5">
-              <span className="flex items-center gap-2">
-                <RadioGroupItem id={`formation-${option.value}`} value={option.value} />
-                <span className={cn('text-sm font-semibold', checked && 'text-blue-700')}>
-                  {option.value}
+            {(radio) => (
+              <>
+                <FormationIcon formation={option.value} />
+                <span className="flex flex-col gap-0.5">
+                  <span className="flex items-center gap-2">
+                    {radio}
+                    <span className={cn('text-sm font-semibold', checked && 'text-blue-700')}>
+                      {option.value}
+                    </span>
+                  </span>
+                  <span className="text-xs text-muted-foreground">{option.label}</span>
                 </span>
-              </span>
-              <span className="text-xs text-muted-foreground">{option.label}</span>
-            </span>
-          </label>
+              </>
+            )}
+          </RadioCard>
         )
       })}
     </RadioGroup>

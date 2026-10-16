@@ -96,7 +96,7 @@ A validação de formato fica no `createClubSchema` (400) e a de conflito no `Cr
 
 | Etapa | Verificação | Resposta |
 |-------|-------------|----------|
-| 1 | Corpo é objeto JSON (`ZodValidationPipe`) | `400` "O corpo da requisição deve ser um objeto JSON" |
+| 1 | Corpo é objeto JSON (`ZodValidationPipe`) | `400` "O corpo da requisição deve ser um objeto JSON"; JSON malformado: "O corpo da requisição não é um JSON válido"; `name` ou `acronym` que não é texto: "name deve ser um texto" / "acronym deve ser um texto" |
 | 2 | Nome sem caracteres de controle; espaços nas pontas removidos e repetidos reduzidos (V4) | `400` |
 | 3 | Nome com 3 a 60 caracteres, 2 a 5 palavras, só letras, espaços, hífen e ponto | `400` |
 | 4 | Sigla com exatamente 3 letras `A-Z` | `400` |
