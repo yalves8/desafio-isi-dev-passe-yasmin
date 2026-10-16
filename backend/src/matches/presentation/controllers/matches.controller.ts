@@ -18,6 +18,8 @@ import { PlayMatchUseCase } from '../../application/usecases/play-match/play-mat
 import { parseMatchesQuery } from '../dtos/matches-query.dto.js';
 import type { PlayMatchDto } from '../dtos/play-match.dto.js';
 import { playMatchSchema } from '../dtos/play-match.dto.js';
+import { toMatchResponse } from '../presenters/match.presenter.js';
+import { MatchResponse } from '../responses/match.response.js';
 
 /**
  * Controller das partidas: jogar, histórico e partida com os duelos (RN20 e RN21).
@@ -57,31 +59,35 @@ export class MatchesController {
       awayClubId: dto.away_club_id,
     });
     res.setHeader('Location', `/api/v1/matches/${match.id}`);
-    return res.status(HttpStatus.CREATED).json(match);
+    return res.status(HttpStatus.CREATED).json(toMatchResponse(match, true));
   }
 
   /**
    * Histórico de partidas, da mais recente para a mais antiga; filtro `club_id`.
    *
    * @param query - Filtro `club_id` validado.
-   * @returns {Promise<MatchOutput[]>} Partidas sem duelos.
+   * @returns {Promise<MatchResponse[]>} Partidas sem duelos.
    */
   @Get()
   async findAll(
     @Query(new ParseQueryPipe(parseMatchesQuery))
     query: ReturnType<typeof parseMatchesQuery>,
-  ) {
-    return this.findMatchesUseCase.execute(query);
+  ): Promise<MatchResponse[]> {
+    const matches = await this.findMatchesUseCase.execute(query);
+    return matches.map((match) => toMatchResponse(match, false));
   }
 
   /**
    * Partida com os 6 duelos.
    *
    * @param {number} id - Partida da URL (inválido → 404).
-   * @returns {Promise<MatchOutput>} Partida.
+   * @returns {Promise<MatchResponse>} Partida.
    */
   @Get(':id')
-  async findById(@Param('id', ParseIdPipe) id: number) {
-    return this.findMatchByIdUseCase.execute({ id });
+  async findById(@Param('id', ParseIdPipe) id: number): Promise<MatchResponse> {
+    return toMatchResponse(
+      await this.findMatchByIdUseCase.execute({ id }),
+      true,
+    );
   }
 }

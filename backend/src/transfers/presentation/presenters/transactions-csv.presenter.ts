@@ -1,6 +1,6 @@
 import { formatBrasiliaDateTime } from '../../../common/utils/date.js';
 import { formatCents } from '../../../domain/money.js';
-import { TransactionRecord } from '../interfaces/repositories/transfer.repository.interface.js';
+import { TransactionRecord } from '../../application/interfaces/repositories/transfer.repository.interface.js';
 
 const HEADER =
   'data_hora;tipo;jogador;valor;taxa_ou_comissao;multa;lucro;variacao_caixa';

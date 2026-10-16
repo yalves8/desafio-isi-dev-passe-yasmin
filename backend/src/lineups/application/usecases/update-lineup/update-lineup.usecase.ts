@@ -10,7 +10,7 @@ import {
   ILineupRepository,
   LineupChangeState,
 } from '../../interfaces/repositories/lineup.repository.interface.js';
-import { toLineupOutput } from '../../presenters/lineup.presenter.js';
+import { describeLineup } from '../../lineup-result.js';
 import { LineupOutput } from '../get-lineup/lineup.output.js';
 import { UpdateLineupInput } from './update-lineup.input.js';
 
@@ -51,7 +51,7 @@ export class UpdateLineupUseCase {
     );
     const lineup = await this.lineupRepository.findByClub(input.clubId);
     if (!lineup) throw new NotFoundError('Clube não encontrado');
-    return toLineupOutput(lineup);
+    return describeLineup(lineup);
   }
 
   /** Regras da RN19 sobre o estado travado; lançar aqui desfaz a troca */

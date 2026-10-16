@@ -4,10 +4,9 @@ import {
   baseValue,
   overall,
 } from '../../../../domain/player-rating.js';
-import { toPlayerOutput } from '../../presenters/player.presenter.js';
+import { PlayerEntity } from '../../../domain/entities/player.entity.js';
 import { IPlayerRepository } from '../../interfaces/repositories/player.repository.interface.js';
 import { CreatePlayerInput } from './create-player.input.js';
-import { CreatePlayerOutput } from './create-player.output.js';
 
 /**
  * Caso de uso responsável pelo cadastramento de um novo atleta na liga.
@@ -37,9 +36,9 @@ export class CreatePlayerUseCase {
    * Executa a criação do atleta.
    *
    * @param {CreatePlayerInput} input - Dados cadastrais e atributos técnicos do atleta.
-   * @returns {Promise<CreatePlayerOutput>} Atleta cadastrado com overall e valor base calculados.
+   * @returns {Promise<PlayerEntity>} Atleta cadastrado com overall e valor base calculados.
    */
-  async execute(input: CreatePlayerInput): Promise<CreatePlayerOutput> {
+  async execute(input: CreatePlayerInput): Promise<PlayerEntity> {
     const attributes: Attributes = {
       pace: input.pace,
       shooting: input.shooting,
@@ -61,6 +60,6 @@ export class CreatePlayerUseCase {
       potential: input.potential,
     });
 
-    return toPlayerOutput(created);
+    return created;
   }
 }

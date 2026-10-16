@@ -20,7 +20,6 @@ import {
   PurchaseRecord,
   PurchaseState,
 } from '../../interfaces/repositories/transfer.repository.interface.js';
-import { toPurchaseOutput } from '../../presenters/transaction.presenter.js';
 import { BuyPlayerInput } from './buy-player.input.js';
 import { BuyPlayerOutput } from './buy-player.output.js';
 
@@ -78,7 +77,7 @@ export class BuyPlayerUseCase {
       input.clubId,
       (state) => this.decide(state, input, now),
     );
-    return toPurchaseOutput(transactionId, record);
+    return { ...record, transactionId };
   }
 
   /** Regras da compra sobre o estado travado; lançar aqui desfaz a transação */

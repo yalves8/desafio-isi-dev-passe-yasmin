@@ -10,9 +10,9 @@ A Liga reúne as **partidas** e a **classificação**. Uma partida é jogada na 
 |--------|---------|------------------|
 | Motor | `backend/src/domain/match-engine.ts` | `playMatch`: 6 duelos, efeito da condição (× 0,85 arredondado com o meio para cima), gols e `result` |
 | Domínio | `backend/src/matches/domain/standings.ts` | `computeStandings`: pontos, saldo, gols e ordem da RN21, em camelCase (`Standing`) |
-| Presenter | `backend/src/matches/application/presenters/standings.presenter.ts` | `toStandingOutput`: cada linha no formato da API (`club_id`, `goals_for`…) |
+| Presenter | `backend/src/matches/presentation/presenters/standings.presenter.ts` | `toStandingResponse`: cada linha no formato da API (`club_id`, `goals_for`…), aplicado pelo controller |
 | Casos de uso | `backend/src/matches/application/usecases/` | `PlayMatchUseCase`, `FindMatchesUseCase`, `FindMatchByIdUseCase`, `GetStandingsUseCase` |
-| Presenter | `backend/src/matches/application/presenters/match.presenter.ts` | `toMatchOutput`: formato da API, com ou sem `duels` |
+| Presenter | `backend/src/matches/presentation/presenters/match.presenter.ts` | `toMatchResponse`: a partida gravada (`StoredMatch`) no formato da API, com ou sem `duels`; aplicado pelo controller |
 | Repositório | `backend/src/matches/infrastructure/repositories/prisma-match.repository.ts` | Lê as escalações com os clubes travados (`FOR SHARE`), grava `partidas` e `duelos_partida` numa transação |
 | DTOs | `backend/src/matches/presentation/dtos/` | `playMatchSchema` (corpo) e `parseMatchesQuery` (`club_id`) |
 | Controllers | `backend/src/matches/presentation/controllers/` | `MatchesController` (`/matches`) e `StandingsController` (`/standings`) |

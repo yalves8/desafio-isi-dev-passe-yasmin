@@ -13,6 +13,7 @@ import {
 import { GetLineupUseCase } from '../application/usecases/get-lineup/get-lineup.usecase.js';
 import { UpdateLineupUseCase } from '../application/usecases/update-lineup/update-lineup.usecase.js';
 import { fitsFormation, formationRequirement } from '../domain/formation.js';
+import { toLineupResponse } from '../presentation/presenters/lineup.presenter.js';
 
 function player(
   id: number,
@@ -117,11 +118,25 @@ describe('GetLineupUseCase', () => {
       repository(COMPLETE) as unknown as ILineupRepository,
     ).execute({ clubId: 1 });
 
-    expect(output.club_id).toBe(1);
+    expect(output.clubId).toBe(1);
     expect(output.formation).toBe('2-1-1');
     expect(output.complete).toBe(true);
-    expect(output.players.map((p) => p.id)).toEqual([30, 32, 31, 33, 34]);
-    expect(output.players[2]).toMatchObject({
+    expect(output.starters.map((p) => p.id)).toEqual([30, 32, 31, 33, 34]);
+    expect(output.starters[2].getName()).toBe('Davi Lins');
+  });
+
+  it('deve apresentar a escalação no formato da API (2.4.1)', async () => {
+    const output = await new GetLineupUseCase(
+      repository(COMPLETE) as unknown as ILineupRepository,
+    ).execute({ clubId: 1 });
+
+    const response = toLineupResponse(output);
+    expect(response).toMatchObject({
+      club_id: 1,
+      formation: '2-1-1',
+      complete: true,
+    });
+    expect(response.players[2]).toMatchObject({
       name: 'Davi Lins',
       condition: 'MAL_CONDICIONADO',
       overall: expect.any(Number),
@@ -139,10 +154,10 @@ describe('GetLineupUseCase', () => {
         }) as unknown as ILineupRepository,
       ).execute({ clubId: 1 }),
     ).resolves.toEqual({
-      club_id: 1,
+      clubId: 1,
       formation: null,
       complete: false,
-      players: [],
+      starters: [],
     });
   });
 
@@ -154,7 +169,7 @@ describe('GetLineupUseCase', () => {
       }) as unknown as ILineupRepository,
     ).execute({ clubId: 1 });
     expect(output).toMatchObject({ formation: '2-1-1', complete: false });
-    expect(output.players).toHaveLength(4);
+    expect(output.starters).toHaveLength(4);
   });
 
   it('deve recusar clube inexistente com 404', async () => {
@@ -191,7 +206,7 @@ describe('UpdateLineupUseCase', () => {
       expect.any(Function),
     );
     expect(output).toMatchObject({
-      club_id: 1,
+      clubId: 1,
       formation: '2-1-1',
       complete: true,
     });

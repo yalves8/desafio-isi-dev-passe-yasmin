@@ -1,26 +1,12 @@
-import { ContractEnd } from '../../../../domain/trade.js';
+import { SaleRecord } from '../../interfaces/repositories/transfer.repository.interface.js';
 
 /**
- * Resposta da venda: a transação `VENDA`, os cálculos da RN15/RN16 e o novo caixa (2.3.2).
+ * Venda gravada, sem formato de transporte: o acerto (valores em centavos) e o id da
+ * transação VENDA.
  *
  * @export
  * @interface SellPlayerOutput
  */
-export interface SellPlayerOutput {
-  id: number;
-  club_id: number;
-  player_id: number;
-  player_name: string;
-  type: 'VENDA';
-  value: number;
-  fee: number;
-  penalty: number;
-  profit: number;
-  cash_change: number;
-  created_at: string;
-  purchase_value: number;
-  remaining_days: number;
-  penalty_rate: number;
-  contract_status: ContractEnd;
-  club_cash: number;
+export interface SellPlayerOutput extends SaleRecord {
+  transactionId: number;
 }

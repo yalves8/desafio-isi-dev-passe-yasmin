@@ -29,6 +29,14 @@ import type { UpdateConditionDto } from '../dtos/update-condition.dto.js';
 import { updateConditionSchema } from '../dtos/update-condition.dto.js';
 import type { UpdatePlayerDto } from '../dtos/update-player.dto.js';
 import { updatePlayerSchema } from '../dtos/update-player.dto.js';
+import {
+  toPlayerResponse,
+  toPlayersPageResponse,
+} from '../presenters/player.presenter.js';
+import {
+  PlayerResponse,
+  PlayersPageResponse,
+} from '../responses/player.response.js';
 
 /**
  * Controller responsável por expor os pontos de entrada HTTP para o gerenciamento de atletas.
@@ -74,32 +82,36 @@ export class PlayersController {
   ) {
     const player = await this.createPlayerUseCase.execute(dto);
     res.setHeader('Location', `/api/v1/players/${player.id}`);
-    return res.status(HttpStatus.CREATED).json(player);
+    return res.status(HttpStatus.CREATED).json(toPlayerResponse(player));
   }
 
   /**
    * Lista jogadores de forma paginada com suporte a busca textual, filtros e ordenações (RN07).
    *
    * @param parsedQuery - Busca, filtros, ordenação e paginação validados.
-   * @returns {Promise<any>} Objeto paginado com 'data' e 'meta'.
+   * @returns {Promise<PlayersPageResponse>} Objeto paginado com 'data' e 'meta'.
    */
   @Get()
   async findAll(
     @Query(new ParseQueryPipe(parseQueryPlayers))
     parsedQuery: ReturnType<typeof parseQueryPlayers>,
-  ) {
-    return this.findPlayersUseCase.execute(parsedQuery);
+  ): Promise<PlayersPageResponse> {
+    return toPlayersPageResponse(
+      await this.findPlayersUseCase.execute(parsedQuery),
+    );
   }
 
   /**
    * Consulta os dados detalhados de um atleta pelo seu ID.
    *
    * @param {number} id - Identificador único validado pelo ParseIdPipe.
-   * @returns {Promise<any>} Dados completos do atleta com overall e valor de mercado atualizados.
+   * @returns {Promise<PlayerResponse>} Dados completos do atleta com overall e valor de mercado atualizados.
    */
   @Get(':id')
-  async findById(@Param('id', ParseIdPipe) id: number) {
-    return this.findPlayerByIdUseCase.execute({ id });
+  async findById(
+    @Param('id', ParseIdPipe) id: number,
+  ): Promise<PlayerResponse> {
+    return toPlayerResponse(await this.findPlayerByIdUseCase.execute({ id }));
   }
 
   /**
@@ -107,14 +119,16 @@ export class PlayersController {
    *
    * @param {number} id - Identificador do atleta.
    * @param {UpdatePlayerDto} dto - Dados a serem atualizados.
-   * @returns {Promise<any>} Atleta atualizado.
+   * @returns {Promise<PlayerResponse>} Atleta atualizado.
    */
   @Put(':id')
   async update(
     @Param('id', ParseIdPipe) id: number,
     @Body(new ZodValidationPipe(updatePlayerSchema)) dto: UpdatePlayerDto,
-  ) {
-    return this.updatePlayerUseCase.execute({ id, ...dto });
+  ): Promise<PlayerResponse> {
+    return toPlayerResponse(
+      await this.updatePlayerUseCase.execute({ id, ...dto }),
+    );
   }
 
   /**
@@ -122,17 +136,19 @@ export class PlayersController {
    *
    * @param {number} id - Identificador do atleta.
    * @param {UpdateConditionDto} dto - Nova condição física.
-   * @returns {Promise<any>} Atleta atualizado.
+   * @returns {Promise<PlayerResponse>} Atleta atualizado.
    */
   @Patch(':id/condition')
   async updateCondition(
     @Param('id', ParseIdPipe) id: number,
     @Body(new ZodValidationPipe(updateConditionSchema)) dto: UpdateConditionDto,
-  ) {
-    return this.updatePlayerConditionUseCase.execute({
-      id,
-      condition: dto.condition,
-    });
+  ): Promise<PlayerResponse> {
+    return toPlayerResponse(
+      await this.updatePlayerConditionUseCase.execute({
+        id,
+        condition: dto.condition,
+      }),
+    );
   }
 
   /**

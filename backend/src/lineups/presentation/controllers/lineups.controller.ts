@@ -5,6 +5,8 @@ import { GetLineupUseCase } from '../../application/usecases/get-lineup/get-line
 import { UpdateLineupUseCase } from '../../application/usecases/update-lineup/update-lineup.usecase.js';
 import type { UpdateLineupDto } from '../dtos/update-lineup.dto.js';
 import { updateLineupSchema } from '../dtos/update-lineup.dto.js';
+import { toLineupResponse } from '../presenters/lineup.presenter.js';
+import { LineupResponse } from '../responses/lineup.response.js';
 
 /**
  * Controller da escalação do clube (RN19), sob `/clubs/{id}/lineup` como no enunciado.
@@ -29,11 +31,13 @@ export class LineupsController {
    * Escalação atual do clube.
    *
    * @param {number} id - Clube da URL (inválido → 404).
-   * @returns {Promise<LineupOutput>} Formação, `complete` e titulares na ordem do elenco.
+   * @returns {Promise<LineupResponse>} Formação, `complete` e titulares na ordem do elenco.
    */
   @Get(':id/lineup')
-  async find(@Param('id', ParseIdPipe) id: number) {
-    return this.getLineupUseCase.execute({ clubId: id });
+  async find(@Param('id', ParseIdPipe) id: number): Promise<LineupResponse> {
+    return toLineupResponse(
+      await this.getLineupUseCase.execute({ clubId: id }),
+    );
   }
 
   /**
@@ -41,17 +45,19 @@ export class LineupsController {
    *
    * @param {number} id - Clube da URL (inválido → 404).
    * @param {UpdateLineupDto} dto - Formação e titulares.
-   * @returns {Promise<LineupOutput>} 200 com a escalação gravada.
+   * @returns {Promise<LineupResponse>} 200 com a escalação gravada.
    */
   @Put(':id/lineup')
   async update(
     @Param('id', ParseIdPipe) id: number,
     @Body(new ZodValidationPipe(updateLineupSchema)) dto: UpdateLineupDto,
-  ) {
-    return this.updateLineupUseCase.execute({
-      clubId: id,
-      formation: dto.formation,
-      playerIds: dto.player_ids,
-    });
+  ): Promise<LineupResponse> {
+    return toLineupResponse(
+      await this.updateLineupUseCase.execute({
+        clubId: id,
+        formation: dto.formation,
+        playerIds: dto.player_ids,
+      }),
+    );
   }
 }

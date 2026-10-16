@@ -104,9 +104,9 @@ describe('Player Use Cases (Clean Architecture)', () => {
         potential: 86,
       });
       expect(result.id).toBe(2);
-      expect(result.overall).toBe(75);
-      expect(result.base_value).toBe(40.0);
-      expect(result.market_value).toBe(40.0);
+      expect(result.calculateOverall()).toBe(75);
+      expect(result.baseValue).toBe(40.0);
+      expect(result.calculateMarketValue()).toBe(40.0);
     });
   });
 

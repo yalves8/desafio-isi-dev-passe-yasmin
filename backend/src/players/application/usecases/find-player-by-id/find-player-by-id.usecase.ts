@@ -1,8 +1,7 @@
 import { NotFoundError } from '../../../../common/errors/domain.errors.js';
+import { PlayerEntity } from '../../../domain/entities/player.entity.js';
 import { IPlayerRepository } from '../../interfaces/repositories/player.repository.interface.js';
-import { toPlayerOutput } from '../../presenters/player.presenter.js';
 import { FindPlayerByIdInput } from './find-player-by-id.input.js';
-import { FindPlayerByIdOutput } from './find-player-by-id.output.js';
 
 /**
  * Caso de uso responsável por consultar os dados detalhados de um atleta.
@@ -29,15 +28,15 @@ export class FindPlayerByIdUseCase {
    * Executa a busca do atleta por ID.
    *
    * @param {FindPlayerByIdInput} input - Contém o ID do atleta.
-   * @returns {Promise<FindPlayerByIdOutput>} Dados detalhados do atleta.
+   * @returns {Promise<PlayerEntity>} Dados detalhados do atleta.
    * @throws {NotFoundError} Se o atleta não for encontrado ou estiver excluído.
    */
-  async execute(input: FindPlayerByIdInput): Promise<FindPlayerByIdOutput> {
+  async execute(input: FindPlayerByIdInput): Promise<PlayerEntity> {
     const player = await this.playerRepository.findById(input.id);
     if (!player) {
       throw new NotFoundError('Jogador não encontrado');
     }
 
-    return toPlayerOutput(player);
+    return player;
   }
 }

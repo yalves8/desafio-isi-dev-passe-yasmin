@@ -1,14 +1,12 @@
+import { FindPlayersOutput } from '../../application/usecases/find-players/find-players.output.js';
 import { PlayerEntity } from '../../domain/entities/player.entity.js';
-import { FindPlayerByIdOutput } from '../usecases/find-player-by-id/find-player-by-id.output.js';
+import {
+  PlayerResponse,
+  PlayersPageResponse,
+} from '../responses/player.response.js';
 
-/**
- * Jogador no formato de `GET /players/{id}`, com overall e valor de mercado calculados
- * na hora (RN05 e RN06). Usado também na escalação (RN19), que devolve os mesmos campos.
- *
- * @param {PlayerEntity} player - Entidade do jogador.
- * @returns {FindPlayerByIdOutput} Jogador no formato da API.
- */
-export function toPlayerOutput(player: PlayerEntity): FindPlayerByIdOutput {
+/** Jogador no formato da API: overall e valor de mercado calculados na hora (RN05, RN06) */
+export function toPlayerResponse(player: PlayerEntity): PlayerResponse {
   return {
     id: player.id,
     name: player.getName(),
@@ -27,5 +25,20 @@ export function toPlayerOutput(player: PlayerEntity): FindPlayerByIdOutput {
     potential: player.potential,
     overall: player.calculateOverall(),
     club_id: player.getClubId(),
+  };
+}
+
+/** Página da listagem no formato da API (2.1.1) */
+export function toPlayersPageResponse(
+  page: FindPlayersOutput,
+): PlayersPageResponse {
+  return {
+    data: page.players.map(toPlayerResponse),
+    meta: {
+      page: page.page,
+      limit: page.limit,
+      total_items: page.totalItems,
+      total_pages: page.totalPages,
+    },
   };
 }

@@ -1,9 +1,5 @@
 import { summarizeTransactions } from '../../../domain/transactions-summary.js';
 import { ITransferRepository } from '../../interfaces/repositories/transfer.repository.interface.js';
-import {
-  toSummaryOutput,
-  toTransactionOutput,
-} from '../../presenters/transaction.presenter.js';
 import { loadClubTransactions } from '../../services/load-club-transactions.js';
 import { FindClubTransactionsInput } from './find-club-transactions.input.js';
 import { FindClubTransactionsOutput } from './find-club-transactions.output.js';
@@ -42,8 +38,8 @@ export class FindClubTransactionsUseCase {
       input,
     );
     return {
-      data: transactions.map(toTransactionOutput),
-      summary: toSummaryOutput(summarizeTransactions(transactions)),
+      transactions,
+      summary: summarizeTransactions(transactions),
     };
   }
 }

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { toStandingOutput } from '../application/presenters/standings.presenter.js';
+import { toStandingResponse } from '../presentation/presenters/standings.presenter.js';
 
-describe('toStandingOutput (2.4.3)', () => {
+describe('toStandingResponse (2.4.3)', () => {
   it('deve devolver a linha da classificação com os campos da API', () => {
     expect(
-      toStandingOutput({
+      toStandingResponse({
         position: 1,
         clubId: 4,
         clubName: 'Gama SC',

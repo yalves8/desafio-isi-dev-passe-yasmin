@@ -1,28 +1,26 @@
-import { FindPlayerByIdOutput } from '../../../../players/application/usecases/find-player-by-id/find-player-by-id.output.js';
+import { PlayerEntity } from '../../../../players/domain/entities/player.entity.js';
+import { ClubSummary } from '../find-clubs/find-clubs.output.js';
 
-/** Jogador do elenco: os campos de GET /players/{id} e o contrato ativo (RN11, RN15) */
-export interface ClubPlayerItemOutput extends FindPlayerByIdOutput {
-  club_id: number;
-  contract: {
-    purchase_value: number;
-    loyalty_until: string;
-    remaining_days: number;
-    penalty_rate: number;
-  } | null;
+/** Contrato ativo de um jogador do elenco, com a multa se fosse vendido agora (RN15) */
+export interface ActiveContract {
+  purchaseValue: number;
+  loyaltyUntil: Date;
+  remainingDays: number;
+  penaltyRate: number;
+}
+
+/** Jogador do elenco com o contrato */
+export interface SquadMember {
+  player: PlayerEntity;
+  contract: ActiveContract | null;
 }
 
 /**
- * Dados de saída com detalhes completos do clube e seu elenco ordenado.
+ * Clube com o elenco na ordem da RN11 e o contrato de cada jogador.
  *
  * @export
  * @interface FindClubByIdOutput
  */
-export interface FindClubByIdOutput {
-  id: number;
-  name: string;
-  acronym: string;
-  cash: number;
-  squad_value: number;
-  net_worth: number;
-  players: ClubPlayerItemOutput[];
+export interface FindClubByIdOutput extends ClubSummary {
+  squad: SquadMember[];
 }

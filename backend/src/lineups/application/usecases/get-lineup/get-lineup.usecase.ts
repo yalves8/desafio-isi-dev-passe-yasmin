@@ -1,6 +1,6 @@
 import { NotFoundError } from '../../../../common/errors/domain.errors.js';
 import { ILineupRepository } from '../../interfaces/repositories/lineup.repository.interface.js';
-import { toLineupOutput } from '../../presenters/lineup.presenter.js';
+import { describeLineup } from '../../lineup-result.js';
 import { GetLineupInput } from './get-lineup.input.js';
 import { LineupOutput } from './lineup.output.js';
 
@@ -35,6 +35,6 @@ export class GetLineupUseCase {
   async execute({ clubId }: GetLineupInput): Promise<LineupOutput> {
     const lineup = await this.lineupRepository.findByClub(clubId);
     if (!lineup) throw new NotFoundError('Clube não encontrado');
-    return toLineupOutput(lineup);
+    return describeLineup(lineup);
   }
 }

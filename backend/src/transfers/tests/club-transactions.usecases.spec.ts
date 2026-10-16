@@ -5,6 +5,8 @@ import {
 } from '../application/interfaces/repositories/transfer.repository.interface.js';
 import { ExportClubTransactionsUseCase } from '../application/usecases/export-club-transactions/export-club-transactions.usecase.js';
 import { FindClubTransactionsUseCase } from '../application/usecases/find-club-transactions/find-club-transactions.usecase.js';
+import { toTransactionsPageResponse } from '../presentation/presenters/transaction.presenter.js';
+import { toTransactionsCsv } from '../presentation/presenters/transactions-csv.presenter.js';
 
 // Compra e venda do Meia Lua no Águias FC (exemplos 2.3.1 e 2.3.2), na ordem do histórico
 const SALE: TransactionRecord = {
@@ -55,7 +57,10 @@ describe('FindClubTransactionsUseCase', () => {
   it('deve devolver as transações gravadas e o summary (2.3.3)', async () => {
     const repo = repository([SALE, PURCHASE]);
 
-    await expect(find(repo).execute({ clubId: 1 })).resolves.toEqual({
+    // Caso de uso + presenter: a resposta do exemplo 2.3.3
+    expect(
+      toTransactionsPageResponse(await find(repo).execute({ clubId: 1 })),
+    ).toEqual({
       data: [
         {
           id: 11,
@@ -101,11 +106,13 @@ describe('FindClubTransactionsUseCase', () => {
   it('deve repassar os filtros e somar só as transações filtradas', async () => {
     const repo = repository([SALE]);
 
-    const output = await find(repo).execute({
-      clubId: 1,
-      types: ['VENDA'],
-      playerId: 2,
-    });
+    const output = toTransactionsPageResponse(
+      await find(repo).execute({
+        clubId: 1,
+        types: ['VENDA'],
+        playerId: 2,
+      }),
+    );
 
     expect(repo.findClubTransactions).toHaveBeenCalledWith(1, {
       types: ['VENDA'],
@@ -121,7 +128,11 @@ describe('FindClubTransactionsUseCase', () => {
   });
 
   it('deve devolver lista vazia e totais zerados sem transações', async () => {
-    await expect(find(repository([])).execute({ clubId: 1 })).resolves.toEqual({
+    expect(
+      toTransactionsPageResponse(
+        await find(repository([])).execute({ clubId: 1 }),
+      ),
+    ).toEqual({
       data: [],
       summary: {
         total_spent: 0,
@@ -161,9 +172,11 @@ describe('ExportClubTransactionsUseCase', () => {
   }
 
   it('deve gerar o CSV da RN18 na ordem do histórico, com LF no fim de cada linha', async () => {
-    await expect(
-      exportCsv(repository([SALE, PURCHASE])).execute({ clubId: 1 }),
-    ).resolves.toBe(
+    expect(
+      toTransactionsCsv(
+        await exportCsv(repository([SALE, PURCHASE])).execute({ clubId: 1 }),
+      ),
+    ).toBe(
       'data_hora;tipo;jogador;valor;taxa_ou_comissao;multa;lucro;variacao_caixa\n' +
         '2026-11-05T16:40:00-03:00;VENDA;Meia Lua;40,00;0,30;4,00;3,00;35,70\n' +
         '2026-11-02T10:15:00-03:00;COMPRA;Meia Lua;37,00;1,85;0,00;;-38,85\n',
@@ -171,20 +184,22 @@ describe('ExportClubTransactionsUseCase', () => {
   });
 
   it('deve trazer só o cabeçalho sem transações', async () => {
-    await expect(
-      exportCsv(repository([])).execute({ clubId: 1 }),
-    ).resolves.toBe(
+    expect(
+      toTransactionsCsv(await exportCsv(repository([])).execute({ clubId: 1 })),
+    ).toBe(
       'data_hora;tipo;jogador;valor;taxa_ou_comissao;multa;lucro;variacao_caixa\n',
     );
   });
 
   it('deve pôr entre aspas o nome com ";" ou aspas, duplicando as aspas internas', async () => {
-    const csv = await exportCsv(
-      repository([
-        { ...PURCHASE, playerName: 'Zé "Foguete" Lima' },
-        { ...PURCHASE, playerName: 'Ana;Lima' },
-      ]),
-    ).execute({ clubId: 1 });
+    const csv = toTransactionsCsv(
+      await exportCsv(
+        repository([
+          { ...PURCHASE, playerName: 'Zé "Foguete" Lima' },
+          { ...PURCHASE, playerName: 'Ana;Lima' },
+        ]),
+      ).execute({ clubId: 1 }),
+    );
 
     expect(csv).toContain(';COMPRA;"Zé ""Foguete"" Lima";');
     expect(csv).toContain(';COMPRA;"Ana;Lima";');

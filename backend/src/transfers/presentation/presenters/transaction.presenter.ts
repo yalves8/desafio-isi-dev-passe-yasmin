@@ -1,20 +1,22 @@
 import { formatBrasiliaDateTime } from '../../../common/utils/date.js';
 import { fromCents } from '../../../domain/money.js';
 import { TransactionsSummary } from '../../domain/transactions-summary.js';
+import { TransactionRecord } from '../../application/interfaces/repositories/transfer.repository.interface.js';
+import { BuyPlayerOutput } from '../../application/usecases/buy-player/buy-player.output.js';
+import { FindClubTransactionsOutput } from '../../application/usecases/find-club-transactions/find-club-transactions.output.js';
+import { SellPlayerOutput } from '../../application/usecases/sell-player/sell-player.output.js';
 import {
-  PurchaseRecord,
-  SaleRecord,
-  TransactionRecord,
-} from '../interfaces/repositories/transfer.repository.interface.js';
-import { BuyPlayerOutput } from '../usecases/buy-player/buy-player.output.js';
-import {
-  TransactionOutput,
-  TransactionsSummaryOutput,
-} from '../usecases/find-club-transactions/find-club-transactions.output.js';
-import { SellPlayerOutput } from '../usecases/sell-player/sell-player.output.js';
+  PurchaseResponse,
+  SaleResponse,
+  TransactionResponse,
+  TransactionsPageResponse,
+  TransactionsSummaryResponse,
+} from '../responses/transaction.response.js';
 
 /** Transação gravada no formato da API (2.3.3), com os valores e o nome do momento (RN17) */
-export function toTransactionOutput(t: TransactionRecord): TransactionOutput {
+function toTransactionResponse(
+  t: TransactionRecord,
+): TransactionResponse {
   return {
     id: t.id,
     club_id: t.clubId,
@@ -31,9 +33,9 @@ export function toTransactionOutput(t: TransactionRecord): TransactionOutput {
 }
 
 /** Totais do histórico (RN17) em moedas */
-export function toSummaryOutput(
+function toSummaryResponse(
   summary: TransactionsSummary,
-): TransactionsSummaryOutput {
+): TransactionsSummaryResponse {
   return {
     total_spent: fromCents(summary.spent),
     total_received: fromCents(summary.received),
@@ -44,12 +46,9 @@ export function toSummaryOutput(
 }
 
 /** Resposta da compra (2.3.1): a transação COMPRA, o contrato criado e o novo caixa */
-export function toPurchaseOutput(
-  transactionId: number,
-  record: PurchaseRecord,
-): BuyPlayerOutput {
+export function toPurchaseResponse(record: BuyPlayerOutput): PurchaseResponse {
   return {
-    id: transactionId,
+    id: record.transactionId,
     club_id: record.clubId,
     player_id: record.playerId,
     player_name: record.playerName,
@@ -70,12 +69,9 @@ export function toPurchaseOutput(
 }
 
 /** Resposta da venda (2.3.2): a transação VENDA, o acerto (RN15 e RN16) e o novo caixa */
-export function toSaleOutput(
-  transactionId: number,
-  record: SaleRecord,
-): SellPlayerOutput {
+export function toSaleResponse(record: SellPlayerOutput): SaleResponse {
   return {
-    id: transactionId,
+    id: record.transactionId,
     club_id: record.clubId,
     player_id: record.playerId,
     player_name: record.playerName,
@@ -91,5 +87,15 @@ export function toSaleOutput(
     penalty_rate: record.penaltyRate,
     contract_status: record.contractStatus,
     club_cash: fromCents(record.newCash),
+  };
+}
+
+/** Histórico do clube no formato da API (2.3.3): `data` e `summary` */
+export function toTransactionsPageResponse(
+  history: FindClubTransactionsOutput,
+): TransactionsPageResponse {
+  return {
+    data: history.transactions.map(toTransactionResponse),
+    summary: toSummaryResponse(history.summary),
   };
 }

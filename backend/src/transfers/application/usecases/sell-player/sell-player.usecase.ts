@@ -9,7 +9,6 @@ import {
   SaleRecord,
   SaleState,
 } from '../../interfaces/repositories/transfer.repository.interface.js';
-import { toSaleOutput } from '../../presenters/transaction.presenter.js';
 import { SellPlayerInput } from './sell-player.input.js';
 import { SellPlayerOutput } from './sell-player.output.js';
 
@@ -53,7 +52,7 @@ export class SellPlayerUseCase {
       input.playerId,
       (state) => this.decide(state, now),
     );
-    return toSaleOutput(transactionId, record);
+    return { ...record, transactionId };
   }
 
   /** Regras da venda sobre o estado travado; lançar aqui desfaz a transação */

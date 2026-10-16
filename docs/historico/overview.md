@@ -16,7 +16,7 @@ O histórico fica no módulo `transfers` do backend, o mesmo que grava as transa
 | Caso de uso | `backend/src/transfers/application/usecases/export-club-transactions/` | `ExportClubTransactionsUseCase`: carrega o mesmo histórico e devolve o CSV |
 | Serviço | `backend/src/transfers/application/services/load-club-transactions.ts` | `loadClubTransactions`: confere clube e jogador do filtro (404) e busca as transações; usado pelos dois casos de uso |
 | Domínio | `backend/src/transfers/domain/transactions-summary.ts` | `summarizeTransactions`: totais da RN17 em centavos |
-| Presenters | `backend/src/transfers/application/presenters/transaction.presenter.ts`, `transactions-csv.presenter.ts` | `toTransactionOutput` e `toSummaryOutput` (formato da API); `toTransactionsCsv` (arquivo da RN18: cabeçalho, `;`, vírgula decimal, aspas no nome, LF) |
+| Presenters | `backend/src/transfers/presentation/presenters/transaction.presenter.ts`, `transactions-csv.presenter.ts` | `toTransactionsPageResponse` (`data` e `summary` no formato da API); `toTransactionsCsv` (arquivo da RN18: cabeçalho, `;`, vírgula decimal, aspas no nome, LF) |
 | Contrato do repositório | `backend/src/transfers/application/interfaces/repositories/transfer.repository.interface.ts` | `clubExists`, `activePlayerExists`, `findClubTransactions` e os tipos `TransactionRecord` e `TransactionFilter` |
 | Repositório Prisma | `backend/src/transfers/infrastructure/repositories/prisma-transfer.repository.ts` | Consulta `transacoes` com os filtros, ordenada por `criado_em` e `id` decrescentes |
 | Dinheiro e datas | `backend/src/domain/money.ts`, `backend/src/common/utils/date.ts` | `toCents`, `fromCents`, `formatCents` (vírgula decimal do CSV) e `formatBrasiliaDateTime` |

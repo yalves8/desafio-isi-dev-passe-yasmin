@@ -15,9 +15,8 @@ import {
   MatchRecord,
   MatchTeamState,
   PlayMatchState,
+  StoredMatch,
 } from '../../interfaces/repositories/match.repository.interface.js';
-import { toMatchOutput } from '../../presenters/match.presenter.js';
-import { MatchOutput } from '../find-match-by-id/match.output.js';
 
 /** Titulares na ordem do elenco: o goleiro e os jogadores de linha do 1º ao 4º (RN20, passo 2) */
 function startersOf(team: MatchTeamState): Starter[] {
@@ -71,20 +70,19 @@ export class PlayMatchUseCase {
    *
    * @param {{ homeClubId: number; awayClubId: number }} input - Mandante e visitante, já diferentes.
    * @param {Date} [now=new Date()] - Momento da partida (`played_at`).
-   * @returns {Promise<MatchOutput>} Partida com os 6 duelos.
+   * @returns {Promise<StoredMatch>} Partida com os 6 duelos.
    * @throws {NotFoundError} Clube inexistente.
    * @throws {ConflictError} Escalação incompleta no mandante ou no visitante.
    */
   async execute(
     input: PlayMatchInput,
     now: Date = new Date(),
-  ): Promise<MatchOutput> {
-    const match = await this.matchRepository.play(
+  ): Promise<StoredMatch> {
+    return this.matchRepository.play(
       input.homeClubId,
       input.awayClubId,
       (state) => this.play(state, now),
     );
-    return toMatchOutput(match, true);
   }
 
   /** Conferências e motor da partida sobre o estado lido; lançar aqui não grava nada */

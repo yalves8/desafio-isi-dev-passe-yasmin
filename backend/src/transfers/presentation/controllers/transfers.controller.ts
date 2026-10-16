@@ -12,6 +12,14 @@ import { BuyPlayerUseCase } from '../../application/usecases/buy-player/buy-play
 import { SellPlayerUseCase } from '../../application/usecases/sell-player/sell-player.usecase.js';
 import type { BuyPlayerDto } from '../dtos/buy-player.dto.js';
 import { buyPlayerSchema } from '../dtos/buy-player.dto.js';
+import {
+  toPurchaseResponse,
+  toSaleResponse,
+} from '../presenters/transaction.presenter.js';
+import {
+  PurchaseResponse,
+  SaleResponse,
+} from '../responses/transaction.response.js';
 
 /**
  * Controller das operações de mercado sobre um jogador (compra e venda).
@@ -40,19 +48,21 @@ export class TransfersController {
    *
    * @param {number} id - Jogador da URL, validado pelo ParseIdPipe (inválido → 404).
    * @param {BuyPlayerDto} dto - Clube comprador e fim da fidelidade.
-   * @returns {Promise<BuyPlayerOutput>} 200 com a transação, o contrato e o novo caixa.
+   * @returns {Promise<PurchaseResponse>} 200 com a transação, o contrato e o novo caixa.
    */
   @Post(':id/buy')
   @HttpCode(HttpStatus.OK)
   async buy(
     @Param('id', ParseIdPipe) id: number,
     @Body(new ZodValidationPipe(buyPlayerSchema)) dto: BuyPlayerDto,
-  ) {
-    return this.buyPlayerUseCase.execute({
-      playerId: id,
-      clubId: dto.club_id,
-      loyaltyUntil: dto.loyalty_until,
-    });
+  ): Promise<PurchaseResponse> {
+    return toPurchaseResponse(
+      await this.buyPlayerUseCase.execute({
+        playerId: id,
+        clubId: dto.club_id,
+        loyaltyUntil: dto.loyalty_until,
+      }),
+    );
   }
 
   /**
@@ -60,11 +70,13 @@ export class TransfersController {
    * enviado é ignorado (V1).
    *
    * @param {number} id - Jogador da URL, validado pelo ParseIdPipe (inválido → 404).
-   * @returns {Promise<SellPlayerOutput>} 200 com a transação, os cálculos e o novo caixa.
+   * @returns {Promise<SaleResponse>} 200 com a transação, os cálculos e o novo caixa.
    */
   @Post(':id/sell')
   @HttpCode(HttpStatus.OK)
-  async sell(@Param('id', ParseIdPipe) id: number) {
-    return this.sellPlayerUseCase.execute({ playerId: id });
+  async sell(@Param('id', ParseIdPipe) id: number): Promise<SaleResponse> {
+    return toSaleResponse(
+      await this.sellPlayerUseCase.execute({ playerId: id }),
+    );
   }
 }

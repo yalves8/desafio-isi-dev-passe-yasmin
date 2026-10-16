@@ -1,16 +1,14 @@
-import { ITransferRepository } from '../../interfaces/repositories/transfer.repository.interface.js';
-import { toTransactionsCsv } from '../../presenters/transactions-csv.presenter.js';
+import {
+  ITransferRepository,
+  TransactionRecord,
+} from '../../interfaces/repositories/transfer.repository.interface.js';
 import { loadClubTransactions } from '../../services/load-club-transactions.js';
 import { FindClubTransactionsInput } from '../find-club-transactions/find-club-transactions.input.js';
 
 /**
- * Caso de uso da exportação do histórico em CSV (RN18).
- *
- * Regras aplicadas:
- * 1. Mesmos filtros e mesmas validações do histórico, na mesma ordem.
- * 2. Cabeçalho fixo; separador `;`; data no formato das respostas (RN01).
- * 3. Valores com 2 casas e vírgula decimal, negativo com `-`; lucro vazio quando nulo.
- * 4. Cada linha termina em `\n`, inclusive a última; sem transações, só o cabeçalho.
+ * Caso de uso da exportação do histórico (RN18): as mesmas transações, filtros e validações
+ * do histórico, na mesma ordem. O arquivo CSV é montado pela apresentação
+ * (`toTransactionsCsv`).
  *
  * @export
  * @class ExportClubTransactionsUseCase
@@ -24,16 +22,14 @@ export class ExportClubTransactionsUseCase {
   constructor(private readonly transferRepository: ITransferRepository) {}
 
   /**
-   * Gera o CSV do histórico.
+   * Busca as transações a exportar.
    *
    * @param {FindClubTransactionsInput} input - Clube e filtros.
-   * @returns {Promise<string>} Conteúdo do arquivo, em UTF-8 e sem BOM.
+   * @returns {Promise<TransactionRecord[]>} Transações da mais recente para a mais antiga.
    */
-  async execute(input: FindClubTransactionsInput): Promise<string> {
-    const transactions = await loadClubTransactions(
-      this.transferRepository,
-      input,
-    );
-    return toTransactionsCsv(transactions);
+  async execute(
+    input: FindClubTransactionsInput,
+  ): Promise<TransactionRecord[]> {
+    return loadClubTransactions(this.transferRepository, input);
   }
 }

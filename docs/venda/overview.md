@@ -11,7 +11,7 @@ A venda fica no módulo `transfers` do backend, junto com a compra, separada do 
 | Camada | Caminho | Responsabilidade |
 |--------|---------|------------------|
 | Controller | `backend/src/transfers/presentation/controllers/transfers.controller.ts` | Rota `POST /players/:id/sell`; valida o id com `ParseIdPipe` e chama o caso de uso. Não lê corpo |
-| Caso de uso | `backend/src/transfers/application/usecases/sell-player/` | `SellPlayerUseCase`: regras da venda no método `decide`; a resposta sai do presenter `toSaleOutput` (`application/presenters/transaction.presenter.ts`) |
+| Caso de uso | `backend/src/transfers/application/usecases/sell-player/` | `SellPlayerUseCase`: regras da venda no método `decide`; devolve o acerto em centavos, e o controller aplica o presenter `toSaleResponse` (`presentation/presenters/transaction.presenter.ts`) |
 | Contrato do repositório | `backend/src/transfers/application/interfaces/repositories/transfer.repository.interface.ts` | `ITransferRepository.sale(playerId, decide)` e os tipos `SaleState` (o que é lido) e `SaleRecord` (o que é gravado) |
 | Repositório Prisma | `backend/src/transfers/infrastructure/repositories/prisma-transfer.repository.ts` | `PrismaTransferRepository.sale`: transação interativa, travas `SELECT ... FOR UPDATE`, leitura do estado e gravação |
 | Domínio (cálculos) | `backend/src/domain/trade.ts` | `loyaltyPenalty` (RN15), `saleCommission` (RN16) e `saleSettlement` (multa, lucro, comissão, crédito e situação do contrato, num lugar só) |

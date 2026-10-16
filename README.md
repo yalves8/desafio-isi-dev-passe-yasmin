@@ -248,12 +248,13 @@ Erros seguem um formato único, `{ "message": "..." }`, aplicado pelo filtro glo
 [Frontend React] --HTTP/JSON--> [API NestJS] --SQL--> [PostgreSQL]
 
 Controller (presentation) → Use case (application) → Repositório abstrato
-                                                     ↳ Repositório Prisma (infrastructure) → banco
-                         ↘ Regras puras em src/domain (sem dependência de framework)
+     │                                               ↳ Repositório Prisma (infrastructure) → banco
+     │                   ↘ Regras puras em src/domain (sem dependência de framework)
+     └→ Presenter (presentation): resultado do caso de uso → JSON da API
 ```
-- **Controller:** só recebe e devolve. A entrada é validada com schemas zod.
-- **Use case:** orquestra a regra de negócio e lança erros de domínio, sem depender do HTTP do Nest.
-- **Presenter:** monta a resposta no formato da API (snake_case, moedas com 2 casas, datas em Brasília, CSV), fora do caso de uso.
+- **Controller:** recebe, valida a entrada com schemas zod, chama o caso de uso e aplica o presenter.
+- **Use case:** orquestra a regra de negócio e lança erros de domínio. Devolve entidades ou resultados em camelCase (dinheiro em centavos, datas como `Date`), sem nada do formato HTTP: o mesmo caso de uso serviria a outra entrada, como gRPC ou GraphQL.
+- **Presenter (presentation):** traduz o resultado para o contrato da API (snake_case, moedas com 2 casas, datas em Brasília, CSV). As dependências apontam só para dentro: apresentação → aplicação → domínio.
 - **Domínio:** cálculos de valor de mercado, overall, compra, venda, listagem e dinheiro (em centavos) e os limites da liga (`domain/league.ts`, `domain/trade.ts`), com testes próprios.
 - **Filtro de erros:** é o único lugar que traduz erros para HTTP.
 

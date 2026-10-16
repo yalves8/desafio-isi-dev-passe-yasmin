@@ -5,6 +5,9 @@ import { ParseQueryPipe } from '../../../common/pipes/parse-query.pipe.js';
 import { ExportClubTransactionsUseCase } from '../../application/usecases/export-club-transactions/export-club-transactions.usecase.js';
 import { FindClubTransactionsUseCase } from '../../application/usecases/find-club-transactions/find-club-transactions.usecase.js';
 import { parseTransactionFilters } from '../dtos/transaction-filters.dto.js';
+import { toTransactionsPageResponse } from '../presenters/transaction.presenter.js';
+import { toTransactionsCsv } from '../presenters/transactions-csv.presenter.js';
+import { TransactionsPageResponse } from '../responses/transaction.response.js';
 
 /**
  * Controller do histórico de transações do clube e da exportação CSV (RN17 e RN18).
@@ -33,18 +36,20 @@ export class ClubTransactionsController {
    *
    * @param {number} id - Clube da URL (inválido → 404).
    * @param filters - Filtros validados (`type` e `player_id`).
-   * @returns {Promise<FindClubTransactionsOutput>} `data` e `summary`.
+   * @returns {Promise<TransactionsPageResponse>} `data` e `summary`.
    */
   @Get(':id/transactions')
   async find(
     @Param('id', ParseIdPipe) id: number,
     @Query(new ParseQueryPipe(parseTransactionFilters))
     filters: ReturnType<typeof parseTransactionFilters>,
-  ) {
-    return this.findClubTransactionsUseCase.execute({
-      clubId: id,
-      ...filters,
-    });
+  ): Promise<TransactionsPageResponse> {
+    return toTransactionsPageResponse(
+      await this.findClubTransactionsUseCase.execute({
+        clubId: id,
+        ...filters,
+      }),
+    );
   }
 
   /**
@@ -62,7 +67,7 @@ export class ClubTransactionsController {
     filters: ReturnType<typeof parseTransactionFilters>,
     @Res() res: Response,
   ) {
-    const csv = await this.exportClubTransactionsUseCase.execute({
+    const transactions = await this.exportClubTransactionsUseCase.execute({
       clubId: id,
       ...filters,
     });
@@ -71,6 +76,6 @@ export class ClubTransactionsController {
       'Content-Disposition',
       `attachment; filename="historico-clube-${id}.csv"`,
     );
-    res.send(csv);
+    res.send(toTransactionsCsv(transactions));
   }
 }

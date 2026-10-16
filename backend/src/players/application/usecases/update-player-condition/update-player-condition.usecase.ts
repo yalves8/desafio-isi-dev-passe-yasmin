@@ -1,8 +1,7 @@
 import { NotFoundError } from '../../../../common/errors/domain.errors.js';
-import { toPlayerOutput } from '../../presenters/player.presenter.js';
+import { PlayerEntity } from '../../../domain/entities/player.entity.js';
 import { IPlayerRepository } from '../../interfaces/repositories/player.repository.interface.js';
 import { UpdatePlayerConditionInput } from './update-player-condition.input.js';
-import { UpdatePlayerConditionOutput } from './update-player-condition.output.js';
 
 /**
  * Caso de uso responsável pela alteração da condição física do atleta (PATCH /players/{id}/condition).
@@ -26,20 +25,18 @@ export class UpdatePlayerConditionUseCase {
    * Executa a alteração da condição física do atleta.
    *
    * @param {UpdatePlayerConditionInput} input - Contém o ID e a nova condição física.
-   * @returns {Promise<UpdatePlayerConditionOutput>} Atleta com a nova condição e valor de mercado recalculado.
+   * @returns {Promise<PlayerEntity>} Atleta com a nova condição e valor de mercado recalculado.
    * @throws {NotFoundError} Se o atleta não for encontrado.
    * @throws {ConflictError} Se tentar passar de DOENTE diretamente para APTO.
    */
-  async execute(
-    input: UpdatePlayerConditionInput,
-  ): Promise<UpdatePlayerConditionOutput> {
+  async execute(input: UpdatePlayerConditionInput): Promise<PlayerEntity> {
     const player = await this.playerRepository.findById(input.id);
     if (!player) {
       throw new NotFoundError('Jogador não encontrado');
     }
 
     if (player.getCondition() === input.condition) {
-      return toPlayerOutput(player);
+      return player;
     }
 
     // Regra de negócio na Entidade (DDD)
@@ -47,6 +44,6 @@ export class UpdatePlayerConditionUseCase {
 
     const updated = await this.playerRepository.updateCondition(player);
 
-    return toPlayerOutput(updated);
+    return updated;
   }
 }

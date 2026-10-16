@@ -16,6 +16,7 @@ import { FindMatchByIdUseCase } from '../application/usecases/find-match-by-id/f
 import { FindMatchesUseCase } from '../application/usecases/find-matches/find-matches.usecase.js';
 import { GetStandingsUseCase } from '../application/usecases/get-standings/get-standings.usecase.js';
 import { PlayMatchUseCase } from '../application/usecases/play-match/play-match.usecase.js';
+import { toMatchResponse } from '../presentation/presenters/match.presenter.js';
 
 const NOW = new Date('2026-11-12T15:00:00-03:00');
 
@@ -105,7 +106,11 @@ function playWith(state: PlayMatchState) {
 
 describe('PlayMatchUseCase', () => {
   it('deve jogar e devolver a partida do exemplo 2.4.2 com os 6 duelos', async () => {
-    const output = await playWith({ home: AGUIAS, away: DELTA }).result;
+    // Caso de uso + presenter: a resposta do exemplo 2.4.2
+    const output = toMatchResponse(
+      await playWith({ home: AGUIAS, away: DELTA }).result,
+      true,
+    );
 
     expect(output).toMatchObject({
       id: 1,
@@ -201,9 +206,10 @@ describe('FindMatchesUseCase e FindMatchByIdUseCase', () => {
       clubExists: vi.fn().mockResolvedValue(true),
       findMany: vi.fn().mockResolvedValue([stored]),
     };
-    const output = await new FindMatchesUseCase(
+    const matches = await new FindMatchesUseCase(
       repo as unknown as IMatchRepository,
     ).execute({ clubId: 1 });
+    const output = matches.map((match) => toMatchResponse(match, false));
 
     expect(repo.findMany).toHaveBeenCalledWith(1);
     expect(output).toEqual([
@@ -271,7 +277,7 @@ describe('GetStandingsUseCase', () => {
     ).execute();
 
     expect(
-      table.map((r) => [r.position, r.club_id, r.points, r.goal_difference]),
+      table.map((r) => [r.position, r.clubId, r.points, r.goalDifference]),
     ).toEqual([
       [1, 2, 3, 1],
       [2, 3, 0, 0],

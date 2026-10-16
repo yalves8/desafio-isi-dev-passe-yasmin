@@ -2,9 +2,9 @@ import {
   ClubSortEnum,
   compareClubsBySortCriteria,
 } from '../../../domain/enums/club-sort.enum.js';
+import { summarizeClub } from '../../club-summary.js';
 import { IClubRepository } from '../../interfaces/repositories/club.repository.interface.js';
 import { FindClubsInput } from './find-clubs.input.js';
-import { toClubOutput } from '../../presenters/club.presenter.js';
 import { FindClubsOutput } from './find-clubs.output.js';
 
 /**
@@ -41,7 +41,7 @@ export class FindClubsUseCase {
     const rawClubs = await this.clubRepository.findAllWithSquad();
 
     const result = rawClubs.map(({ club, players }) =>
-      toClubOutput(club, players),
+      summarizeClub(club, players),
     );
 
     result.sort((a, b) => compareClubsBySortCriteria(a, b, sort));

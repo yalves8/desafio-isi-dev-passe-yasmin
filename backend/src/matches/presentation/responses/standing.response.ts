@@ -1,10 +1,10 @@
 /**
- * Linha da classificação no formato da API (2.4.3).
+ * Linha da classificação no contrato da API REST (2.4.3): campos em snake_case.
  *
  * @export
- * @interface StandingOutput
+ * @interface StandingResponse
  */
-export interface StandingOutput {
+export interface StandingResponse {
   position: number;
   club_id: number;
   club_name: string;
@@ -19,4 +19,4 @@ export interface StandingOutput {
 }
 
 /** Classificação com todos os clubes, na ordem da RN21, calculada a cada consulta */
-export type GetStandingsOutput = StandingOutput[];
+export type StandingsResponse = StandingResponse[];

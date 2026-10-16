@@ -17,7 +17,7 @@ A compra e a venda de jogadores ficam no módulo de transferências e têm docum
 | Domínio (cálculos) | `domain/money.ts` | Dinheiro em centavos inteiros, `roundDiv` (meio para longe do zero), `toCents` e `fromCents` |
 | Domínio (ordenação) | `domain/enums/position.enum.ts` | `comparePositions()`: ordem GOL, ZAG, LAT, MEI, ATA |
 | Domínio (listagem) | `players/domain/player-listing.ts` | Busca sem acento, faixa de valor, ordenação com desempate e paginação da RN07 |
-| Presenter | `players/application/presenters/player.presenter.ts` | `toPlayerOutput`: o jogador no formato de `GET /players/{id}`, usado por todos os casos de uso que devolvem jogador |
+| Presenter | `players/presentation/presenters/player.presenter.ts` | `toPlayerResponse` e `toPlayersPageResponse`: a entidade no formato de `GET /players/{id}` e a página da listagem; os casos de uso devolvem `PlayerEntity` e o controller aplica o presenter |
 | Entidade | `players/domain/entities/player.entity.ts` | `PlayerEntity`: `calculateOverall()`, `calculateMarketValue()`, `update()` (RN08), `changeCondition()` (DOENTE → APTO bloqueado), `isFree()`, `isDeleted()` |
 | Casos de uso | `players/application/usecases/` | `CreatePlayerUseCase`, `FindPlayersUseCase`, `FindPlayerByIdUseCase`, `UpdatePlayerUseCase`, `UpdatePlayerConditionUseCase`, `DeletePlayerUseCase` |
 | Contrato do repositório | `players/application/interfaces/repositories/player.repository.interface.ts` | Classe abstrata `IPlayerRepository` (`findById`, `create`, `update`, `updateCondition`, `softDelete`, `findMany`, `checkClubExists`) |

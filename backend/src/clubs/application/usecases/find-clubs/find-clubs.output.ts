@@ -1,19 +1,18 @@
 /**
- * Resumo dos dados de um clube para listagem geral.
+ * Clube com os valores do momento (RN11), sem formato de transporte: caixa, valor do elenco
+ * e patrimônio em moedas.
  *
  * @export
- * @interface ClubSummaryItemOutput
+ * @interface ClubSummary
  */
-export interface ClubSummaryItemOutput {
+export interface ClubSummary {
   id: number;
   name: string;
   acronym: string;
   cash: number;
-  squad_value: number;
-  net_worth: number;
+  squadValue: number;
+  netWorth: number;
 }
 
-/**
- * Dados de saída do caso de uso de listagem de clubes.
- */
-export type FindClubsOutput = ClubSummaryItemOutput[];
+/** Clubes na ordem pedida (nome ou patrimônio), com desempate pelo nome e pelo id */
+export type FindClubsOutput = ClubSummary[];

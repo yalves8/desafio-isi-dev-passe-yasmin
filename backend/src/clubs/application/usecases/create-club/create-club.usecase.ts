@@ -1,7 +1,7 @@
 import { ConflictError } from '../../../../common/errors/domain.errors.js';
 import { INITIAL_CASH, MAX_CLUBS } from '../../../../domain/league.js';
 import { ClubEntity } from '../../../domain/entities/club.entity.js';
-import { toClubOutput } from '../../presenters/club.presenter.js';
+import { summarizeClub } from '../../club-summary.js';
 import { IClubRepository } from '../../interfaces/repositories/club.repository.interface.js';
 import { CreateClubInput } from './create-club.input.js';
 import { CreateClubOutput } from './create-club.output.js';
@@ -65,6 +65,6 @@ export class CreateClubUseCase {
     });
 
     // Clube novo: sem jogadores, valor do elenco 0,00 e patrimônio igual ao caixa
-    return toClubOutput(created, []);
+    return summarizeClub(created, []);
   }
 }

@@ -18,19 +18,19 @@ export enum ClubSortEnum {
  * 2. Desempate obrigatório: nome do clube em ordem alfabética (insensível a acentos e maiúsculas).
  * 3. Desempate final: ID do clube em ordem crescente.
  *
- * @param {{ id: number; name: string; net_worth: number }} a - Primeiro clube a comparar.
- * @param {{ id: number; name: string; net_worth: number }} b - Segundo clube a comparar.
+ * @param {{ id: number; name: string; netWorth: number }} a - Primeiro clube a comparar.
+ * @param {{ id: number; name: string; netWorth: number }} b - Segundo clube a comparar.
  * @param {ClubSortEnum | string} [sort=ClubSortEnum.NAME] - Critério de ordenação selecionado.
  * @returns {number} Valor numérico de ordenação (-1, 0, 1).
  */
 export function compareClubsBySortCriteria<
-  T extends { id: number; name: string; net_worth: number },
+  T extends { id: number; name: string; netWorth: number },
 >(a: T, b: T, sort: ClubSortEnum | string = ClubSortEnum.NAME): number {
   if (sort === ClubSortEnum.NET_WORTH_DESC) {
-    const diff = b.net_worth - a.net_worth;
+    const diff = b.netWorth - a.netWorth;
     if (diff !== 0) return diff;
   } else if (sort === ClubSortEnum.NET_WORTH_ASC) {
-    const diff = a.net_worth - b.net_worth;
+    const diff = a.netWorth - b.netWorth;
     if (diff !== 0) return diff;
   }
 

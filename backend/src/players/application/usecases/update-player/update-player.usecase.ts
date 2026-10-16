@@ -1,8 +1,7 @@
 import { NotFoundError } from '../../../../common/errors/domain.errors.js';
-import { toPlayerOutput } from '../../presenters/player.presenter.js';
+import { PlayerEntity } from '../../../domain/entities/player.entity.js';
 import { IPlayerRepository } from '../../interfaces/repositories/player.repository.interface.js';
 import { UpdatePlayerInput } from './update-player.input.js';
-import { UpdatePlayerOutput } from './update-player.output.js';
 
 /**
  * Caso de uso responsável pela atualização dos dados cadastrais do atleta (RN08).
@@ -34,11 +33,11 @@ export class UpdatePlayerUseCase {
    * Executa a atualização cadastral do atleta.
    *
    * @param {UpdatePlayerInput} input - Novos dados cadastrais.
-   * @returns {Promise<UpdatePlayerOutput>} Atleta atualizado.
+   * @returns {Promise<PlayerEntity>} Atleta atualizado.
    * @throws {NotFoundError} Se o atleta não for encontrado.
    * @throws {ConflictError} Se regras de negócio da RN08 forem violadas.
    */
-  async execute(input: UpdatePlayerInput): Promise<UpdatePlayerOutput> {
+  async execute(input: UpdatePlayerInput): Promise<PlayerEntity> {
     const player = await this.playerRepository.findById(input.id);
     if (!player) {
       throw new NotFoundError('Jogador não encontrado');
@@ -49,6 +48,6 @@ export class UpdatePlayerUseCase {
 
     const updated = await this.playerRepository.update(player);
 
-    return toPlayerOutput(updated);
+    return updated;
   }
 }

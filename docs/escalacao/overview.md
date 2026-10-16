@@ -12,13 +12,14 @@ A escalação tem um módulo próprio no backend, `lineups`, porque cruza clube 
 |--------|---------|------------------|
 | Domínio | `backend/src/lineups/domain/formation.ts` | `FORMATIONS` (3-1, 2-2, 2-1-1, 1-2-1), `fitsFormation`, `formationRequirement` e `isLineupComplete` (formação salva e 5 titulares; também usado pela partida) |
 | Caso de uso | `backend/src/lineups/application/usecases/get-lineup/` | `GetLineupUseCase`: escalação do clube (404 se o clube não existe) |
-| Presenter | `backend/src/lineups/application/presenters/lineup.presenter.ts` | `toLineupOutput`: titulares na ordem do elenco e `complete`; usado pela consulta e pela troca |
+| Resultado | `backend/src/lineups/application/lineup-result.ts` | `describeLineup`: titulares na ordem do elenco e `complete`; usado pela consulta e pela troca |
+| Presenter | `backend/src/lineups/presentation/presenters/lineup.presenter.ts` | `toLineupResponse`: a escalação no formato da API, aplicado pelo controller |
 | Caso de uso | `backend/src/lineups/application/usecases/update-lineup/` | `UpdateLineupUseCase`: regras da RN19 sobre o estado travado e substituição da escalação |
 | Contrato do repositório | `backend/src/lineups/application/interfaces/repositories/lineup.repository.interface.ts` | `findByClub` e `replace` (unidade de trabalho com validação) |
 | Repositório Prisma | `backend/src/lineups/infrastructure/repositories/prisma-lineup.repository.ts` | Lê `clubes.formacao` e `escalacoes`; na troca, trava jogadores e clube e regrava tudo numa transação |
 | DTO | `backend/src/lineups/presentation/dtos/update-lineup.dto.ts` | `updateLineupSchema` (Zod): formação e os 5 ids (400) |
 | Controller | `backend/src/lineups/presentation/controllers/lineups.controller.ts` | `GET` e `PUT /clubs/:id/lineup` |
-| Compartilhado | `backend/src/players/domain/squad-order.ts`, `backend/src/players/application/presenters/player.presenter.ts` | `compareSquadOrder` (ordem da RN11) e `toPlayerOutput` (campos de `GET /players/{id}`) |
+| Compartilhado | `backend/src/players/domain/squad-order.ts`, `backend/src/players/presentation/presenters/player.presenter.ts` | `compareSquadOrder` (ordem da RN11) e `toPlayerResponse` (campos de `GET /players/{id}`) |
 | Frontend | `frontend/src/modules/clubs/components/lineup-editor/` e vizinhos (`formation-picker`, `lineup-slots`, `lineup-pitch`, `lineup-reserves`) | Editor da aba Escalação; `clubsService.getLineup` e `updateLineup` |
 
 ---
@@ -149,5 +150,5 @@ curl -s $API/clubs/1/lineup
 |-------------|-----|
 | NestJS, Zod | Controller, `ParseIdPipe` e validação do corpo |
 | Prisma + PostgreSQL 16 | `clubes.formacao`, `escalacoes` e travas `FOR UPDATE` |
-| Módulo `players` | `PlayerEntity`, `playerFromRow`, `compareSquadOrder` e `toPlayerOutput` |
+| Módulo `players` | `PlayerEntity`, `playerFromRow`, `compareSquadOrder` e `toPlayerResponse` |
 | Módulos `transfers` e `players` | A venda e a troca para `DOENTE` removem o titular da escalação |

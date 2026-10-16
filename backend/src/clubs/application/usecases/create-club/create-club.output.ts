@@ -1,9 +1,4 @@
-import { ClubSummaryItemOutput } from '../find-clubs/find-clubs.output.js';
+import { ClubSummary } from '../find-clubs/find-clubs.output.js';
 
-/**
- * Dados de saída retornados pelo caso de uso de criação de clube.
- *
- * @export
- * @typedef CreateClubOutput
- */
-export type CreateClubOutput = ClubSummaryItemOutput;
+/** Clube criado: caixa inicial, sem jogadores (RN10) */
+export type CreateClubOutput = ClubSummary;

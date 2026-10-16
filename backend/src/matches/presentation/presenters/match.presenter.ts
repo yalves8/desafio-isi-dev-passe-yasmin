@@ -2,21 +2,21 @@ import { formatBrasiliaDateTime } from '../../../common/utils/date.js';
 import {
   DuelPlayerRecord,
   StoredMatch,
-} from '../interfaces/repositories/match.repository.interface.js';
+} from '../../application/interfaces/repositories/match.repository.interface.js';
 import {
-  DuelPlayerOutput,
-  MatchOutput,
-  MatchSideOutput,
-} from '../usecases/find-match-by-id/match.output.js';
+  DuelPlayerResponse,
+  MatchResponse,
+  MatchSideResponse,
+} from '../responses/match.response.js';
 
-const sideOutput = (side: StoredMatch['home']): MatchSideOutput => ({
+const sideResponse = (side: StoredMatch['home']): MatchSideResponse => ({
   club_id: side.clubId,
   club_name: side.clubName,
   formation: side.formation,
   goals: side.goals,
 });
 
-const duelPlayerOutput = (p: DuelPlayerRecord): DuelPlayerOutput => ({
+const duelPlayerResponse = (p: DuelPlayerRecord): DuelPlayerResponse => ({
   player_id: p.playerId,
   player_name: p.playerName,
   position: p.position,
@@ -31,25 +31,25 @@ const duelPlayerOutput = (p: DuelPlayerRecord): DuelPlayerOutput => ({
  *
  * @param {StoredMatch} match - Partida gravada.
  * @param {boolean} withDuels - Inclui `duels` (POST e GET /matches/{id}); a listagem não traz.
- * @returns {MatchOutput} Partida no formato da API.
+ * @returns {MatchResponse} Partida no formato da API.
  */
-export function toMatchOutput(
+export function toMatchResponse(
   match: StoredMatch,
   withDuels: boolean,
-): MatchOutput {
+): MatchResponse {
   return {
     id: match.id,
     played_at: formatBrasiliaDateTime(match.playedAt),
-    home: sideOutput(match.home),
-    away: sideOutput(match.away),
+    home: sideResponse(match.home),
+    away: sideResponse(match.away),
     result: match.result,
     ...(withDuels
       ? {
           duels: match.duels.map((d) => ({
             order: d.order,
             attacking_club_id: d.attackingClubId,
-            attacker: duelPlayerOutput(d.attacker),
-            defender: duelPlayerOutput(d.defender),
+            attacker: duelPlayerResponse(d.attacker),
+            defender: duelPlayerResponse(d.defender),
             goal: d.goal,
           })),
         }

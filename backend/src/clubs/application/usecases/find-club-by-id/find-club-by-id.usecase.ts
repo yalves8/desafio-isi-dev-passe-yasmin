@@ -1,11 +1,27 @@
 import { NotFoundError } from '../../../../common/errors/domain.errors.js';
 import { IClubRepository } from '../../interfaces/repositories/club.repository.interface.js';
 import { FindClubByIdInput } from './find-club-by-id.input.js';
-import {
-  toClubOutput,
-  toSquadPlayerOutput,
-} from '../../presenters/club.presenter.js';
-import { FindClubByIdOutput } from './find-club-by-id.output.js';
+import { PlayerEntity } from '../../../../players/domain/entities/player.entity.js';
+import { summarizeClub } from '../../club-summary.js';
+import { FindClubByIdOutput, SquadMember } from './find-club-by-id.output.js';
+
+/** Jogador com o contrato ativo e a multa se fosse vendido agora (RN11, RN15) */
+function toSquadMember(player: PlayerEntity, now: Date): SquadMember {
+  const contract = player.getActiveContract();
+  const penalty = player.calculateContractPenalty(now);
+  return {
+    player,
+    contract:
+      contract && penalty
+        ? {
+            purchaseValue: contract.purchaseValue,
+            loyaltyUntil: contract.loyaltyUntil,
+            remainingDays: penalty.daysRemaining,
+            penaltyRate: penalty.percent,
+          }
+        : null,
+  };
+}
 
 /**
  * Caso de uso responsável por consultar detalhadamente um clube e seu elenco ordenado.
@@ -50,8 +66,8 @@ export class FindClubByIdUseCase {
 
     const squad = club.sortSquad(players);
     return {
-      ...toClubOutput(club, squad),
-      players: squad.map((player) => toSquadPlayerOutput(club, player, now)),
+      ...summarizeClub(club, squad),
+      squad: squad.map((player) => toSquadMember(player, now)),
     };
   }
 }

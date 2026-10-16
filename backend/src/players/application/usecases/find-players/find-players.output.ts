@@ -1,19 +1,16 @@
-import { FindPlayerByIdOutput } from '../find-player-by-id/find-player-by-id.output.js';
-
-export interface PlayersPaginationMetaOutput {
-  page: number;
-  limit: number;
-  total_items: number;
-  total_pages: number;
-}
+import { PlayerEntity } from '../../../domain/entities/player.entity.js';
 
 /**
- * Resposta paginada contendo atletas e metadados de paginação.
+ * Página da listagem (RN07), sem formato de transporte: os jogadores da página e a contagem
+ * de todos os que atendem à busca e aos filtros.
  *
  * @export
  * @interface FindPlayersOutput
  */
 export interface FindPlayersOutput {
-  data: FindPlayerByIdOutput[];
-  meta: PlayersPaginationMetaOutput;
+  players: PlayerEntity[];
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
 }

@@ -56,8 +56,8 @@ describe('Club Use Cases (Clean Architecture)', () => {
         cash: 300.0,
       });
       expect(result.cash).toBe(300.0);
-      expect(result.squad_value).toBe(0.0);
-      expect(result.net_worth).toBe(300.0);
+      expect(result.squadValue).toBe(0.0);
+      expect(result.netWorth).toBe(300.0);
     });
 
     it('deve recusar a criação do 21º clube na liga (409)', async () => {
@@ -112,7 +112,7 @@ describe('Club Use Cases (Clean Architecture)', () => {
 
       const result = await findClubsUseCase.execute({ sort: 'name' });
       expect(result).toHaveLength(1);
-      expect(result[0].net_worth).toBe(300.0);
+      expect(result[0].netWorth).toBe(300.0);
     });
   });
 
@@ -190,19 +190,19 @@ describe('Club Use Cases (Clean Architecture)', () => {
 
       expect(result.id).toBe(1);
       expect(result.cash).toBe(300.0);
-      expect(result.players).toHaveLength(2);
+      expect(result.squad).toHaveLength(2);
       // GOL deve vir antes de ATA segundo a RN11
-      expect(result.players[0].position).toBe('GOL');
-      expect(result.players[0].name).toBe('Alair Goleiro');
-      expect(result.players[0].contract).toBeNull();
+      expect(result.squad[0].player.getPosition()).toBe('GOL');
+      expect(result.squad[0].player.getName()).toBe('Alair Goleiro');
+      expect(result.squad[0].contract).toBeNull();
 
-      expect(result.players[1].position).toBe('ATA');
-      expect(result.players[1].name).toBe('Beto Atacante');
-      expect(result.players[1].contract).not.toBeNull();
-      expect(result.players[1].contract?.penalty_rate).toBe(5);
+      expect(result.squad[1].player.getPosition()).toBe('ATA');
+      expect(result.squad[1].player.getName()).toBe('Beto Atacante');
+      expect(result.squad[1].contract).not.toBeNull();
+      expect(result.squad[1].contract?.penaltyRate).toBe(5);
 
-      expect(result.squad_value).toBeGreaterThan(0);
-      expect(result.net_worth).toBe(result.cash + result.squad_value);
+      expect(result.squadValue).toBeGreaterThan(0);
+      expect(result.netWorth).toBe(result.cash + result.squadValue);
     });
   });
 

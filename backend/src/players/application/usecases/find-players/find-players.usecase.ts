@@ -8,7 +8,6 @@ import {
 } from '../../../domain/player-listing.js';
 import { PlayerEntity } from '../../../domain/entities/player.entity.js';
 import { IPlayerRepository } from '../../interfaces/repositories/player.repository.interface.js';
-import { toPlayerOutput } from '../../presenters/player.presenter.js';
 import { FindPlayersInput } from './find-players.input.js';
 import { FindPlayersOutput } from './find-players.output.js';
 
@@ -74,13 +73,11 @@ export class FindPlayersUseCase {
 
     const page = paginate(rows, input.page, input.limit);
     return {
-      data: page.items.map((row) => toPlayerOutput(row.player)),
-      meta: {
-        page: input.page,
-        limit: input.limit,
-        total_items: page.totalItems,
-        total_pages: page.totalPages,
-      },
+      players: page.items.map((row) => row.player),
+      page: input.page,
+      limit: input.limit,
+      totalItems: page.totalItems,
+      totalPages: page.totalPages,
     };
   }
 }

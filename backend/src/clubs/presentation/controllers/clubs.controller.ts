@@ -18,6 +18,14 @@ import { FindClubsUseCase } from '../../application/usecases/find-clubs/find-clu
 import type { CreateClubDto } from '../dtos/create-club.dto.js';
 import { createClubSchema } from '../dtos/create-club.dto.js';
 import { parseQueryClubs } from '../dtos/query-clubs.dto.js';
+import {
+  toClubDetailsResponse,
+  toClubResponse,
+} from '../presenters/club.presenter.js';
+import {
+  ClubDetailsResponse,
+  ClubResponse,
+} from '../responses/club.response.js';
 
 /**
  * Controller responsável por expor os endpoints HTTP para o gerenciamento de clubes.
@@ -57,31 +65,36 @@ export class ClubsController {
   ) {
     const club = await this.createClubUseCase.execute(dto);
     res.setHeader('Location', `/api/v1/clubs/${club.id}`);
-    return res.status(HttpStatus.CREATED).json(club);
+    return res.status(HttpStatus.CREATED).json(toClubResponse(club));
   }
 
   /**
    * Endpoint para listar todos os clubes participantes.
    *
    * @param sort - Ordenação validada (nome ou patrimônio).
-   * @returns {Promise<any>} Lista dos clubes com seus respectivos patrimônios calculados.
+   * @returns {Promise<ClubResponse[]>} Lista dos clubes com seus respectivos patrimônios calculados.
    */
   @Get()
   async findAll(
     @Query(new ParseQueryPipe(parseQueryClubs))
     { sort }: ReturnType<typeof parseQueryClubs>,
-  ) {
-    return this.findClubsUseCase.execute({ sort });
+  ): Promise<ClubResponse[]> {
+    const clubs = await this.findClubsUseCase.execute({ sort });
+    return clubs.map(toClubResponse);
   }
 
   /**
    * Endpoint para consultar os detalhes de um clube e seu elenco ordenado.
    *
    * @param {number} id - Identificador do clube na URL validado pelo ParseIdPipe.
-   * @returns {Promise<any>} Detalhes do clube e elenco completo.
+   * @returns {Promise<ClubDetailsResponse>} Detalhes do clube e elenco completo.
    */
   @Get(':id')
-  async findById(@Param('id', ParseIdPipe) id: number) {
-    return this.findClubByIdUseCase.execute({ id });
+  async findById(
+    @Param('id', ParseIdPipe) id: number,
+  ): Promise<ClubDetailsResponse> {
+    return toClubDetailsResponse(
+      await this.findClubByIdUseCase.execute({ id }),
+    );
   }
 }

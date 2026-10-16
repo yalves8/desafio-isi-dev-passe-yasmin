@@ -1,8 +1,8 @@
 import { Standing } from '../../domain/standings.js';
-import { StandingOutput } from '../usecases/get-standings/get-standings.output.js';
+import { StandingResponse } from '../responses/standing.response.js';
 
 /** Linha da classificação no formato da API (2.4.3) */
-export function toStandingOutput(standing: Standing): StandingOutput {
+export function toStandingResponse(standing: Standing): StandingResponse {
   return {
     position: standing.position,
     club_id: standing.clubId,

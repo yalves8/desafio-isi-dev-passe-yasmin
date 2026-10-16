@@ -14,6 +14,10 @@ import {
 } from '../application/interfaces/repositories/transfer.repository.interface.js';
 import { BuyPlayerUseCase } from '../application/usecases/buy-player/buy-player.usecase.js';
 import { SellPlayerUseCase } from '../application/usecases/sell-player/sell-player.usecase.js';
+import {
+  toPurchaseResponse,
+  toSaleResponse,
+} from '../presentation/presenters/transaction.presenter.js';
 
 // 02/11/2026 10:15 em Brasília (exemplo 2.3.1 do desafio)
 const NOW = new Date('2026-11-02T10:15:00-03:00');
@@ -83,7 +87,8 @@ describe('BuyPlayerUseCase', () => {
   it('deve comprar pelo valor de mercado com taxa e devolver contrato e novo caixa (2.3.1)', async () => {
     const { repository, result } = buy(state());
 
-    await expect(result).resolves.toEqual({
+    // Caso de uso + presenter: a resposta inteira do exemplo 2.3.1
+    expect(toPurchaseResponse(await result)).toEqual({
       id: 10,
       club_id: 1,
       player_id: 2,
@@ -124,7 +129,7 @@ describe('BuyPlayerUseCase', () => {
           club: { id: 1, name: 'Águias FC', cash },
         }),
       );
-      const output = await result;
+      const output = toPurchaseResponse(await result);
       expect(output.fee).toBe(fee);
       expect(output.cash_change).toBe(-cost);
     },
@@ -245,7 +250,8 @@ describe('SellPlayerUseCase', () => {
   it('deve vender pelo valor de mercado com multa, lucro, comissão e novo caixa (2.3.2)', async () => {
     const { repository, result } = sell(saleState());
 
-    await expect(result).resolves.toEqual({
+    // Caso de uso + presenter: a resposta inteira do exemplo 2.3.2
+    expect(toSaleResponse(await result)).toEqual({
       id: 11,
       club_id: 1,
       player_id: 2,
@@ -295,7 +301,7 @@ describe('SellPlayerUseCase', () => {
           },
         }),
       );
-      const output = await result;
+      const output = toSaleResponse(await result);
       expect(output.penalty).toBe(penalty);
       expect(output.profit).toBe(profit);
       expect(output.fee).toBe(fee);
@@ -325,8 +331,8 @@ describe('SellPlayerUseCase', () => {
         }),
       );
       const output = await result;
-      expect(output.remaining_days).toBe(remaining);
-      expect(output.penalty_rate).toBe(rate);
+      expect(output.remainingDays).toBe(remaining);
+      expect(output.penaltyRate).toBe(rate);
     },
   );
 
