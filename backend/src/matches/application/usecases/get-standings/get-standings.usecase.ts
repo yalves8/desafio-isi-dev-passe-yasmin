@@ -1,5 +1,6 @@
 import { computeStandings } from '../../../domain/standings.js';
 import { IMatchRepository } from '../../interfaces/repositories/match.repository.interface.js';
+import { toStandingOutput } from '../../presenters/standings.presenter.js';
 import { GetStandingsOutput } from './get-standings.output.js';
 
 /**
@@ -24,6 +25,6 @@ export class GetStandingsUseCase {
    */
   async execute(): Promise<GetStandingsOutput> {
     const { clubs, scores } = await this.matchRepository.findStandingsData();
-    return computeStandings(clubs, scores);
+    return computeStandings(clubs, scores).map(toStandingOutput);
   }
 }

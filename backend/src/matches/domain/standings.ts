@@ -3,22 +3,22 @@ import { compareNames } from '../../common/utils/text.js';
 const POINTS = { win: 3, draw: 1, loss: 0 } as const;
 
 /**
- * Linha da classificação no formato da API (RN21).
+ * Linha da classificação de um clube (RN21).
  *
  * @export
- * @interface StandingRow
+ * @interface Standing
  */
-export interface StandingRow {
+export interface Standing {
   position: number;
-  club_id: number;
-  club_name: string;
+  clubId: number;
+  clubName: string;
   played: number;
   wins: number;
   draws: number;
   losses: number;
-  goals_for: number;
-  goals_against: number;
-  goal_difference: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
   points: number;
 }
 
@@ -39,26 +39,26 @@ export interface PlayedScore {
  *
  * @param {{ id: number; name: string }[]} clubs - Todos os clubes da liga.
  * @param {PlayedScore[]} matches - Placar de todas as partidas.
- * @returns {StandingRow[]} Classificação ordenada.
+ * @returns {Standing[]} Classificação ordenada.
  */
 export function computeStandings(
   clubs: { id: number; name: string }[],
   matches: PlayedScore[],
-): StandingRow[] {
+): Standing[] {
   const rows = new Map(
     clubs.map((club) => [
       club.id,
       {
         position: 0,
-        club_id: club.id,
-        club_name: club.name,
+        clubId: club.id,
+        clubName: club.name,
         played: 0,
         wins: 0,
         draws: 0,
         losses: 0,
-        goals_for: 0,
-        goals_against: 0,
-        goal_difference: 0,
+        goalsFor: 0,
+        goalsAgainst: 0,
+        goalDifference: 0,
         points: 0,
       },
     ]),
@@ -68,8 +68,8 @@ export function computeStandings(
     const row = rows.get(clubId);
     if (!row) return;
     row.played++;
-    row.goals_for += scored;
-    row.goals_against += conceded;
+    row.goalsFor += scored;
+    row.goalsAgainst += conceded;
     if (scored > conceded) row.wins++;
     else if (scored === conceded) row.draws++;
     else row.losses++;
@@ -81,7 +81,7 @@ export function computeStandings(
 
   const table = [...rows.values()].map((row) => ({
     ...row,
-    goal_difference: row.goals_for - row.goals_against,
+    goalDifference: row.goalsFor - row.goalsAgainst,
     points:
       row.wins * POINTS.win +
       row.draws * POINTS.draw +
@@ -90,10 +90,10 @@ export function computeStandings(
   table.sort(
     (a, b) =>
       b.points - a.points ||
-      b.goal_difference - a.goal_difference ||
-      b.goals_for - a.goals_for ||
-      compareNames(a.club_name, b.club_name) ||
-      a.club_id - b.club_id,
+      b.goalDifference - a.goalDifference ||
+      b.goalsFor - a.goalsFor ||
+      compareNames(a.clubName, b.clubName) ||
+      a.clubId - b.clubId,
   );
   return table.map((row, index) => ({ ...row, position: index + 1 }));
 }

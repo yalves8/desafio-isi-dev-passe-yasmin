@@ -258,7 +258,6 @@ Controller (presentation) → Use case (application) → Repositório abstrato
 - **Filtro de erros:** é o único lugar que traduz erros para HTTP.
 
 ### Frontend: padrões
-Seguem o padrão de frontend da FCx:
 - **Página e hook:** a página só desestrutura o seu `*.hook.ts`, que concentra estado, buscas e handlers.
 - **Componentes:** cada um tem sua pasta, com tipos e teste próprios. Componentes reaproveitáveis entre telas ficam em `modules/<domínio>/components` ou em `components/`.
 - **Modais de confirmação:** só exibem; quem chama a API é o hook da página, via `useAction`. Diálogos com formulário têm hook próprio.
@@ -337,4 +336,7 @@ Todo o fluxo do desafio está implementado: jogadores → clubes → compra → 
   - Documentação: `docs/` e este README.
   - Revisão final: conferência do projeto contra o enunciado e o barema, com um roteiro automatizado de chamadas à API, e as correções que ela apontou (Node 22, normalização do `search`, linha de log, formatação e dependências sem uso).
 - **Como e por quê:** a partir das regras do enunciado e do mockup do Figma, para acelerar a implementação e os testes. A verificação visual das telas foi feita com Playwright. Todo o código gerado foi revisado e validado com testes, lint e typecheck antes do commit.
-- **O que foi aceito, alterado ou descartado:** _(a preencher pela autora)_
+- **O que foi aceito, alterado ou descartado:**
+  - **Aceito:** a auditoria do projeto contra o enunciado e o barema, com um roteiro automatizado que chama a API item a item (B01 a B22) e foi usado para validar cada mudança; a troca do Node 24 pelo 22, a normalização do `search`, o log de requisições, o README completo e a remoção de código sem uso (dependências e variáveis do template, seed vazio, arquivos e exports não usados); os componentes compartilhados do frontend (`DataTable`, `AlertMessage`, `FieldMessage`); os presenters e as regras e limites movidos para o domínio no backend; e o plano de testes de interface com Playwright, executado tela a tela.
+  - **Alterado:** código gerado com IA que contrariava o enunciado e foi corrigido depois de revisado nos testes de interface: a tela bloqueava a criação de clube com 20 clubes (o enunciado manda enviar e mostrar o `409` da API); a escalação recalculava na tela os atributos usados na partida (coluna removida); a lista não recarregava depois de uma recusa `404`/`409`; cada clique numa aba criava duas entradas no histórico do navegador; o foco não voltava ao botão ao fechar um diálogo. Também ajustei textos e formatos: hífen em vez do sinal de menos tipográfico, data e hora num formato único e mensagens da escalação. Depois de questionar a organização dos casos de uso (responsabilidades misturadas, constantes e `interface` × `type`), pedi a separação em presenters e domínio e a regra de lint que padroniza `interface`.
+  - **Descartado:** aceitar corpo JSON inválido na venda (caso ambíguo, que a correção não envia); rodar os testes de interface no modo de desenvolvimento do Vite (troquei pelo build de produção, o mesmo da banca); e versionar o plano de testes no repositório (fica fora dele).

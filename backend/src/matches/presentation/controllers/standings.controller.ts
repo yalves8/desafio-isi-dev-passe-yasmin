@@ -19,7 +19,7 @@ export class StandingsController {
   /**
    * Classificação de todos os clubes.
    *
-   * @returns {Promise<StandingRow[]>} De 1 ao total de clubes.
+   * @returns {Promise<GetStandingsOutput>} De 1 ao total de clubes.
    */
   @Get()
   async find() {

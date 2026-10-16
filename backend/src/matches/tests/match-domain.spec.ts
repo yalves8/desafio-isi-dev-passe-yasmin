@@ -122,10 +122,10 @@ describe('computeStandings (RN21)', () => {
     expect(
       table.map((row) => [
         row.position,
-        row.club_name,
+        row.clubName,
         row.points,
-        row.goal_difference,
-        row.goals_for,
+        row.goalDifference,
+        row.goalsFor,
       ]),
     ).toEqual([
       [1, 'Gama SC', 6, 2, 3],
@@ -137,15 +137,15 @@ describe('computeStandings (RN21)', () => {
     ]);
     expect(table[0]).toEqual({
       position: 1,
-      club_id: 4,
-      club_name: 'Gama SC',
+      clubId: 4,
+      clubName: 'Gama SC',
       played: 2,
       wins: 2,
       draws: 0,
       losses: 0,
-      goals_for: 3,
-      goals_against: 1,
-      goal_difference: 2,
+      goalsFor: 3,
+      goalsAgainst: 1,
+      goalDifference: 2,
       points: 6,
     });
   });
@@ -158,7 +158,7 @@ describe('computeStandings (RN21)', () => {
       ],
       [{ homeClubId: 1, awayClubId: 2, homeGoals: 1, awayGoals: 1 }],
     );
-    expect(table.map((r) => [r.club_id, r.draws, r.points])).toEqual([
+    expect(table.map((r) => [r.clubId, r.draws, r.points])).toEqual([
       [1, 1, 1],
       [2, 1, 1],
     ]);
