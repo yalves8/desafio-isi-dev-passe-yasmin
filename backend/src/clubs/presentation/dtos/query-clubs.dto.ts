@@ -1,6 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
-import { ClubSortCriteria } from '../../application/usecases/find-clubs/find-clubs.input.js';
-import { ClubSortEnum } from '../../domain/enums/club-sort.enum.js';
+import { rejectEmptyParams } from '../../../common/utils/query-params.js';
+import {
+  ClubSortCriteria,
+  DEFAULT_CLUB_SORT,
+  isClubSortCriteria,
+} from '../../domain/club-sort.js';
 
 /**
  * Validador e parser dos parâmetros de consulta (Query Params) da rota GET /api/v1/clubs.
@@ -12,22 +16,14 @@ import { ClubSortEnum } from '../../domain/enums/club-sort.enum.js';
 export function parseQueryClubs(query: Record<string, string | undefined>): {
   sort: ClubSortCriteria;
 } {
-  for (const [key, val] of Object.entries(query)) {
-    if (val === '') {
-      throw new BadRequestException(`Parâmetro ${key} não pode ser vazio`);
-    }
-  }
+  rejectEmptyParams(query);
 
   if (query.sort === undefined) {
-    return { sort: ClubSortEnum.NAME };
+    return { sort: DEFAULT_CLUB_SORT };
   }
 
-  if (
-    query.sort === ClubSortEnum.NAME ||
-    query.sort === ClubSortEnum.NET_WORTH_ASC ||
-    query.sort === ClubSortEnum.NET_WORTH_DESC
-  ) {
-    return { sort: query.sort as ClubSortCriteria };
+  if (isClubSortCriteria(query.sort)) {
+    return { sort: query.sort };
   }
 
   throw new BadRequestException('Critério de ordenação inválido para clubes');

@@ -1,6 +1,7 @@
 import type { PlayerFilters } from '@/api/players.service'
 import type { Club, Condition, PlayerSort, Position } from '@/api/types'
 import { formatMoney, plural } from '@/lib/format'
+import { enumCodec, numberCodec } from '@/lib/search-params'
 import {
   CONDITION_BY_VALUE,
   PAGE_SIZE,
@@ -21,41 +22,34 @@ export const DEFAULT_PARAMS: PlayersParams = {
   page: 1,
 }
 
-function toNumber(value: string | null) {
-  if (value === null || value.trim() === '') return undefined
-  const n = Number(value)
-  return Number.isFinite(n) ? n : undefined
-}
-
-function oneOf<T extends string>(value: string | null, allowed: readonly T[]) {
-  return allowed.includes(value as T) ? (value as T) : undefined
-}
+/** Leitura de cada parâmetro da URL (os mesmos codificadores de `useSearchParam`) */
+const NUMBER = numberCodec()
+const TAB = enumCodec(TABS, DEFAULT_PARAMS.tab)
+const SORT = enumCodec<PlayerSort>(
+  SORT_OPTIONS.map((o) => o.value),
+  DEFAULT_PARAMS.sort,
+)
+const POSITION = enumCodec(Object.keys(POSITION_LABEL) as Position[])
+const CONDITION = enumCodec(Object.keys(CONDITION_BY_VALUE) as Condition[])
 
 /**
  * Lê a URL ignorando valores inválidos (a URL pode ter sido editada à mão).
  * "Livres" e filtro por clube não se combinam (a API devolve 400): na aba Livres o clube é descartado.
  */
 export function parsePlayersParams(sp: URLSearchParams): PlayersParams {
-  const page = toNumber(sp.get('page'))
-  const tab = oneOf(sp.get('tab'), TABS) ?? DEFAULT_PARAMS.tab
+  const page = NUMBER.parse(sp.get('page'))
+  const tab = TAB.parse(sp.get('tab'))
   return {
     search: sp.get('search') ?? '',
-    position: oneOf<Position>(sp.get('position'), Object.keys(POSITION_LABEL) as Position[]),
-    condition: oneOf<Condition>(
-      sp.get('condition'),
-      Object.keys(CONDITION_BY_VALUE) as Condition[],
-    ),
-    clubId: tab === 'free' ? undefined : toNumber(sp.get('club')),
-    minAge: toNumber(sp.get('min_age')),
-    maxAge: toNumber(sp.get('max_age')),
-    minValue: toNumber(sp.get('min_value')),
-    maxValue: toNumber(sp.get('max_value')),
+    position: POSITION.parse(sp.get('position')),
+    condition: CONDITION.parse(sp.get('condition')),
+    clubId: tab === 'free' ? undefined : NUMBER.parse(sp.get('club')),
+    minAge: NUMBER.parse(sp.get('min_age')),
+    maxAge: NUMBER.parse(sp.get('max_age')),
+    minValue: NUMBER.parse(sp.get('min_value')),
+    maxValue: NUMBER.parse(sp.get('max_value')),
     tab,
-    sort:
-      oneOf<PlayerSort>(
-        sp.get('sort'),
-        SORT_OPTIONS.map((o) => o.value),
-      ) ?? DEFAULT_PARAMS.sort,
+    sort: SORT.parse(sp.get('sort')),
     page: page && page >= 1 ? Math.floor(page) : 1,
   }
 }
@@ -71,8 +65,8 @@ export function toSearchParams(params: PlayersParams) {
     ['max_age', params.maxAge],
     ['min_value', params.minValue],
     ['max_value', params.maxValue],
-    ['tab', params.tab === DEFAULT_PARAMS.tab ? undefined : params.tab],
-    ['sort', params.sort === DEFAULT_PARAMS.sort ? undefined : params.sort],
+    ['tab', TAB.format(params.tab)],
+    ['sort', SORT.format(params.sort)],
     ['page', params.page === 1 ? undefined : params.page],
   ]
   const sp = new URLSearchParams()

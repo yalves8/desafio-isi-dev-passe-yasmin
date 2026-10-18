@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { TableCell, TableRow } from '@/components/ui/table'
+import { ATTRIBUTE_LABEL } from '@/modules/league'
 import { ConditionBadge } from '@/modules/players'
 import { SECTORS } from '../../clubs.constants'
 import type { LineupSlotsProps } from './lineup-slots.types'
@@ -19,10 +20,14 @@ const COLUMNS: DataTableColumn[] = [
   { label: 'Titular' },
   { label: 'Condição' },
   { label: 'Overall', numeric: true },
+  { label: 'Atributos usados' },
 ]
 
-/** Uma linha por vaga: titular escolhido, condição e overall devolvidos pela API */
-export function LineupSlots({ rows, onSelect }: LineupSlotsProps) {
+/**
+ * Uma linha por vaga: titular escolhido, condição, overall e os atributos que ele usa na partida.
+ * Quem ataca ou defende em cada vaga e o valor de cada atributo vêm da API (RN20).
+ */
+export function LineupSlots({ rows, duelRoles, onSelect }: LineupSlotsProps) {
   // Setor com mais de uma vaga leva o número no nome ("Defesa 2"), para cada vaga ter nome único
   const repeated = (sector: string) => rows.filter((r) => r.slot.sector === sector).length > 1
   return (
@@ -32,6 +37,7 @@ export function LineupSlots({ rows, onSelect }: LineupSlotsProps) {
       rowKey={(row) => row.slot.key}
       empty={{ icon: Shirt, title: 'Nenhuma vaga na formação' }}
       renderRow={({ slot, player, candidates, error }) => {
+        const roles = duelRoles[rows.findIndex((r) => r.slot.key === slot.key)] ?? []
         const sector = SECTORS[slot.sector]
         const id = `slot-${slot.key}`
         const number = repeated(slot.sector) ? slot.key.split('-')[1] : undefined
@@ -81,8 +87,25 @@ export function LineupSlots({ rows, onSelect }: LineupSlotsProps) {
               </div>
             </TableCell>
             <TableCell>{player && <ConditionBadge condition={player.condition} />}</TableCell>
-            <TableCell className="pr-4 text-right font-semibold tabular-nums">
+            <TableCell className="text-right font-semibold tabular-nums">
               {player?.overall}
+            </TableCell>
+            <TableCell className="pr-4">
+              {player?.duel && (
+                <span data-testid="duel-attributes" className="flex gap-4 tabular-nums">
+                  {roles.map((role) => {
+                    const { attribute, value } = player.duel![role]
+                    return (
+                      <span key={role}>
+                        <span className="text-muted-foreground">
+                          {ATTRIBUTE_LABEL[attribute].long}
+                        </span>{' '}
+                        <span className="font-semibold">{value}</span>
+                      </span>
+                    )
+                  })}
+                </span>
+              )}
             </TableCell>
           </TableRow>
         )

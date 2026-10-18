@@ -43,7 +43,14 @@ export function squadPlayerFixture(overrides: Partial<Player> = {}): Player {
 }
 
 export function lineupFixture(overrides: Partial<Lineup> = {}): Lineup {
-  return { club_id: 1, formation: null, complete: false, players: [], ...overrides }
+  return {
+    club_id: 1,
+    formation: null,
+    complete: false,
+    players: [],
+    duel_roles: [['defense'], ['defense'], ['attack', 'defense'], ['attack'], ['attack']],
+    ...overrides,
+  }
 }
 
 export function transactionsFixture(

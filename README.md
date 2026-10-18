@@ -106,7 +106,7 @@ Apresenta a liga sobre um campo de futebol, com números da liga (jogadores, liv
 - **Novo clube**: valida nome e sigla antes de enviar (3 letras do nome, nessa ordem, começando pela inicial). Nome ou sigla repetidos e o limite de 20 clubes chegam como `409` e aparecem dentro do diálogo. O "+" da sidebar abre o mesmo diálogo (`/clubes?novo=1`).
 - **Detalhe do clube**: caixa, valor do elenco, patrimônio e lotação do elenco, como a API calcula. A trilha mostra o nome do clube.
   - **Elenco**: ordem da RN11, com valor de compra, fim da fidelidade, dias restantes e % de multa de cada contrato. **Vender** pede confirmação e mostra o resultado devolvido pela API (multa, lucro, comissão, crédito e novo caixa).
-  - **Escalação**: formação (3-1, 2-2, 2-1-1 ou 1-2-1), um titular por vaga (sem jogador `DOENTE`), com a condição e o overall devolvidos pela API, prévia no campo e reservas. Salvar com vaga vazia não envia nada: a mensagem aparece junto a cada vaga sem titular. Mostra quando a escalação está incompleta e por quê, avisa sobre titulares mal condicionados e exibe a recusa da API (`409`) no próprio card, recarregando o que ficou gravado.
+  - **Escalação**: formação (3-1, 2-2, 2-1-1 ou 1-2-1), um titular por vaga (sem jogador `DOENTE`), com a condição, o overall e os atributos usados na partida devolvidos pela API, prévia no campo e reservas (o doente aparece esmaecido). Salvar com vaga vazia não envia nada: a mensagem aparece junto a cada vaga sem titular. Mostra quando a escalação está incompleta e por quê, avisa sobre titulares mal condicionados e exibe a recusa da API (`409`) no próprio card, recarregando o que ficou gravado.
   - **Histórico**: compras e vendas da mais recente para a mais antiga, com o nome e os valores do momento; filtro por tipo (Compra e/ou Venda) e por jogador; totais do `summary` no rodapé; exportação CSV com os mesmos filtros. Filtro recusado pela API (ex.: jogador excluído depois de a tela abrir) aparece no próprio card.
 - **Comprar jogadores** e **Ver jogadores livres** levam para a aba "Livres" da tela de jogadores.
 
@@ -138,8 +138,8 @@ Prefixo `/api/v1`, exceto `/health`. A documentação completa está no Swagger 
 | DELETE | `/players/:id` | Exclusão lógica; só para jogador livre (409 se tiver clube) |
 | POST | `/clubs` | Cadastra clube (nome e sigla de 3 letras) |
 | GET | `/clubs` | Lista clubes. Query: `sort` (`name`, `net_worth_asc`, `net_worth_desc`) |
-| GET | `/clubs/:id` | Detalhe do clube com elenco |
-| GET | `/clubs/:id/lineup` | Escalação atual: formação, `complete` e titulares na ordem do elenco (RN19) |
+| GET | `/clubs/:id` | Detalhe do clube com elenco; cada jogador traz `duel` (atributo de ataque e de defesa, bruto e com o efeito da condição, RN20) |
+| GET | `/clubs/:id/lineup` | Escalação atual: formação, `complete`, titulares na ordem do elenco (RN19) e `duel_roles`, o papel de cada vaga nos duelos (RN20) |
 | PUT | `/clubs/:id/lineup` | Substitui a escalação: `formation` e os 5 `player_ids` (1 GOL e os setores da formação; sem `DOENTE`) |
 | POST | `/matches` | Joga a partida na hora entre `home_club_id` e `away_club_id` (os dois com escalação completa) e grava placar, formações e os 6 duelos; `201` com `Location` (RN20) |
 | GET | `/matches` | Partidas da mais recente para a mais antiga, sem duelos. Query: `club_id` (mandante ou visitante) (RN21) |

@@ -1,5 +1,10 @@
-import { Condition } from '../../../domain/market-value.js';
-import { Position } from '../../../domain/player-rating.js';
+import {
+  ContractRow,
+  contractFromRow,
+} from '../../../contracts/infrastructure/mappers/contract.mapper.js';
+import { Condition } from '../../../domain/condition.js';
+import { Money } from '../../../domain/money.js';
+import { Position } from '../../../domain/position.js';
 import { PlayerEntity } from '../../domain/entities/player.entity.js';
 
 /**
@@ -25,6 +30,8 @@ interface PlayerRow {
   potencial: number;
   excluido_em: Date | null;
   criado_em: Date;
+  /** Contratos ativos, quando a consulta os incluir; o primeiro vira o contrato ativo. */
+  contratos?: ContractRow[];
 }
 
 /**
@@ -34,16 +41,16 @@ interface PlayerRow {
  * @returns {PlayerEntity} Entidade de domínio.
  */
 export function playerFromRow(raw: PlayerRow): PlayerEntity {
-  return new PlayerEntity(
-    raw.id,
-    raw.nome,
-    raw.posicao as Position,
-    raw.agilidade,
-    raw.idade,
-    Number(raw.valor_base),
-    raw.condicao as Condition,
-    raw.clube_id,
-    {
+  return PlayerEntity.restore({
+    id: raw.id,
+    name: raw.nome,
+    position: raw.posicao as Position,
+    agility: raw.agilidade,
+    age: raw.idade,
+    baseValue: Money.fromDecimal(raw.valor_base),
+    condition: raw.condicao as Condition,
+    clubId: raw.clube_id,
+    attributes: {
       pace: raw.velocidade,
       shooting: raw.finalizacao,
       passing: raw.passe,
@@ -51,8 +58,11 @@ export function playerFromRow(raw: PlayerRow): PlayerEntity {
       defending: raw.defesa,
       physical: raw.fisico,
     },
-    raw.potencial,
-    raw.excluido_em,
-    raw.criado_em,
-  );
+    potential: raw.potencial,
+    deletedAt: raw.excluido_em,
+    createdAt: raw.criado_em,
+    activeContract: raw.contratos?.[0]
+      ? contractFromRow(raw.contratos[0])
+      : null,
+  });
 }

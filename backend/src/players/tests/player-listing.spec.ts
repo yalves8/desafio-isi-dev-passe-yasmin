@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   comparePlayers,
+  isPlayerSortCriteria,
   isWithinValueRange,
   ListedPlayer,
   matchesSearch,
   paginate,
+  PLAYER_SORTS,
 } from '../domain/player-listing.js';
 
 const player = (
@@ -79,4 +81,27 @@ describe('listagem de jogadores (RN07)', () => {
       expect(result.totalPages).toBe(pages);
     },
   );
+});
+
+describe('critérios de ordenação de jogadores (fonte única)', () => {
+  it('lista os seis critérios aceitos e o campo base de cada um', () => {
+    expect(
+      Object.fromEntries(
+        Object.entries(PLAYER_SORTS).map(([key, sort]) => [key, sort.field]),
+      ),
+    ).toEqual({
+      name: 'name',
+      value_asc: 'value',
+      value_desc: 'value',
+      age_asc: 'age',
+      age_desc: 'age',
+      position: 'position',
+    });
+  });
+
+  it('reconhece só as chaves próprias do mapa', () => {
+    expect(isPlayerSortCriteria('value_desc')).toBe(true);
+    expect(isPlayerSortCriteria('value')).toBe(false);
+    expect(isPlayerSortCriteria('toString')).toBe(false);
+  });
 });

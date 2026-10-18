@@ -1,4 +1,4 @@
-import { Condition } from '../../../../domain/market-value.js';
+import { Condition } from '../../../../domain/condition.js';
 
 /**
  * Dados de entrada para o caso de uso de alteração de condição física.

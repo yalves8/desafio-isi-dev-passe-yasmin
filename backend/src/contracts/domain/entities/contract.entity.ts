@@ -1,5 +1,8 @@
-import { toCents } from '../../../domain/money.js';
-import { loyaltyPenalty, Penalty } from '../../../domain/trade.js';
+import { Money } from '../../../domain/money.js';
+import { ContractEnd, loyaltyPenalty, Penalty } from '../../../domain/trade.js';
+
+/** Situação do contrato: `ATIVO` até a venda, que o encerra ou rescinde (RN15) */
+export type ContractStatus = 'ATIVO' | ContractEnd;
 
 /**
  * Entidade rica de domínio representando o Contrato de um jogador com um clube (DDD).
@@ -16,9 +19,9 @@ export class ContractEntity {
    * @param {number} id - Identificador único do contrato.
    * @param {number} playerId - Identificador do jogador contratado.
    * @param {number} clubId - Identificador do clube contratante.
-   * @param {number} purchaseValue - Valor de aquisição do atleta na transação.
+   * @param {Money} purchaseValue - Valor de aquisição do atleta na transação.
    * @param {Date} loyaltyUntil - Data limite do período de fidelidade.
-   * @param {'ATIVO' | 'ENCERRADO'} [status='ATIVO'] - Situação do contrato.
+   * @param {ContractStatus} [status='ATIVO'] - Situação do contrato.
    * @param {Date} [startedAt=new Date()] - Data de início do contrato.
    * @param {Date | null} [endedAt=null] - Data de encerramento, se finalizado.
    */
@@ -26,9 +29,9 @@ export class ContractEntity {
     public readonly id: number,
     public readonly playerId: number,
     public readonly clubId: number,
-    public readonly purchaseValue: number,
+    public readonly purchaseValue: Money,
     public readonly loyaltyUntil: Date,
-    public readonly status: 'ATIVO' | 'ENCERRADO' = 'ATIVO',
+    public readonly status: ContractStatus = 'ATIVO',
     public readonly startedAt: Date = new Date(),
     public readonly endedAt: Date | null = null,
   ) {}
@@ -36,15 +39,11 @@ export class ContractEntity {
   /**
    * Calcula a multa rescisória e dias restantes de fidelidade (RN15).
    *
-   * @param {number} marketValue - Valor de mercado atual do atleta em moedas.
+   * @param {Money} marketValue - Valor de mercado atual do atleta.
    * @param {Date} [now=new Date()] - Data de referência do cálculo.
    * @returns {Penalty} Detalhes da multa calculada (dias restantes, percentual e valor em centavos).
    */
-  public calculatePenalty(
-    marketValue: number,
-    now: Date = new Date(),
-  ): Penalty {
-    const mvCents = toCents(marketValue);
-    return loyaltyPenalty(mvCents, this.loyaltyUntil, now);
+  public calculatePenalty(marketValue: Money, now: Date = new Date()): Penalty {
+    return loyaltyPenalty(marketValue.cents, this.loyaltyUntil, now);
   }
 }

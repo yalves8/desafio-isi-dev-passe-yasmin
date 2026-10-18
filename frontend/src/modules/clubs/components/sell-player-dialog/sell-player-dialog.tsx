@@ -1,4 +1,4 @@
-import { HandCoins, Loader2 } from 'lucide-react'
+import { HandCoins, Loader2, RefreshCw } from 'lucide-react'
 import { InfoList } from '@/components/data-display/info-list/info-list'
 import { ActionDialog } from '@/components/feedback/action-dialog/action-dialog'
 import { AlertMessage } from '@/components/feedback/alert-message/alert-message'
@@ -22,6 +22,8 @@ export function SellPlayerDialog({
   onConfirm,
 }: SellPlayerDialogProps) {
   const contract = player.contract
+  // Sem resposta da API a venda pode não ter acontecido: o botão vira "Tentar de novo"
+  const retry = error?.kind === 'network'
   return (
     <ActionDialog
       title={`Vender ${player.name}?`}
@@ -29,15 +31,21 @@ export function SellPlayerDialog({
       busy={isSelling}
       onClose={onClose}
       confirm={{
-        label: 'Confirmar venda',
+        label: retry ? 'Tentar de novo' : 'Confirmar venda',
         busyLabel: 'Vendendo…',
-        icon: isSelling ? <Loader2 className="animate-spin" /> : <HandCoins />,
+        icon: isSelling ? (
+          <Loader2 className="animate-spin" />
+        ) : retry ? (
+          <RefreshCw />
+        ) : (
+          <HandCoins />
+        ),
         onClick: onConfirm,
       }}
     >
       {error ? (
-        <AlertMessage variant="error" title="A venda foi recusada">
-          {error}
+        <AlertMessage variant="error" title={retry ? 'Sem conexão' : 'A venda foi recusada'}>
+          {error.message}
         </AlertMessage>
       ) : (
         isStarter && (

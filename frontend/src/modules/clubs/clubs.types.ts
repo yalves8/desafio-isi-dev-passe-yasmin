@@ -1,9 +1,10 @@
 import type { Player } from '@/api/types'
+import type { Sector } from '@/modules/players'
 
 export type ClubDetailsTab = 'squad' | 'lineup' | 'history'
 
 /** Setores da escalação: goleiro, defesa (ZAG/LAT), meio (MEI) e ataque (ATA) */
-export type LineupSector = 'GK' | 'DEF' | 'MID' | 'ATT'
+export type LineupSector = Sector
 
 export interface LineupSlot {
   /** Ex.: "DEF-1" */

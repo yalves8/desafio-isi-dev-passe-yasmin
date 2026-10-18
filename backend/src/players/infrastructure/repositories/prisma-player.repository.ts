@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service.js';
-import { Position } from '../../../domain/player-rating.js';
+import { CONDITION_RULES } from '../../../domain/condition.js';
 import {
   IPlayerRepository,
   PlayerFilterCriteria,
 } from '../../application/interfaces/repositories/player.repository.interface.js';
 import {
+  NewPlayer,
   PlayerEntity,
-  PlayerTechnicalAttributes,
 } from '../../domain/entities/player.entity.js';
 import { playerFromRow } from '../mappers/player.mapper.js';
 
@@ -44,36 +44,28 @@ export class PrismaPlayerRepository implements IPlayerRepository {
   }
 
   /**
-   * Cria um novo atleta na base de dados.
+   * Grava um atleta novo na base de dados.
    *
-   * @param {Object} data - Dados cadastrais e atributos.
+   * @param {NewPlayer} player - Jogador novo, com o valor base calculado no cadastro (RN06).
    * @returns {Promise<PlayerEntity>} Entidade persistida.
    */
-  async create(data: {
-    name: string;
-    position: Position;
-    agility: number;
-    age: number;
-    baseValue: number;
-    attributes: PlayerTechnicalAttributes;
-    potential: number;
-  }): Promise<PlayerEntity> {
+  async create(player: NewPlayer): Promise<PlayerEntity> {
     const created = await this.prisma.jogador.create({
       data: {
-        nome: data.name,
-        posicao: data.position,
-        agilidade: data.agility,
-        idade: data.age,
-        valor_base: data.baseValue,
-        condicao: 'APTO',
-        clube_id: null,
-        velocidade: data.attributes.pace,
-        finalizacao: data.attributes.shooting,
-        passe: data.attributes.passing,
-        drible: data.attributes.dribbling,
-        defesa: data.attributes.defending,
-        fisico: data.attributes.physical,
-        potencial: data.potential,
+        nome: player.name,
+        posicao: player.position,
+        agilidade: player.agility,
+        idade: player.age,
+        valor_base: player.baseValue.toDecimalString(),
+        condicao: player.condition,
+        clube_id: player.clubId,
+        velocidade: player.attributes.pace,
+        finalizacao: player.attributes.shooting,
+        passe: player.attributes.passing,
+        drible: player.attributes.dribbling,
+        defesa: player.attributes.defending,
+        fisico: player.attributes.physical,
+        potencial: player.potential,
       },
     });
 
@@ -110,13 +102,13 @@ export class PrismaPlayerRepository implements IPlayerRepository {
   async updateCondition(player: PlayerEntity): Promise<PlayerEntity> {
     const newCondition = player.getCondition();
 
-    if (newCondition === 'DOENTE') {
+    if (CONDITION_RULES[newCondition].leavesLineup) {
       // Atualiza o jogador antes de tirá-lo da escalação: o UPDATE espera a trava de uma troca
       // de escalação em andamento, e a remoção já enxerga o titular que ela gravou
       const updated = await this.prisma.$transaction(async (tx) => {
         const row = await tx.jogador.update({
           where: { id: player.id },
-          data: { condicao: 'DOENTE' },
+          data: { condicao: newCondition },
         });
         await tx.escalacao.deleteMany({
           where: { jogador_id: player.id },

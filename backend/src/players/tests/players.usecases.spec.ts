@@ -8,7 +8,17 @@ import { DeletePlayerUseCase } from '../application/usecases/delete-player/delet
 import { FindPlayerByIdUseCase } from '../application/usecases/find-player-by-id/find-player-by-id.usecase.js';
 import { UpdatePlayerConditionUseCase } from '../application/usecases/update-player-condition/update-player-condition.usecase.js';
 import { UpdatePlayerUseCase } from '../application/usecases/update-player/update-player.usecase.js';
-import { PlayerEntity } from '../domain/entities/player.entity.js';
+import { Money } from '../../domain/money.js';
+import { aPlayer } from './player.builder.js';
+
+const MEIA_LUA_ATTRIBUTES = {
+  pace: 70,
+  shooting: 68,
+  passing: 82,
+  dribbling: 79,
+  defending: 55,
+  physical: 64,
+};
 
 describe('Player Use Cases (Clean Architecture)', () => {
   let repositoryMock: any;
@@ -64,25 +74,14 @@ describe('Player Use Cases (Clean Architecture)', () => {
       };
 
       repositoryMock.create.mockResolvedValue(
-        new PlayerEntity(
-          2,
-          'Meia Lua',
-          'MEI',
-          85,
-          25,
-          40.0,
-          'APTO',
-          null,
-          {
-            pace: 70,
-            shooting: 68,
-            passing: 82,
-            dribbling: 79,
-            defending: 55,
-            physical: 64,
-          },
-          86,
-        ),
+        aPlayer()
+          .withId(2)
+          .withName('Meia Lua')
+          .withAgility(85)
+          .withBaseValue(40)
+          .withAttributes(MEIA_LUA_ATTRIBUTES)
+          .withPotential(86)
+          .build(),
       );
 
       const result = await createPlayerUseCase.execute(input);
@@ -92,46 +91,28 @@ describe('Player Use Cases (Clean Architecture)', () => {
         position: 'MEI',
         agility: 85,
         age: 25,
-        baseValue: 40.0,
-        attributes: {
-          pace: 70,
-          shooting: 68,
-          passing: 82,
-          dribbling: 79,
-          defending: 55,
-          physical: 64,
-        },
+        baseValue: Money.fromDecimal('40.00'),
+        condition: 'APTO',
+        clubId: null,
+        attributes: MEIA_LUA_ATTRIBUTES,
         potential: 86,
       });
       expect(result.id).toBe(2);
       expect(result.calculateOverall()).toBe(75);
-      expect(result.baseValue).toBe(40.0);
-      expect(result.calculateMarketValue()).toBe(40.0);
+      expect(result.baseValue).toEqual(Money.fromDecimal('40.00'));
+      expect(result.calculateMarketValue()).toEqual(Money.fromDecimal('40.00'));
     });
   });
 
   describe('UpdatePlayerUseCase', () => {
     it('deve impedir mudança de posição de jogador com clube (409)', async () => {
       repositoryMock.findById.mockResolvedValue(
-        new PlayerEntity(
-          4,
-          'Jogador Teste',
-          'MEI',
-          70,
-          23,
-          30.0,
-          'APTO',
-          1, // Vinculado a clube
-          {
-            pace: 70,
-            shooting: 70,
-            passing: 70,
-            dribbling: 70,
-            defending: 70,
-            physical: 70,
-          },
-          80,
-        ),
+        aPlayer()
+          .withId(4)
+          .withName('Jogador Teste')
+          .withAge(23)
+          .withClub(1) // Vinculado a clube
+          .build(),
       );
 
       await expect(
@@ -149,25 +130,11 @@ describe('Player Use Cases (Clean Architecture)', () => {
   describe('UpdatePlayerConditionUseCase', () => {
     it('deve impedir transição direta de DOENTE para APTO (409)', async () => {
       repositoryMock.findById.mockResolvedValue(
-        new PlayerEntity(
-          2,
-          'Meia Lua',
-          'MEI',
-          85,
-          25,
-          40.0,
-          'DOENTE',
-          null,
-          {
-            pace: 70,
-            shooting: 68,
-            passing: 82,
-            dribbling: 79,
-            defending: 55,
-            physical: 64,
-          },
-          86,
-        ),
+        aPlayer()
+          .withId(2)
+          .withName('Meia Lua')
+          .withCondition('DOENTE')
+          .build(),
       );
 
       await expect(
@@ -179,25 +146,7 @@ describe('Player Use Cases (Clean Architecture)', () => {
   describe('DeletePlayerUseCase', () => {
     it('deve impedir exclusão de jogador pertencente a um clube (409)', async () => {
       repositoryMock.findById.mockResolvedValue(
-        new PlayerEntity(
-          2,
-          'Meia Lua',
-          'MEI',
-          85,
-          25,
-          40.0,
-          'APTO',
-          1, // Tem clube
-          {
-            pace: 70,
-            shooting: 68,
-            passing: 82,
-            dribbling: 79,
-            defending: 55,
-            physical: 64,
-          },
-          86,
-        ),
+        aPlayer().withId(2).withName('Meia Lua').withClub(1).build(), // Tem clube
       );
 
       await expect(deletePlayerUseCase.execute({ id: 2 })).rejects.toThrow(

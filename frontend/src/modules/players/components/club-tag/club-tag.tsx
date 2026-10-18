@@ -17,7 +17,8 @@ export function ClubTag({ club, variant = 'link' }: ClubTagProps) {
       {acronym}
       <Link
         to={`/clubes/${club.id}`}
-        className="text-sm underline underline-offset-4 hover:text-primary"
+        className="max-w-36 truncate text-sm underline underline-offset-4 hover:text-primary"
+        title={club.name}
       >
         {club.name}
       </Link>

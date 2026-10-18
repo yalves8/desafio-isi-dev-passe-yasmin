@@ -4,7 +4,8 @@ import {
   ValidationError,
 } from '../../common/errors/domain.errors.js';
 import { addDays } from '../../common/utils/date.js';
-import { PlayerEntity } from '../../players/domain/entities/player.entity.js';
+import { Money } from '../../domain/money.js';
+import { aPlayer } from '../../players/tests/player.builder.js';
 import {
   ITransferRepository,
   PurchaseRecord,
@@ -25,26 +26,16 @@ const LOYALTY = new Date('2027-03-02T10:15:00-03:00');
 
 /** Jogador com o valor de mercado do caso; o cálculo do valor tem testes próprios (RN05) */
 function player(marketValue: number, clubId: number | null = null) {
-  const entity = new PlayerEntity(
-    2,
-    'Meia Lua',
-    'MEI',
-    85,
-    25,
-    marketValue,
-    'APTO',
-    clubId,
-    {
-      pace: 70,
-      shooting: 68,
-      passing: 82,
-      dribbling: 79,
-      defending: 55,
-      physical: 66,
-    },
-    86,
+  const entity = aPlayer()
+    .withId(2)
+    .withName('Meia Lua')
+    .withAgility(85)
+    .withBaseValue(marketValue)
+    .withClub(clubId)
+    .build();
+  vi.spyOn(entity, 'calculateMarketValue').mockReturnValue(
+    Money.fromDecimal(marketValue),
   );
-  vi.spyOn(entity, 'calculateMarketValue').mockReturnValue(marketValue);
   return entity;
 }
 
@@ -86,6 +77,9 @@ function buy(current: PurchaseState, loyaltyUntil = LOYALTY) {
 describe('BuyPlayerUseCase', () => {
   it('deve comprar pelo valor de mercado com taxa e devolver contrato e novo caixa (2.3.1)', async () => {
     const { repository, result } = buy(state());
+
+    // A variação de caixa da compra vem calculada na decisão: uma fonte só para gravar e responder
+    expect((await result).cashChange).toBe(-3885);
 
     // Caso de uso + presenter: a resposta inteira do exemplo 2.3.1
     expect(toPurchaseResponse(await result)).toEqual({

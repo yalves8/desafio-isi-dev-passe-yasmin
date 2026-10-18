@@ -31,6 +31,8 @@ export interface PurchaseRecord {
   clubId: number;
   value: Cents;
   fee: Cents;
+  /** Variação do caixa gravada na transação: −(valor + taxa) */
+  cashChange: Cents;
   newCash: Cents;
   loyaltyUntil: Date;
   now: Date;

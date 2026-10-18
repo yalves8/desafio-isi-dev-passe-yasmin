@@ -1,35 +1,24 @@
-import { useMemo } from 'react'
-import { useNavigate, useSearchParams } from 'react-router'
+import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
-import { clubsService } from '@/api/clubs.service'
 import { matchesService } from '@/api/matches.service'
 import type { Match } from '@/api/types'
 import { useFetch } from '@/hooks/use-fetch'
+import { useLeagueClubs } from '@/hooks/use-league-clubs'
 import { useLeagueData } from '@/hooks/use-league-data'
+import { useSearchParam } from '@/hooks/use-search-param'
+import { flagCodec, intCodec } from '@/lib/search-params'
 import { matchTitle } from '../../league.utils'
+
+const CLUB_ID_CODEC = intCodec({ min: 1 })
 
 /** Filtro por clube e diálogo "Nova partida" ficam na URL (?clube=1, ?nova=1) */
 export function useMatchesPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const { version, refresh } = useLeagueData()
-  const rawClub = Number(searchParams.get('clube'))
-  const clubId = Number.isInteger(rawClub) && rawClub > 0 ? rawClub : undefined
-  const isCreating = searchParams.get('nova') === '1'
+  const [clubId, setClubId] = useSearchParam('clube', CLUB_ID_CODEC)
+  const [isCreating, setCreating] = useSearchParam('nova', flagCodec)
 
-  const setParam = (key: string, value?: string) =>
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev)
-      if (value === undefined) next.delete(key)
-      else next.set(key, value)
-      return next
-    })
-
-  const clubs = useFetch(`clubs:${version}`, () => clubsService.list('name'), {
-    keepPreviousData: true,
-  })
-  const clubList = useMemo(() => clubs.data ?? [], [clubs.data])
-  const clubsById = useMemo(() => new Map(clubList.map((c) => [c.id, c])), [clubList])
+  const { list: clubList, byId: clubsById } = useLeagueClubs()
 
   // A última partida é sempre a mais recente da liga, sem o filtro da tabela
   const latest = useFetch(`matches-all:${version}`, () => matchesService.list(), {
@@ -42,7 +31,7 @@ export function useMatchesPage() {
   )
 
   return {
-    header: { onCreate: () => setParam('nova', '1') },
+    header: { onCreate: () => setCreating(true) },
     clubsById,
     latest: {
       match: latest.data?.[0],
@@ -59,13 +48,13 @@ export function useMatchesPage() {
       filter: {
         clubId,
         clubs: clubList,
-        onChange: (id?: number) => setParam('clube', id === undefined ? undefined : String(id)),
+        onChange: (id?: number) => setClubId(id),
       },
     },
     dialog: {
       open: isCreating,
       clubs: clubList,
-      close: () => setParam('nova'),
+      close: () => setCreating(false),
       onPlayed: (match: Match) => {
         refresh()
         toast.success('Partida jogada', {

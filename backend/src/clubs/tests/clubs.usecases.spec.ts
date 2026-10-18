@@ -3,12 +3,15 @@ import {
   NotFoundError,
 } from '../../common/errors/domain.errors.js';
 import { ContractEntity } from '../../contracts/domain/entities/contract.entity.js';
-import { PlayerEntity } from '../../players/domain/entities/player.entity.js';
+import { Money } from '../../domain/money.js';
+import { aPlayer } from '../../players/tests/player.builder.js';
 import { IClubRepository } from '../application/interfaces/repositories/club.repository.interface.js';
 import { CreateClubUseCase } from '../application/usecases/create-club/create-club.usecase.js';
 import { FindClubByIdUseCase } from '../application/usecases/find-club-by-id/find-club-by-id.usecase.js';
 import { FindClubsUseCase } from '../application/usecases/find-clubs/find-clubs.usecase.js';
 import { ClubEntity } from '../domain/entities/club.entity.js';
+
+const CASH_300 = Money.fromDecimal('300.00');
 
 describe('Club Use Cases (Clean Architecture)', () => {
   let repositoryMock: any;
@@ -41,7 +44,7 @@ describe('Club Use Cases (Clean Architecture)', () => {
       repositoryMock.findByNormalizedName.mockResolvedValue(null);
       repositoryMock.findByAcronym.mockResolvedValue(null);
       repositoryMock.create.mockResolvedValue(
-        new ClubEntity(1, 'Águias FC', 'águias fc', 'AGU', 300.0),
+        new ClubEntity(1, 'Águias FC', 'águias fc', 'AGU', CASH_300),
       );
 
       const result = await createClubUseCase.execute({
@@ -53,11 +56,11 @@ describe('Club Use Cases (Clean Architecture)', () => {
         name: 'Águias FC',
         normalizedName: 'águias fc',
         acronym: 'AGU',
-        cash: 300.0,
+        cash: CASH_300,
       });
-      expect(result.cash).toBe(300.0);
-      expect(result.squadValue).toBe(0.0);
-      expect(result.netWorth).toBe(300.0);
+      expect(result.cash).toEqual(CASH_300);
+      expect(result.squadValue).toEqual(Money.ZERO);
+      expect(result.netWorth).toEqual(CASH_300);
     });
 
     it('deve recusar a criação do 21º clube na liga (409)', async () => {
@@ -71,7 +74,7 @@ describe('Club Use Cases (Clean Architecture)', () => {
     it('deve recusar clube com nome repetido ignorando maiúsculas e minúsculas (RN10)', async () => {
       repositoryMock.count.mockResolvedValue(5);
       repositoryMock.findByNormalizedName.mockResolvedValue(
-        new ClubEntity(1, 'Águias FC', 'águias fc', 'AGU', 300.0),
+        new ClubEntity(1, 'Águias FC', 'águias fc', 'AGU', CASH_300),
       );
 
       await expect(
@@ -88,7 +91,7 @@ describe('Club Use Cases (Clean Architecture)', () => {
           'América Grandioso United',
           'américa grandioso united',
           'AGU',
-          300.0,
+          CASH_300,
         ),
       );
 
@@ -105,14 +108,14 @@ describe('Club Use Cases (Clean Architecture)', () => {
     it('deve listar clubes calculando patrimônio e ordenando', async () => {
       repositoryMock.findAllWithSquad.mockResolvedValue([
         {
-          club: new ClubEntity(1, 'Águias FC', 'águias fc', 'AGU', 300.0),
+          club: new ClubEntity(1, 'Águias FC', 'águias fc', 'AGU', CASH_300),
           players: [],
         },
       ]);
 
       const result = await findClubsUseCase.execute({ sort: 'name' });
       expect(result).toHaveLength(1);
-      expect(result[0].netWorth).toBe(300.0);
+      expect(result[0].netWorth).toEqual(CASH_300);
     });
   });
 
@@ -125,61 +128,53 @@ describe('Club Use Cases (Clean Architecture)', () => {
     });
 
     it('deve consultar clube com elenco ordenado segundo RN11 e calcular patrimônio e multa', async () => {
-      const club = new ClubEntity(1, 'Águias FC', 'águias fc', 'AGU', 300.0);
+      const club = new ClubEntity(1, 'Águias FC', 'águias fc', 'AGU', CASH_300);
       const contract = new ContractEntity(
         1,
         1,
         1,
-        25.0,
+        Money.fromDecimal('25.00'),
         new Date(Date.now() + 15 * 86400000), // 15 dias -> multa 5%
         'ATIVO',
       );
 
-      const pAtacante = new PlayerEntity(
-        1,
-        'Beto Atacante',
-        'ATA',
-        80,
-        24,
-        25.0,
-        'APTO',
-        1,
-        {
+      const pAtacante = aPlayer()
+        .withId(1)
+        .withName('Beto Atacante')
+        .withPosition('ATA')
+        .withAgility(80)
+        .withAge(24)
+        .withBaseValue(25)
+        .withAttributes({
           pace: 80,
           shooting: 85,
           passing: 70,
           dribbling: 75,
           defending: 30,
           physical: 70,
-        },
-        85,
-        null,
-        new Date(),
-        contract,
-      );
+        })
+        .withPotential(85)
+        .withContract(contract)
+        .build();
 
-      const pGoleiro = new PlayerEntity(
-        2,
-        'Alair Goleiro',
-        'GOL',
-        75,
-        28,
-        20.0,
-        'APTO',
-        1,
-        {
+      const pGoleiro = aPlayer()
+        .withId(2)
+        .withName('Alair Goleiro')
+        .withPosition('GOL')
+        .withAgility(75)
+        .withAge(28)
+        .withBaseValue(20)
+        .withClub(1)
+        .withAttributes({
           pace: 50,
           shooting: 20,
           passing: 60,
           dribbling: 40,
           defending: 85,
           physical: 80,
-        },
-        82,
-        null,
-        new Date(),
-        null,
-      );
+        })
+        .withPotential(82)
+        .build();
 
       repositoryMock.findByIdWithSquad.mockResolvedValue({
         club,
@@ -189,7 +184,7 @@ describe('Club Use Cases (Clean Architecture)', () => {
       const result = await findClubByIdUseCase.execute({ id: 1 });
 
       expect(result.id).toBe(1);
-      expect(result.cash).toBe(300.0);
+      expect(result.cash).toEqual(CASH_300);
       expect(result.squad).toHaveLength(2);
       // GOL deve vir antes de ATA segundo a RN11
       expect(result.squad[0].player.getPosition()).toBe('GOL');
@@ -200,72 +195,33 @@ describe('Club Use Cases (Clean Architecture)', () => {
       expect(result.squad[1].player.getName()).toBe('Beto Atacante');
       expect(result.squad[1].contract).not.toBeNull();
       expect(result.squad[1].contract?.penaltyRate).toBe(5);
+      // Atributos de duelo de cada jogador (RN20), para a tela de escalação só exibir
+      expect(result.squad[0].duel.defense).toEqual({
+        attribute: 'defending',
+        value: 85,
+        matchValue: 85,
+      });
+      expect(result.squad[1].duel.attack.attribute).toBe('shooting');
 
-      expect(result.squadValue).toBeGreaterThan(0);
-      expect(result.netWorth).toBe(result.cash + result.squadValue);
+      expect(result.squadValue.cents).toBeGreaterThan(0);
+      expect(result.netWorth).toEqual(result.cash.plus(result.squadValue));
     });
   });
 
   describe('ClubEntity (Domain)', () => {
     it('deve ordenar o elenco respeitando posição (RN11), nome e ID', () => {
-      const club = new ClubEntity(1, 'FC Teste', 'fc teste', 'FCT', 100.0);
-      const p1 = new PlayerEntity(
+      const club = new ClubEntity(
         1,
-        'Zico',
-        'MEI',
-        80,
-        25,
-        20.0,
-        'APTO',
-        1,
-        {
-          pace: 70,
-          shooting: 70,
-          passing: 70,
-          dribbling: 70,
-          defending: 70,
-          physical: 70,
-        },
-        80,
+        'FC Teste',
+        'fc teste',
+        'FCT',
+        Money.fromDecimal('100.00'),
       );
-      const p2 = new PlayerEntity(
-        2,
-        'Ademir',
-        'MEI',
-        80,
-        25,
-        20.0,
-        'APTO',
-        1,
-        {
-          pace: 70,
-          shooting: 70,
-          passing: 70,
-          dribbling: 70,
-          defending: 70,
-          physical: 70,
-        },
-        80,
-      );
-      const p3 = new PlayerEntity(
-        3,
-        'Barbosa',
-        'GOL',
-        80,
-        25,
-        20.0,
-        'APTO',
-        1,
-        {
-          pace: 70,
-          shooting: 70,
-          passing: 70,
-          dribbling: 70,
-          defending: 70,
-          physical: 70,
-        },
-        80,
-      );
+      const mei = (id: number, name: string) =>
+        aPlayer().withId(id).withName(name).withClub(1);
+      const p1 = mei(1, 'Zico').build();
+      const p2 = mei(2, 'Ademir').build();
+      const p3 = mei(3, 'Barbosa').withPosition('GOL').build();
 
       const sorted = club.sortSquad([p1, p2, p3]);
       expect(sorted.map((p) => p.getName())).toEqual([

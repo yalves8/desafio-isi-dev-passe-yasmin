@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service.js';
-import { Condition } from '../../../domain/market-value.js';
+import { Condition } from '../../../domain/condition.js';
 import { DuelAttribute, matchResult } from '../../../domain/match-engine.js';
-import { Position } from '../../../domain/player-rating.js';
+import { Position } from '../../../domain/position.js';
 import { Formation } from '../../../lineups/domain/formation.js';
-import { playerFromRow } from '../../../players/infrastructure/mappers/player.mapper.js';
+import { readClubLineup } from '../../../lineups/infrastructure/queries/club-lineup.query.js';
 import {
   IMatchRepository,
   MatchRecord,
-  MatchTeamState,
   PlayMatchState,
   StoredMatch,
 } from '../../application/interfaces/repositories/match.repository.interface.js';
@@ -128,30 +127,9 @@ export class PrismaMatchRepository implements IMatchRepository {
       const ids = [homeClubId, awayClubId].sort((a, b) => a - b);
       await tx.$queryRaw`SELECT id FROM clubes WHERE id = ANY(${ids}::int[]) ORDER BY id FOR SHARE`;
 
-      const loadTeam = async (
-        clubId: number,
-      ): Promise<MatchTeamState | null> => {
-        const club = await tx.clube.findUnique({
-          where: { id: clubId },
-          include: {
-            escalacoes: {
-              where: { jogador: { excluido_em: null } },
-              include: { jogador: true },
-            },
-          },
-        });
-        if (!club) return null;
-        return {
-          id: club.id,
-          name: club.nome,
-          formation: (club.formacao as Formation | null) ?? null,
-          starters: club.escalacoes.map((row) => playerFromRow(row.jogador)),
-        };
-      };
-
       const record = play({
-        home: await loadTeam(homeClubId),
-        away: await loadTeam(awayClubId),
+        home: await readClubLineup(tx, homeClubId),
+        away: await readClubLineup(tx, awayClubId),
       });
 
       const created = await tx.partida.create({

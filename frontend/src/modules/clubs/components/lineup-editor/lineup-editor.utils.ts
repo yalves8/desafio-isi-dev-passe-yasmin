@@ -1,13 +1,7 @@
-import type { Formation, Player, Position } from '@/api/types'
+import type { Formation, Player } from '@/api/types'
+import { CONDITION_RULES, POSITION_SECTOR } from '@/modules/players'
 import { DEFAULT_FORMATION, FORMATIONS } from '../../clubs.constants'
 import type { LineupRow, LineupSector, LineupSelection, LineupSlot } from '../../clubs.types'
-
-function sectorOf(position: Position): LineupSector {
-  if (position === 'GOL') return 'GK'
-  if (position === 'ZAG' || position === 'LAT') return 'DEF'
-  if (position === 'MEI') return 'MID'
-  return 'ATT'
-}
 
 /** Vagas da formação: o goleiro e os jogadores de linha de trás para frente */
 export function buildSlots(formation: Formation): LineupSlot[] {
@@ -30,7 +24,7 @@ export function assignPlayers(formation: Formation, players: Player[]): LineupSe
   for (const sector of ['GK', 'DEF', 'MID', 'ATT'] as const) {
     const sectorSlots = slots.filter((s) => s.sector === sector)
     const sectorPlayers = players
-      .filter((p) => sectorOf(p.position) === sector)
+      .filter((p) => POSITION_SECTOR[p.position] === sector)
       .slice(0, sectorSlots.length)
     const offset = sectorSlots.length - sectorPlayers.length
     sectorPlayers.forEach((player, i) => {
@@ -61,8 +55,8 @@ export function buildRows(
     const player = selection[slot.key] === undefined ? undefined : byId.get(selection[slot.key]!)
     const candidates = squad.filter(
       (p) =>
-        sectorOf(p.position) === slot.sector &&
-        p.condition !== 'DOENTE' &&
+        POSITION_SECTOR[p.position] === slot.sector &&
+        CONDITION_RULES[p.condition].canStart &&
         (p.id === player?.id || !chosen.has(p.id)),
     )
     const error =
@@ -77,9 +71,9 @@ export function buildRows(
 
 /** Alguma formação fecha com os jogadores que podem ser escalados (fora os DOENTE)? */
 export function canAnyFormationClose(squad: Player[]) {
-  const available = squad.filter((p) => p.condition !== 'DOENTE')
+  const available = squad.filter((p) => CONDITION_RULES[p.condition].canStart)
   const count = (sector: LineupSector) =>
-    available.filter((p) => sectorOf(p.position) === sector).length
+    available.filter((p) => POSITION_SECTOR[p.position] === sector).length
   if (count('GK') < 1) return false
   return Object.values(FORMATIONS).some(
     (f) => count('DEF') >= f.DEF && count('MID') >= f.MID && count('ATT') >= f.ATT,

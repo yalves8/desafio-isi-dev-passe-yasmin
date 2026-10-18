@@ -1,3 +1,4 @@
+import { DuelValue } from '../../../domain/match-engine.js';
 import { formatBrasiliaDateTime } from '../../../common/utils/date.js';
 import { toPlayerResponse } from '../../../players/presentation/presenters/player.presenter.js';
 import {
@@ -17,21 +18,30 @@ export function toClubResponse(club: ClubSummary): ClubResponse {
     id: club.id,
     name: club.name,
     acronym: club.acronym,
-    cash: club.cash,
-    squad_value: club.squadValue,
-    net_worth: club.netWorth,
+    cash: club.cash.toNumber(),
+    squad_value: club.squadValue.toNumber(),
+    net_worth: club.netWorth.toNumber(),
   };
 }
 
 function toSquadPlayerResponse(
   clubId: number,
-  { player, contract }: SquadMember,
+  { player, contract, duel }: SquadMember,
 ): SquadPlayerResponse {
+  const toDuelValue = ({ attribute, value, matchValue }: DuelValue) => ({
+    attribute,
+    value,
+    match_value: matchValue,
+  });
   return {
     ...toPlayerResponse(player),
     club_id: clubId,
+    duel: {
+      attack: toDuelValue(duel.attack),
+      defense: toDuelValue(duel.defense),
+    },
     contract: contract && {
-      purchase_value: contract.purchaseValue,
+      purchase_value: contract.purchaseValue.toNumber(),
       loyalty_until: formatBrasiliaDateTime(contract.loyaltyUntil),
       remaining_days: contract.remainingDays,
       penalty_rate: contract.penaltyRate,

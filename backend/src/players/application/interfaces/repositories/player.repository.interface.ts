@@ -1,8 +1,8 @@
-import { Condition } from '../../../../domain/market-value.js';
-import { Position } from '../../../../domain/player-rating.js';
+import { Condition } from '../../../../domain/condition.js';
+import { Position } from '../../../../domain/position.js';
 import {
+  NewPlayer,
   PlayerEntity,
-  PlayerTechnicalAttributes,
 } from '../../../domain/entities/player.entity.js';
 
 export interface PlayerFilterCriteria {
@@ -33,20 +33,12 @@ export abstract class IPlayerRepository {
   abstract findById(id: number): Promise<PlayerEntity | null>;
 
   /**
-   * Cria um novo jogador na base de dados.
+   * Grava um jogador novo, já com o valor base calculado (`PlayerEntity.register`).
    *
-   * @param {Object} data - Dados completos para persistência.
+   * @param {NewPlayer} player - Jogador novo, livre e APTO.
    * @returns {Promise<PlayerEntity>} Entidade persistida com ID gerado.
    */
-  abstract create(data: {
-    name: string;
-    position: Position;
-    agility: number;
-    age: number;
-    baseValue: number;
-    attributes: PlayerTechnicalAttributes;
-    potential: number;
-  }): Promise<PlayerEntity>;
+  abstract create(player: NewPlayer): Promise<PlayerEntity>;
 
   /**
    * Atualiza os dados cadastrais (nome, posição, agilidade, idade) do jogador.

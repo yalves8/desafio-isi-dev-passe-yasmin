@@ -1,3 +1,4 @@
+import { CONDITION_RULES } from '../../../../domain/condition.js';
 import {
   ConflictError,
   NotFoundError,
@@ -71,10 +72,12 @@ export class UpdateLineupUseCase {
         `${outsider.getName()} não é do elenco do ${club.name}.`,
       );
     }
-    const sick = starters.find((p) => p.getCondition() === 'DOENTE');
+    const sick = starters.find(
+      (p) => !CONDITION_RULES[p.getCondition()].canStart,
+    );
     if (sick) {
       throw new ConflictError(
-        `${sick.getName()} está DOENTE e não pode ser escalado.`,
+        `${sick.getName()} está ${sick.getCondition()} e não pode ser escalado.`,
       );
     }
     if (

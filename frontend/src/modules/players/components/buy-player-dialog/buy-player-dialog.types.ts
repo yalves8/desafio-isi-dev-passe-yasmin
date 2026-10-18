@@ -7,9 +7,3 @@ export interface BuyPlayerDialogProps {
   onClose: () => void
   onBought: (purchase: PurchaseResult) => void
 }
-
-/** Recusa da API (400/404/409) ou falha de rede, mostrada no próprio diálogo */
-export interface BuyError {
-  kind: 'refused' | 'network'
-  message: string
-}

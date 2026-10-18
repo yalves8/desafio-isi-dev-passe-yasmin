@@ -2,52 +2,31 @@ import {
   ConflictError,
   NotFoundError,
 } from '../../common/errors/domain.errors.js';
-import { Condition } from '../../domain/market-value.js';
-import { Position } from '../../domain/player-rating.js';
-import { PlayerEntity } from '../../players/domain/entities/player.entity.js';
+import { Position } from '../../domain/position.js';
+import { aPlayer } from '../../players/tests/player.builder.js';
 import {
   ILineupRepository,
   LineupChangeState,
   StoredLineup,
 } from '../application/interfaces/repositories/lineup.repository.interface.js';
+import { DUEL_ROLES } from '../../domain/match-engine.js';
 import { GetLineupUseCase } from '../application/usecases/get-lineup/get-lineup.usecase.js';
 import { UpdateLineupUseCase } from '../application/usecases/update-lineup/update-lineup.usecase.js';
 import { fitsFormation, formationRequirement } from '../domain/formation.js';
 import { toLineupResponse } from '../presentation/presenters/lineup.presenter.js';
 
-function player(
-  id: number,
-  name: string,
-  position: Position,
-  { clubId = 1, condition = 'APTO' as Condition } = {},
-) {
-  return new PlayerEntity(
-    id,
-    name,
-    position,
-    70,
-    25,
-    30,
-    condition,
-    clubId,
-    {
-      pace: 60,
-      shooting: 60,
-      passing: 60,
-      dribbling: 60,
-      defending: 60,
-      physical: 60,
-    },
-    80,
-  );
-}
+/** Titular do Águias FC (clube 1) com os valores padrão do builder */
+const starter = (id: number, name: string, position: Position) =>
+  aPlayer().withId(id).withName(name).withPosition(position).withClub(1);
 
 // Titulares do exemplo 2.4.1 (Águias FC, 2-1-1), fora da ordem do elenco
-const OTTO = player(34, 'Otto Rangel', 'ATA');
-const DAVI = player(31, 'Davi Lins', 'LAT', { condition: 'MAL_CONDICIONADO' });
-const RUI = player(30, 'Rui Prado', 'GOL');
-const LAURO = player(33, 'Lauro Neves', 'MEI');
-const TEO = player(32, 'Téo Brandão', 'ZAG');
+const OTTO = starter(34, 'Otto Rangel', 'ATA').build();
+const DAVI = starter(31, 'Davi Lins', 'LAT')
+  .withCondition('MAL_CONDICIONADO')
+  .build();
+const RUI = starter(30, 'Rui Prado', 'GOL').build();
+const LAURO = starter(33, 'Lauro Neves', 'MEI').build();
+const TEO = starter(32, 'Téo Brandão', 'ZAG').build();
 const STARTERS = [OTTO, DAVI, RUI, LAURO, TEO];
 const IDS = [34, 31, 30, 33, 32];
 
@@ -121,6 +100,7 @@ describe('GetLineupUseCase', () => {
     expect(output.clubId).toBe(1);
     expect(output.formation).toBe('2-1-1');
     expect(output.complete).toBe(true);
+    expect(output.duelRoles).toEqual(DUEL_ROLES);
     expect(output.starters.map((p) => p.id)).toEqual([30, 32, 31, 33, 34]);
     expect(output.starters[2].getName()).toBe('Davi Lins');
   });
@@ -158,6 +138,8 @@ describe('GetLineupUseCase', () => {
       formation: null,
       complete: false,
       starters: [],
+      // Os papéis vêm mesmo sem escalação: a tela mostra os atributos enquanto se escala
+      duelRoles: DUEL_ROLES,
     });
   });
 
@@ -229,7 +211,7 @@ describe('UpdateLineupUseCase', () => {
   });
 
   it('deve recusar jogador de fora do elenco com 409', async () => {
-    const other = player(34, 'Otto Rangel', 'ATA', { clubId: 2 });
+    const other = starter(34, 'Otto Rangel', 'ATA').withClub(2).build();
     await expect(
       update(
         repository(COMPLETE, {
@@ -245,7 +227,9 @@ describe('UpdateLineupUseCase', () => {
   });
 
   it('deve recusar jogador DOENTE com 409 e aceitar MAL_CONDICIONADO', async () => {
-    const sick = player(33, 'Lauro Neves', 'MEI', { condition: 'DOENTE' });
+    const sick = starter(33, 'Lauro Neves', 'MEI')
+      .withCondition('DOENTE')
+      .build();
     await expect(
       update(
         repository(COMPLETE, {

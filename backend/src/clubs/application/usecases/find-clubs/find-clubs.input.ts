@@ -1,7 +1,6 @@
-import { ClubSortEnum } from '../../../domain/enums/club-sort.enum.js';
+import { ClubSortCriteria } from '../../../domain/club-sort.js';
 
-export type ClubSortCriteria =
-  ClubSortEnum | 'name' | 'net_worth_asc' | 'net_worth_desc';
+export type { ClubSortCriteria };
 
 /**
  * Dados de entrada para o caso de uso de listagem de clubes.

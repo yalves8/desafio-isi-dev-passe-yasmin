@@ -1,4 +1,5 @@
 import { NotFoundError } from '../../../../common/errors/domain.errors.js';
+import { duelValues } from '../../../../domain/match-engine.js';
 import { IClubRepository } from '../../interfaces/repositories/club.repository.interface.js';
 import { FindClubByIdInput } from './find-club-by-id.input.js';
 import { PlayerEntity } from '../../../../players/domain/entities/player.entity.js';
@@ -11,6 +12,11 @@ function toSquadMember(player: PlayerEntity, now: Date): SquadMember {
   const penalty = player.calculateContractPenalty(now);
   return {
     player,
+    duel: duelValues({
+      position: player.getPosition(),
+      condition: player.getCondition(),
+      attributes: player.attributes,
+    }),
     contract:
       contract && penalty
         ? {

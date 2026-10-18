@@ -1,5 +1,5 @@
 import { INITIAL_CASH } from '../../../domain/league.js';
-import { fromCents, toCents } from '../../../domain/money.js';
+import { Money } from '../../../domain/money.js';
 import { PlayerEntity } from '../../../players/domain/entities/player.entity.js';
 import { compareSquadOrder } from '../../../players/domain/squad-order.js';
 
@@ -20,7 +20,7 @@ export class ClubEntity {
    * @param {string} name - Nome oficial do clube.
    * @param {string} normalizedName - Nome normalizado em minúsculas para controle de unicidade (RN10).
    * @param {string} acronym - Sigla oficial de 3 letras maiúsculas.
-   * @param {number} cash - Saldo financeiro em caixa (inicia em 300,00).
+   * @param {Money} cash - Saldo financeiro em caixa (inicia em 300,00).
    * @param {Date} [createdAt] - Data de criação do clube.
    */
   constructor(
@@ -28,7 +28,7 @@ export class ClubEntity {
     public readonly name: string,
     public readonly normalizedName: string,
     public readonly acronym: string,
-    private readonly cash: number = INITIAL_CASH,
+    private readonly cash: Money = INITIAL_CASH,
     public readonly createdAt: Date = new Date(),
   ) {}
 
@@ -43,9 +43,9 @@ export class ClubEntity {
   /**
    * Obtém o saldo financeiro atual do caixa do clube.
    *
-   * @returns {number} O saldo em caixa.
+   * @returns {Money} O saldo em caixa.
    */
-  public getCash(): number {
+  public getCash(): Money {
     return this.cash;
   }
 
@@ -53,34 +53,25 @@ export class ClubEntity {
    * Calcula o valor de mercado total do elenco somando o valor atual de cada atleta (RN05/RN11).
    *
    * @param {PlayerEntity[]} players - Atletas pertencentes ao elenco do clube.
-   * @returns {number} Valor total do elenco formatado em moedas com 2 casas decimais.
+   * @returns {Money} Valor total do elenco.
    */
-  public calculateSquadValue(players: PlayerEntity[]): number {
-    let squadValueCents = 0;
-    for (const player of players) {
-      squadValueCents += toCents(player.calculateMarketValue());
-    }
-    return fromCents(squadValueCents);
+  public calculateSquadValue(players: PlayerEntity[]): Money {
+    return Money.sum(players.map((player) => player.calculateMarketValue()));
   }
 
   /**
    * Calcula o patrimônio líquido total do clube: saldo em caixa + valor de mercado do elenco (RN11).
    *
    * @param {PlayerEntity[]} players - Atletas pertencentes ao elenco do clube.
-   * @returns {number} Patrimônio total formatado em moedas com 2 casas decimais.
+   * @returns {Money} Patrimônio total.
    */
-  public calculateNetWorth(players: PlayerEntity[]): number {
-    const cashCents = toCents(this.cash);
-    let squadValueCents = 0;
-    for (const player of players) {
-      squadValueCents += toCents(player.calculateMarketValue());
-    }
-    return fromCents(cashCents + squadValueCents);
+  public calculateNetWorth(players: PlayerEntity[]): Money {
+    return this.cash.plus(this.calculateSquadValue(players));
   }
 
   /**
    * Ordena os atletas do elenco de acordo com as regras de prioridade da RN11:
-   * 1. Posição no campo: GOL, ZAG, LAT, MEI, ATA (via PositionPriorityEnum)
+   * 1. Posição no campo: GOL, ZAG, LAT, MEI, ATA (ordem de `POSITIONS`)
    * 2. Nome oficial do atleta (alfabético insensível a acentos e maiúsculas)
    * 3. ID do jogador crescente (critério final de desempate)
    *

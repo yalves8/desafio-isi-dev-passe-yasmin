@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service.js';
-import { Cents, toCents } from '../../../domain/money.js';
+import { Cents, Money, toCents } from '../../../domain/money.js';
 import { playerFromRow } from '../../../players/infrastructure/mappers/player.mapper.js';
 import {
   ITransferRepository,
@@ -15,7 +15,7 @@ import {
 
 /** Centavos no formato decimal das colunas (ex.: -3885 → "-38.85"), sem ponto flutuante */
 function toDecimal(cents: Cents): string {
-  return (cents / 100).toFixed(2);
+  return Money.ofCents(cents).toDecimalString();
 }
 
 /**
@@ -101,7 +101,7 @@ export class PrismaTransferRepository implements ITransferRepository {
           taxa: toDecimal(record.fee),
           multa: toDecimal(0),
           lucro: null,
-          variacao_caixa: toDecimal(-(record.value + record.fee)),
+          variacao_caixa: toDecimal(record.cashChange),
           criado_em: record.now,
         },
       });

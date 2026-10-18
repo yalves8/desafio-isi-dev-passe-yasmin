@@ -83,7 +83,7 @@ export function LineupEditor({
             <FormationPicker value={editor.formation} onChange={editor.changeFormation} />
           </div>
 
-          <LineupSlots rows={editor.rows} onSelect={editor.select} />
+          <LineupSlots rows={editor.rows} duelRoles={lineup.duel_roles} onSelect={editor.select} />
 
           {editor.worn.length > 0 && (
             <div className="px-5 pt-4">

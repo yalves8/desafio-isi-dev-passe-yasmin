@@ -1,4 +1,4 @@
-import { Position } from '../../domain/player-rating.js';
+import { Position } from '../../domain/position.js';
 
 /** Formações aceitas (RN19): jogadores de linha por setor, de trás para frente, sem o goleiro */
 export const FORMATIONS = {

@@ -1,5 +1,6 @@
-import type { Condition } from './market-value.js';
-import type { Attributes, Position } from './player-rating.js';
+import { Condition, CONDITION_RULES } from './condition.js';
+import type { Attributes } from './player-rating.js';
+import type { Position } from './position.js';
 
 export interface Starter {
   id: number;
@@ -42,19 +43,54 @@ const ATTACK_ATTRIBUTE: Record<Position, DuelAttribute> = {
   GOL: 'defending',
 };
 
-const CONDITION_FACTOR_PERCENT: Partial<Record<Condition, number>> = {
-  MAL_CONDICIONADO: 85,
-};
+/** O que o valor de um atributo depende: posição, condição e atributos do jogador */
+type DuelPlayer = Pick<Starter, 'position' | 'condition' | 'attributes'>;
 
 /** RN20 passo 3: atributo × 0,85 para MAL_CONDICIONADO, arredondado com meio para cima. */
-function effectiveValue(player: Starter, attribute: DuelAttribute): number {
+function effectiveValue(player: DuelPlayer, attribute: DuelAttribute): number {
   const raw = player.attributes[attribute];
-  const factor = CONDITION_FACTOR_PERCENT[player.condition];
-  return factor === undefined ? raw : Math.floor((raw * factor + 50) / 100);
+  const factor = CONDITION_RULES[player.condition].duelFactorPercent;
+  return factor === 100 ? raw : Math.floor((raw * factor + 50) / 100);
 }
 
 function side(player: Starter, attribute: DuelAttribute): DuelSide {
   return { player, attribute, value: effectiveValue(player, attribute) };
+}
+
+export type DuelRole = 'attack' | 'defense';
+
+/**
+ * Papel de cada titular nos duelos (RN20), na ordem do elenco: goleiro e jogadores de linha de
+ * trás para frente. O 1º de linha só defende, o 2º ataca e defende, o 3º e o 4º só atacam.
+ * Tem de bater com `attacksOf` (o teste do domínio confere).
+ */
+export const DUEL_ROLES: readonly (readonly DuelRole[])[] = [
+  ['defense'],
+  ['defense'],
+  ['attack', 'defense'],
+  ['attack'],
+  ['attack'],
+];
+
+export interface DuelValue {
+  attribute: DuelAttribute;
+  /** Atributo cadastrado */
+  value: number;
+  /** Valor que entra no duelo, já com o efeito da condição */
+  matchValue: number;
+}
+
+/** Atributo e valores que o jogador usa ao atacar e ao defender (RN20) */
+export function duelValues(player: DuelPlayer): Record<DuelRole, DuelValue> {
+  const valueOf = (attribute: DuelAttribute): DuelValue => ({
+    attribute,
+    value: player.attributes[attribute],
+    matchValue: effectiveValue(player, attribute),
+  });
+  return {
+    attack: valueOf(ATTACK_ATTRIBUTE[player.position]),
+    defense: valueOf('defending'),
+  };
 }
 
 interface Team {

@@ -44,10 +44,29 @@ describe('SellPlayerDialog', () => {
   })
 
   it('deve mostrar a recusa da API no lugar do aviso de titular', () => {
-    renderDialog({ isStarter: true, error: 'Bruno Tavares já está livre e não pode ser vendido.' })
+    renderDialog({
+      isStarter: true,
+      error: { kind: 'refused', message: 'Bruno Tavares já está livre e não pode ser vendido.' },
+    })
 
     expect(screen.getByRole('alert')).toHaveTextContent('A venda foi recusada')
     expect(screen.queryByText('Bruno Tavares é titular')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Confirmar venda' })).toBeEnabled()
+  })
+
+  it('deve mostrar "Sem conexão" e oferecer tentar de novo quando a resposta não chega', async () => {
+    const user = userEvent.setup()
+    const onConfirm = vi.fn()
+    renderDialog({
+      onConfirm,
+      error: { kind: 'network', message: 'A venda não foi confirmada.' },
+    })
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Sem conexãoA venda não foi confirmada.')
+    expect(screen.queryByText('A venda foi recusada')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Tentar de novo' }))
+    expect(onConfirm).toHaveBeenCalledOnce()
   })
 
   it('deve travar enquanto vende', () => {

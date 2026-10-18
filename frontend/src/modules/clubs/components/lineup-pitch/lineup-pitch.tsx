@@ -1,4 +1,5 @@
 import { Pitch, PitchPlayer } from '@/components/data-display/pitch/pitch'
+import { CONDITION_RULES } from '@/modules/players'
 import { SECTORS } from '../../clubs.constants'
 import type { LineupSector } from '../../clubs.types'
 import type { LineupPitchProps } from './lineup-pitch.types'
@@ -28,7 +29,7 @@ export function LineupPitch({ rows }: LineupPitchProps) {
                     ? (player.name.trim().split(/\s+/).at(-1) ?? '')
                     : SECTORS[slot.sector].short
                 }
-                worn={player?.condition === 'MAL_CONDICIONADO'}
+                worn={player ? CONDITION_RULES[player.condition].worn : false}
               />
             ))}
           </div>

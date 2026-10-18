@@ -1,4 +1,4 @@
-import { Position } from '../../../../domain/player-rating.js';
+import { Position } from '../../../../domain/position.js';
 
 /**
  * Dados de entrada para o caso de uso de criação de jogador.

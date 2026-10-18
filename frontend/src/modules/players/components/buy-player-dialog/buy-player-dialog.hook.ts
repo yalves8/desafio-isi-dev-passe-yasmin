@@ -3,14 +3,13 @@ import { useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { playersService } from '@/api/players.service'
 import type { BuyPlayerInput, Club, Player, PurchaseResult } from '@/api/types'
-import { useAction } from '@/hooks/use-action'
+import { useInlineAction } from '@/hooks/use-inline-action'
 import {
   buildBuyPlayerSchema,
   defaultLoyaltyUntil,
   loyaltyDateRange,
   type BuyPlayerFormInput,
 } from '../../player-buy.validation'
-import type { BuyError } from './buy-player-dialog.types'
 
 const NETWORK_MESSAGE = 'A compra não foi confirmada. Verifique a conexão e tente de novo.'
 
@@ -38,19 +37,15 @@ export function useBuyPlayerDialog({
   const club = clubs.find((c) => String(c.id) === clubId)
 
   // Caixa, elenco cheio e recompra só a API decide (RN12 a RN14): a recusa fica no diálogo
-  const [error, setError] = useState<BuyError>()
-  const buy = useAction((input: BuyPlayerInput) => playersService.buy(player.id, input), {
+  // Sem status, a resposta não chegou: a compra pode ser enviada de novo (`kind: 'network'`)
+  const buy = useInlineAction((input: BuyPlayerInput) => playersService.buy(player.id, input), {
     errorTitle: 'Compra recusada',
-    toastOnError: false,
+    networkMessage: NETWORK_MESSAGE,
   })
 
   const onSubmit = form.handleSubmit(async (input) => {
-    setError(undefined)
     const result = await buy.run(input)
     if (result.ok) onBought(result.data)
-    // Sem status, a resposta não chegou: a compra pode ser enviada de novo
-    else if (result.status === undefined) setError({ kind: 'network', message: NETWORK_MESSAGE })
-    else setError({ kind: 'refused', message: result.error ?? '' })
   })
 
   return {
@@ -59,7 +54,7 @@ export function useBuyPlayerDialog({
     isSubmitting: form.formState.isSubmitting || buy.isPending,
     club,
     dateRange,
-    error,
+    error: buy.error,
     onSubmit,
   }
 }

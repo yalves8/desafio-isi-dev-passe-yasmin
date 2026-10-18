@@ -1,5 +1,5 @@
 import { compareNames } from '../../common/utils/text.js';
-import { comparePositions } from '../../domain/enums/position.enum.js';
+import { comparePositions } from '../../domain/position.js';
 import { PlayerEntity } from './entities/player.entity.js';
 
 /**

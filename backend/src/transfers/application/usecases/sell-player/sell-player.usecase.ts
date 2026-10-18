@@ -2,7 +2,6 @@ import {
   ConflictError,
   NotFoundError,
 } from '../../../../common/errors/domain.errors.js';
-import { toCents } from '../../../../domain/money.js';
 import { saleSettlement } from '../../../../domain/trade.js';
 import {
   ITransferRepository,
@@ -72,7 +71,7 @@ export class SellPlayerUseCase {
       );
     }
 
-    const value = toCents(player.calculateMarketValue());
+    const value = player.calculateMarketValue().cents;
     const settlement = saleSettlement(
       value,
       contract.purchaseValue,

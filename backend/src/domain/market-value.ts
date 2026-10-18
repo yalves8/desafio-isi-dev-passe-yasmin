@@ -1,18 +1,12 @@
+import { Condition, CONDITION_RULES } from './condition.js';
 import { Cents, roundDiv } from './money.js';
 
-export type Condition = 'APTO' | 'MAL_CONDICIONADO' | 'DOENTE';
-
 // Percentuais em décimos de ponto percentual (15% = 150) para manter tudo em inteiros.
-const CONDITION_DISCOUNT: Record<Condition, number> = {
-  APTO: 0,
-  MAL_CONDICIONADO: 150,
-  DOENTE: 300,
-};
 const DISCOUNT_CAP = 400;
 const MIN_MARKET_VALUE: Cents = 100;
 
 function conditionDiscount(condition: Condition, agility: number): number {
-  const base = CONDITION_DISCOUNT[condition];
+  const base = CONDITION_RULES[condition].marketDiscount;
   if (condition === 'APTO') return 0; // RN03: a agilidade só age quando não está APTO
   if (agility >= 80) return base / 2;
   if (agility <= 30) return base + 100;

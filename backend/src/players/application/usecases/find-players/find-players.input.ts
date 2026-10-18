@@ -1,5 +1,5 @@
-import { Condition } from '../../../../domain/market-value.js';
-import { Position } from '../../../../domain/player-rating.js';
+import { Condition } from '../../../../domain/condition.js';
+import { Position } from '../../../../domain/position.js';
 import { PlayerSortCriteria } from '../../../domain/player-listing.js';
 
 export type { PlayerSortCriteria };

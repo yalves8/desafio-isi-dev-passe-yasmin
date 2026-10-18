@@ -19,7 +19,7 @@ function toRow(player: PlayerEntity): Row {
     name: player.getName(),
     age: player.getAge(),
     position: player.getPosition(),
-    marketValue: player.calculateMarketValue(),
+    marketValue: player.calculateMarketValue().toNumber(),
     player,
   };
 }

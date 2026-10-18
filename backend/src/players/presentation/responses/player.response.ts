@@ -1,5 +1,5 @@
-import { Condition } from '../../../domain/market-value.js';
-import { Position } from '../../../domain/player-rating.js';
+import { Condition } from '../../../domain/condition.js';
+import { Position } from '../../../domain/position.js';
 
 /**
  * Jogador no contrato da API REST (2.1.2): campos em snake_case e valores em moedas.

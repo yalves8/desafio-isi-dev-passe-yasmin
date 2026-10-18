@@ -4,11 +4,7 @@ import {
   ValidationError,
 } from '../../../../common/errors/domain.errors.js';
 import { addDays } from '../../../../common/utils/date.js';
-import {
-  formatCents,
-  formatHalfCents,
-  toCents,
-} from '../../../../domain/money.js';
+import { formatCents, formatHalfCents } from '../../../../domain/money.js';
 import {
   isWithinCashLimit,
   MAX_LOYALTY_DAYS,
@@ -106,7 +102,7 @@ export class BuyPlayerUseCase {
       );
     }
 
-    const value = toCents(player.calculateMarketValue());
+    const value = player.calculateMarketValue().cents;
     const fee = purchaseFee(value);
     const cost = value + fee;
     if (!isWithinCashLimit(cost, club.cash)) {
@@ -121,6 +117,7 @@ export class BuyPlayerUseCase {
       clubId: club.id,
       value,
       fee,
+      cashChange: -cost,
       newCash: club.cash - cost,
       loyaltyUntil: input.loyaltyUntil,
       now,

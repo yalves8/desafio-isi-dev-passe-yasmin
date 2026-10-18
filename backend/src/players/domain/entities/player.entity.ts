@@ -1,23 +1,75 @@
 import { ConflictError } from '../../../common/errors/domain.errors.js';
-import { Condition, marketValue } from '../../../domain/market-value.js';
-import { fromCents, toCents } from '../../../domain/money.js';
+import { canChangeCondition, Condition } from '../../../domain/condition.js';
+import { marketValue } from '../../../domain/market-value.js';
+import { Money } from '../../../domain/money.js';
 import {
   Attributes,
+  baseValue,
   overall,
-  Position,
 } from '../../../domain/player-rating.js';
+import { Position } from '../../../domain/position.js';
 
 import { ContractEntity } from '../../../contracts/domain/entities/contract.entity.js';
 import { Penalty } from '../../../domain/trade.js';
 
-export interface PlayerTechnicalAttributes {
-  pace: number;
-  shooting: number;
-  passing: number;
-  dribbling: number;
-  defending: number;
-  physical: number;
+/**
+ * Estado completo de um jogador gravado, usado para reidratá-lo do banco (`PlayerEntity.restore`).
+ *
+ * @export
+ * @interface PlayerProps
+ */
+export interface PlayerProps {
+  /** Identificador único do jogador */
+  id: number;
+  /** Nome oficial do atleta */
+  name: string;
+  /** Posição ('GOL', 'ZAG', 'LAT', 'MEI', 'ATA') */
+  position: Position;
+  /** Agilidade (1 a 100) */
+  agility: number;
+  /** Idade (16 a 45) */
+  age: number;
+  /** Valor base gravado no cadastro (RN06) */
+  baseValue: Money;
+  /** Condição física ('APTO', 'MAL_CONDICIONADO', 'DOENTE') */
+  condition: Condition;
+  /** Clube detentor dos direitos, ou null se livre */
+  clubId: number | null;
+  /** Os seis atributos técnicos */
+  attributes: Attributes;
+  /** Potencial (1 a 99) */
+  potential: number;
+  /** Momento da exclusão lógica (RN09), ou null se ativo */
+  deletedAt: Date | null;
+  /** Data de cadastro */
+  createdAt: Date;
+  /** Contrato ativo com o clube atual, se houver */
+  activeContract: ContractEntity | null;
 }
+
+/**
+ * Dados cadastrais de um jogador novo, antes de existir no banco (RN06).
+ *
+ * @export
+ * @interface PlayerRegistration
+ */
+export interface PlayerRegistration {
+  name: string;
+  position: Position;
+  agility: number;
+  age: number;
+  attributes: Attributes;
+  potential: number;
+}
+
+/**
+ * Jogador novo pronto para gravar: os dados do cadastro com o valor base calculado,
+ * livre e APTO. O id, a data de cadastro e o contrato vêm do banco depois.
+ */
+export type NewPlayer = Omit<
+  PlayerProps,
+  'id' | 'deletedAt' | 'createdAt' | 'activeContract'
+>;
 
 /**
  * Entidade rica de domínio representando um Jogador (DDD).
@@ -25,42 +77,68 @@ export interface PlayerTechnicalAttributes {
  * Encapsula o ciclo de vida, atributos técnicos, cálculos de overall e valor de mercado,
  * além de validar as regras de negócio de alteração de dados e transição de condição física.
  *
+ * Criada só pelas fábricas: `register` para o cadastro e `restore` para reidratar do banco.
+ *
  * @export
  * @class PlayerEntity
  */
 export class PlayerEntity {
+  public readonly id: number;
+  private name: string;
+  private position: Position;
+  private agility: number;
+  private age: number;
+  public readonly baseValue: Money;
+  private condition: Condition;
+  private clubId: number | null;
+  public readonly attributes: Attributes;
+  public readonly potential: number;
+  public readonly deletedAt: Date | null;
+  public readonly createdAt: Date;
+  private readonly activeContract: ContractEntity | null;
+
+  private constructor(props: PlayerProps) {
+    this.id = props.id;
+    this.name = props.name;
+    this.position = props.position;
+    this.agility = props.agility;
+    this.age = props.age;
+    this.baseValue = props.baseValue;
+    this.condition = props.condition;
+    this.clubId = props.clubId;
+    this.attributes = props.attributes;
+    this.potential = props.potential;
+    this.deletedAt = props.deletedAt;
+    this.createdAt = props.createdAt;
+    this.activeContract = props.activeContract;
+  }
+
   /**
-   * Construtor da entidade `PlayerEntity`.
+   * Cadastro de um jogador novo (RN06): o valor base sai do overall e da idade do cadastro,
+   * uma única vez, e o jogador nasce livre e APTO.
    *
-   * @param {number} id - Identificador único do jogador.
-   * @param {string} name - Nome oficial do atleta.
-   * @param {Position} position - Posição do jogador ('GOL', 'ZAG', 'LAT', 'MEI', 'ATA').
-   * @param {number} agility - Indicador de agilidade (1 a 100).
-   * @param {number} age - Idade do jogador (16 a 45).
-   * @param {number} baseValue - Valor base financeiro gravado no cadastro (RN06).
-   * @param {Condition} condition - Condição física ('APTO', 'MAL_CONDICIONADO', 'DOENTE').
-   * @param {number | null} clubId - ID do clube detentor dos direitos, ou null se livre.
-   * @param {PlayerTechnicalAttributes} attributes - Os seis atributos técnicos.
-   * @param {number} potential - Potencial do jogador (1 a 99).
-   * @param {Date | null} [deletedAt] - Momento da exclusão lógica (RN09), ou null se ativo.
-   * @param {Date} [createdAt] - Data de cadastro.
-   * @param {ContractEntity | null} [activeContract] - Contrato ativo com o clube atual, se houver.
+   * @param {PlayerRegistration} data - Dados cadastrais e atributos técnicos.
+   * @returns {NewPlayer} Jogador pronto para gravar.
    */
-  constructor(
-    public readonly id: number,
-    private name: string,
-    private position: Position,
-    private agility: number,
-    private age: number,
-    public readonly baseValue: number,
-    private condition: Condition = 'APTO',
-    private clubId: number | null = null,
-    public readonly attributes: PlayerTechnicalAttributes,
-    public readonly potential: number,
-    public readonly deletedAt: Date | null = null,
-    public readonly createdAt: Date = new Date(),
-    private readonly activeContract: ContractEntity | null = null,
-  ) {}
+  public static register(data: PlayerRegistration): NewPlayer {
+    const rating = overall(data.position, data.attributes);
+    return {
+      ...data,
+      baseValue: Money.ofCents(baseValue(rating, data.potential, data.age)),
+      condition: 'APTO',
+      clubId: null,
+    };
+  }
+
+  /**
+   * Reidrata um jogador gravado.
+   *
+   * @param {PlayerProps} props - Estado completo lido do banco.
+   * @returns {PlayerEntity} A entidade.
+   */
+  public static restore(props: PlayerProps): PlayerEntity {
+    return new PlayerEntity(props);
+  }
 
   public getName(): string {
     return this.name;
@@ -116,31 +194,18 @@ export class PlayerEntity {
    * @returns {number} O overall inteiro calculado.
    */
   public calculateOverall(): number {
-    const attr: Attributes = {
-      pace: this.attributes.pace,
-      shooting: this.attributes.shooting,
-      passing: this.attributes.passing,
-      dribbling: this.attributes.dribbling,
-      defending: this.attributes.defending,
-      physical: this.attributes.physical,
-    };
-    return overall(this.position, attr);
+    return overall(this.position, this.attributes);
   }
 
   /**
    * Calcula o Valor de Mercado atual do atleta a partir do valor base, condição, agilidade e idade (RN05).
    *
-   * @returns {number} O valor de mercado em moedas com 2 casas.
+   * @returns {Money} O valor de mercado.
    */
-  public calculateMarketValue(): number {
-    const baseCents = toCents(this.baseValue);
-    const mvCents = marketValue(
-      baseCents,
-      this.condition,
-      this.agility,
-      this.age,
+  public calculateMarketValue(): Money {
+    return Money.ofCents(
+      marketValue(this.baseValue.cents, this.condition, this.agility, this.age),
     );
-    return fromCents(mvCents);
   }
 
   /**
@@ -181,7 +246,7 @@ export class PlayerEntity {
    * @throws {ConflictError} Se tentar transicionar de DOENTE diretamente para APTO.
    */
   public changeCondition(newCondition: Condition): void {
-    if (this.condition === 'DOENTE' && newCondition === 'APTO') {
+    if (!canChangeCondition(this.condition, newCondition)) {
       throw new ConflictError(
         'Jogador doente não pode passar diretamente para apto',
       );

@@ -4,26 +4,73 @@ import {
   charCount,
   normalizeSpaces,
 } from '../../../common/utils/text.js';
-import { MAX_ID, POSITIVE_INT_REGEX } from '../../../common/utils/id.js';
+import {
+  parsePositiveInt,
+  parseQueryId,
+  rejectEmptyParams,
+} from '../../../common/utils/query-params.js';
 import { FindPlayersInput } from '../../application/usecases/find-players/find-players.input.js';
-import { PlayerSortCriteria } from '../../domain/player-listing.js';
-import { POSITIONS } from './create-player.dto.js';
-import { CONDITIONS } from './update-condition.dto.js';
+import {
+  isPlayerSortCriteria,
+  PLAYER_SORTS,
+  PlayerSortCriteria,
+} from '../../domain/player-listing.js';
+import { Position, POSITIONS } from '../../../domain/position.js';
+import { CONDITIONS } from '../../../domain/condition.js';
 
 const POS_SET = new Set<string>(POSITIONS);
 const COND_SET = new Set<string>(CONDITIONS);
-const SORT_FIELDS = new Set<string>([
-  'name',
-  'value_asc',
-  'value_desc',
-  'age_asc',
-  'age_desc',
-  'position',
-] satisfies PlayerSortCriteria[]);
 /** Filtros 1: min_value e max_value vão de 0 a 550 */
 const MAX_VALUE_FILTER = 550;
 
 const DECIMAL_REGEX = /^(0|[1-9]\d*)(\.\d{1,2})?$/;
+
+/**
+ * Limite de idade do filtro (`min_age`/`max_age`): inteiro positivo entre 16 e 45.
+ *
+ * @param {string} name - Nome do parâmetro, usado na mensagem.
+ * @param {string | undefined} value - Valor recebido.
+ * @returns {number | undefined} A idade, ou undefined se ausente.
+ * @throws {BadRequestException} Formato inválido ou fora da faixa.
+ */
+function parseAgeBound(
+  name: 'min_age' | 'max_age',
+  value: string | undefined,
+): number | undefined {
+  if (value === undefined) return undefined;
+  const age = parsePositiveInt(name, value);
+  if (age < 16 || age > 45) {
+    throw new BadRequestException(`${name} deve estar entre 16 e 45`);
+  }
+  return age;
+}
+
+/**
+ * Limite de valor do filtro (`min_value`/`max_value`): decimal com até 2 casas entre 0 e 550.
+ *
+ * @param {string} name - Nome do parâmetro, usado na mensagem.
+ * @param {string | undefined} value - Valor recebido.
+ * @returns {number | undefined} O valor, ou undefined se ausente.
+ * @throws {BadRequestException} Formato inválido ou fora da faixa.
+ */
+function parseValueBound(
+  name: 'min_value' | 'max_value',
+  value: string | undefined,
+): number | undefined {
+  if (value === undefined) return undefined;
+  if (!DECIMAL_REGEX.test(value)) {
+    throw new BadRequestException(
+      `${name} deve ser um número decimal válido com até 2 casas`,
+    );
+  }
+  const parsed = Number(value);
+  if (parsed < 0 || parsed > MAX_VALUE_FILTER) {
+    throw new BadRequestException(
+      `${name} deve estar entre 0 e ${MAX_VALUE_FILTER}`,
+    );
+  }
+  return parsed;
+}
 
 /**
  * Validador e parser dos parâmetros de consulta (Query Params) da rota GET /api/v1/players.
@@ -43,11 +90,7 @@ const DECIMAL_REGEX = /^(0|[1-9]\d*)(\.\d{1,2})?$/;
 export function parseQueryPlayers(
   query: Record<string, string | undefined>,
 ): FindPlayersInput {
-  for (const [key, val] of Object.entries(query)) {
-    if (val === '') {
-      throw new BadRequestException(`Parâmetro ${key} não pode ser vazio`);
-    }
-  }
+  rejectEmptyParams(query);
 
   let search: string | undefined;
   if (query.search !== undefined) {
@@ -64,12 +107,12 @@ export function parseQueryPlayers(
     search = normalized;
   }
 
-  let position: (typeof POSITIONS)[number] | undefined;
+  let position: Position | undefined;
   if (query.position !== undefined) {
     if (!POS_SET.has(query.position)) {
       throw new BadRequestException('Posição inválida no filtro');
     }
-    position = query.position as (typeof POSITIONS)[number];
+    position = query.position as Position;
   }
 
   let condition: (typeof CONDITIONS)[number] | undefined;
@@ -91,17 +134,10 @@ export function parseQueryPlayers(
     }
   }
 
-  let clubId: number | undefined;
-  if (query.club_id !== undefined) {
-    if (!POSITIVE_INT_REGEX.test(query.club_id)) {
-      throw new BadRequestException('club_id deve ser um inteiro positivo');
-    }
-    const parsed = Number(query.club_id);
-    if (parsed > MAX_ID) {
-      throw new BadRequestException('club_id excede o limite');
-    }
-    clubId = parsed;
-  }
+  const clubId =
+    query.club_id === undefined
+      ? undefined
+      : parseQueryId('club_id', query.club_id, 'club_id excede o limite');
 
   if (free === true && clubId !== undefined) {
     throw new BadRequestException(
@@ -109,61 +145,15 @@ export function parseQueryPlayers(
     );
   }
 
-  let minAge: number | undefined;
-  if (query.min_age !== undefined) {
-    if (!POSITIVE_INT_REGEX.test(query.min_age)) {
-      throw new BadRequestException('min_age deve ser um inteiro positivo');
-    }
-    minAge = Number(query.min_age);
-    if (minAge < 16 || minAge > 45) {
-      throw new BadRequestException('min_age deve estar entre 16 e 45');
-    }
-  }
-
-  let maxAge: number | undefined;
-  if (query.max_age !== undefined) {
-    if (!POSITIVE_INT_REGEX.test(query.max_age)) {
-      throw new BadRequestException('max_age deve ser um inteiro positivo');
-    }
-    maxAge = Number(query.max_age);
-    if (maxAge < 16 || maxAge > 45) {
-      throw new BadRequestException('max_age deve estar entre 16 e 45');
-    }
-  }
+  const minAge = parseAgeBound('min_age', query.min_age);
+  const maxAge = parseAgeBound('max_age', query.max_age);
 
   if (minAge !== undefined && maxAge !== undefined && minAge > maxAge) {
     throw new BadRequestException('min_age não pode ser maior que max_age');
   }
 
-  let minValue: number | undefined;
-  if (query.min_value !== undefined) {
-    if (!DECIMAL_REGEX.test(query.min_value)) {
-      throw new BadRequestException(
-        'min_value deve ser um número decimal válido com até 2 casas',
-      );
-    }
-    minValue = Number(query.min_value);
-    if (minValue < 0 || minValue > MAX_VALUE_FILTER) {
-      throw new BadRequestException(
-        `min_value deve estar entre 0 e ${MAX_VALUE_FILTER}`,
-      );
-    }
-  }
-
-  let maxValue: number | undefined;
-  if (query.max_value !== undefined) {
-    if (!DECIMAL_REGEX.test(query.max_value)) {
-      throw new BadRequestException(
-        'max_value deve ser um número decimal válido com até 2 casas',
-      );
-    }
-    maxValue = Number(query.max_value);
-    if (maxValue < 0 || maxValue > MAX_VALUE_FILTER) {
-      throw new BadRequestException(
-        `max_value deve estar entre 0 e ${MAX_VALUE_FILTER}`,
-      );
-    }
-  }
+  const minValue = parseValueBound('min_value', query.min_value);
+  const maxValue = parseValueBound('max_value', query.max_value);
 
   if (minValue !== undefined && maxValue !== undefined && minValue > maxValue) {
     throw new BadRequestException('min_value não pode ser maior que max_value');
@@ -176,40 +166,30 @@ export function parseQueryPlayers(
       throw new BadRequestException('sort aceita no máximo 2 critérios');
     }
     const fieldsSeen = new Set<string>();
-    for (const part of parts) {
-      if (!SORT_FIELDS.has(part)) {
+    sortList = parts.map((part) => {
+      if (!isPlayerSortCriteria(part)) {
         throw new BadRequestException(
           `Critério de ordenação inválido: ${part}`,
         );
       }
-      const baseField = part.replace(/_(asc|desc)$/, '');
-      if (fieldsSeen.has(baseField)) {
+      const { field } = PLAYER_SORTS[part];
+      if (fieldsSeen.has(field)) {
         throw new BadRequestException(
           'Não é permitido repetir o mesmo campo na ordenação',
         );
       }
-      fieldsSeen.add(baseField);
-    }
-    sortList = parts as PlayerSortCriteria[];
+      fieldsSeen.add(field);
+      return part;
+    });
   }
 
-  let page = 1;
-  if (query.page !== undefined) {
-    if (!POSITIVE_INT_REGEX.test(query.page)) {
-      throw new BadRequestException('page deve ser um inteiro positivo');
-    }
-    page = Number(query.page);
-  }
+  const page =
+    query.page === undefined ? 1 : parsePositiveInt('page', query.page);
 
-  let limit = 10;
-  if (query.limit !== undefined) {
-    if (!POSITIVE_INT_REGEX.test(query.limit)) {
-      throw new BadRequestException('limit deve ser um inteiro positivo');
-    }
-    limit = Number(query.limit);
-    if (limit < 1 || limit > 50) {
-      throw new BadRequestException('limit deve estar entre 1 e 50');
-    }
+  const limit =
+    query.limit === undefined ? 10 : parsePositiveInt('limit', query.limit);
+  if (limit < 1 || limit > 50) {
+    throw new BadRequestException('limit deve estar entre 1 e 50');
   }
 
   return {

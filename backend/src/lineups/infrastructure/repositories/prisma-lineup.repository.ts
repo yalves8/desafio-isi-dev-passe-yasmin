@@ -7,6 +7,7 @@ import {
   StoredLineup,
 } from '../../application/interfaces/repositories/lineup.repository.interface.js';
 import { Formation } from '../../domain/formation.js';
+import { readClubLineup } from '../queries/club-lineup.query.js';
 
 /**
  * Implementação Prisma do repositório de escalação.
@@ -35,21 +36,13 @@ export class PrismaLineupRepository implements ILineupRepository {
    * @returns {Promise<StoredLineup | null>} null se o clube não existe.
    */
   async findByClub(clubId: number): Promise<StoredLineup | null> {
-    const club = await this.prisma.clube.findUnique({
-      where: { id: clubId },
-      include: {
-        escalacoes: {
-          where: { jogador: { excluido_em: null } },
-          include: { jogador: true },
-        },
-      },
-    });
-    if (!club) return null;
+    const lineup = await readClubLineup(this.prisma, clubId);
+    if (!lineup) return null;
     return {
-      clubId: club.id,
-      clubName: club.nome,
-      formation: (club.formacao as Formation | null) ?? null,
-      starters: club.escalacoes.map((row) => playerFromRow(row.jogador)),
+      clubId: lineup.id,
+      clubName: lineup.name,
+      formation: lineup.formation,
+      starters: lineup.starters,
     };
   }
 

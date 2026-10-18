@@ -1,3 +1,4 @@
+import { Money } from '../../../../domain/money.js';
 import { PlayerEntity } from '../../../../players/domain/entities/player.entity.js';
 import { ClubEntity } from '../../../domain/entities/club.entity.js';
 
@@ -66,6 +67,6 @@ export abstract class IClubRepository {
     name: string;
     normalizedName: string;
     acronym: string;
-    cash: number;
+    cash: Money;
   }): Promise<ClubEntity>;
 }

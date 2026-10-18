@@ -1,11 +1,8 @@
 import { z } from 'zod';
 import {
-  containsControlChars,
-  charCount,
-  normalizeSpaces,
-} from '../../../common/utils/text.js';
-
-export const POSITIONS = ['GOL', 'ZAG', 'LAT', 'MEI', 'ATA'] as const;
+  playerProfileFields,
+  veteranAgilityRule,
+} from './player-fields.schema.js';
 
 /**
  * Schema Zod de validação do payload HTTP para cadastro de jogador (POST /api/v1/players).
@@ -21,40 +18,7 @@ export const POSITIONS = ['GOL', 'ZAG', 'LAT', 'MEI', 'ATA'] as const;
  */
 export const createPlayerSchema = z
   .object({
-    name: z
-      .string({ error: 'name é obrigatório' })
-      .refine((v) => !containsControlChars(v), {
-        message: 'Caracteres de controle não são permitidos no nome',
-      })
-      .transform((v) => normalizeSpaces(v))
-      .refine((v) => charCount(v) >= 3 && charCount(v) <= 100, {
-        message: 'Nome deve ter entre 3 e 100 caracteres',
-      })
-      .refine((v) => !/\d/.test(v), {
-        message: 'Nome não pode conter dígitos',
-      })
-      .refine(
-        (v) => {
-          const words = v.split(' ').filter((w) => /\p{L}/u.test(w));
-          return words.length >= 2;
-        },
-        {
-          message: 'Nome deve ter pelo menos duas palavras',
-        },
-      ),
-    position: z.enum(POSITIONS, {
-      error: 'Posição inválida',
-    }),
-    agility: z
-      .number({ error: 'agility é obrigatório' })
-      .int('Agilidade deve ser um número inteiro')
-      .min(1, 'Agilidade deve ser no mínimo 1')
-      .max(100, 'Agilidade deve ser no máximo 100'),
-    age: z
-      .number({ error: 'age é obrigatório' })
-      .int('Idade deve ser um número inteiro')
-      .min(16, 'Idade deve ser no mínimo 16')
-      .max(45, 'Idade deve ser no máximo 45'),
+    ...playerProfileFields,
     pace: z
       .number({ error: 'pace é obrigatório' })
       .int('pace deve ser um número inteiro')
@@ -92,14 +56,7 @@ export const createPlayerSchema = z
       .max(99, 'potential deve ser entre 1 e 99'),
   })
   .superRefine((data, ctx) => {
-    if (data.age >= 35 && data.agility > 85) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          'Jogador com 35 anos ou mais pode ter agilidade de no máximo 85',
-        path: ['agility'],
-      });
-    }
+    veteranAgilityRule(data, ctx);
 
     const sum =
       data.pace +

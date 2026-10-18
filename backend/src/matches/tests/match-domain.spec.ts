@@ -1,4 +1,9 @@
-import { playMatch, Starter } from '../../domain/match-engine.js';
+import {
+  DUEL_ROLES,
+  duelValues,
+  playMatch,
+  Starter,
+} from '../../domain/match-engine.js';
 import { Attributes } from '../../domain/player-rating.js';
 import { computeStandings } from '../domain/standings.js';
 
@@ -162,5 +167,37 @@ describe('computeStandings (RN21)', () => {
       [1, 1, 1],
       [2, 1, 1],
     ]);
+  });
+});
+
+describe('papéis e valores de duelo (RN20)', () => {
+  it('deve dar a cada vaga o papel que ela tem nos duelos da partida', () => {
+    const outcome = playMatch(AGUIAS, DELTA);
+    const roles = AGUIAS.map((player) => {
+      const duels = outcome.duels;
+      const attacks = duels.some((d) => d.attacker.player.id === player.id);
+      const defends = duels.some((d) => d.defender.player.id === player.id);
+      return [attacks && 'attack', defends && 'defense'].filter(Boolean);
+    });
+
+    expect(DUEL_ROLES).toEqual(roles);
+    expect(DUEL_ROLES).toEqual([
+      ['defense'],
+      ['defense'],
+      ['attack', 'defense'],
+      ['attack'],
+      ['attack'],
+    ]);
+  });
+
+  it('deve dar o atributo de ataque da posição e a defesa, brutos e com o efeito da condição', () => {
+    expect(duelValues(AGUIAS[2])).toEqual({
+      attack: { attribute: 'dribbling', value: 74, matchValue: 63 },
+      defense: { attribute: 'defending', value: 66, matchValue: 56 },
+    });
+    expect(duelValues(AGUIAS[4])).toEqual({
+      attack: { attribute: 'shooting', value: 75, matchValue: 75 },
+      defense: { attribute: 'defending', value: 50, matchValue: 50 },
+    });
   });
 });

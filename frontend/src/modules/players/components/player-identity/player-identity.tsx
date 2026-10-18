@@ -8,7 +8,9 @@ export function PlayerIdentity({ id, name, detail, className }: PlayerIdentityPr
     <span className={cn('flex min-w-0 items-center gap-3', className)}>
       <PlayerAvatar id={id} name={name} />
       <span className="min-w-0 leading-tight">
-        <span className="block truncate font-medium">{name}</span>
+        <span className="block truncate font-medium" title={name}>
+          {name}
+        </span>
         {detail && <span className="block text-xs text-muted-foreground">{detail}</span>}
       </span>
     </span>

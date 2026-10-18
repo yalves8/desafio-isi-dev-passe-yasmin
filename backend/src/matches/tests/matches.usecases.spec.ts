@@ -2,9 +2,10 @@ import {
   ConflictError,
   NotFoundError,
 } from '../../common/errors/domain.errors.js';
-import { Condition } from '../../domain/market-value.js';
-import { Position } from '../../domain/player-rating.js';
-import { PlayerEntity } from '../../players/domain/entities/player.entity.js';
+import { Condition } from '../../domain/condition.js';
+import { Attributes } from '../../domain/player-rating.js';
+import { Position } from '../../domain/position.js';
+import { aPlayer } from '../../players/tests/player.builder.js';
 import {
   IMatchRepository,
   MatchRecord,
@@ -20,23 +21,21 @@ import { toMatchResponse } from '../presentation/presenters/match.presenter.js';
 
 const NOW = new Date('2026-11-12T15:00:00-03:00');
 
+/** Titular com todos os atributos em 50, exceto os que decidem o duelo do caso */
 function player(
   id: number,
   name: string,
   position: Position,
-  attributes: Partial<PlayerEntity['attributes']>,
+  attributes: Partial<Attributes>,
   condition: Condition = 'APTO',
 ) {
-  return new PlayerEntity(
-    id,
-    name,
-    position,
-    70,
-    25,
-    30,
-    condition,
-    1,
-    {
+  return aPlayer()
+    .withId(id)
+    .withName(name)
+    .withPosition(position)
+    .withCondition(condition)
+    .withClub(1)
+    .withAttributes({
       pace: 50,
       shooting: 50,
       passing: 50,
@@ -44,9 +43,8 @@ function player(
       defending: 50,
       physical: 50,
       ...attributes,
-    },
-    80,
-  );
+    })
+    .build();
 }
 
 // Exemplo da RN20, com os titulares fora da ordem do elenco

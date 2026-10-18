@@ -1,6 +1,5 @@
 import { Cents, roundDiv } from './money.js';
-
-export type Position = 'GOL' | 'ZAG' | 'LAT' | 'MEI' | 'ATA';
+import { Position } from './position.js';
 
 export interface Attributes {
   pace: number;

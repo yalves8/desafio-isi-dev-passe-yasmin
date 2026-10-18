@@ -3,6 +3,45 @@ import { squadPlayerFixture } from '../../clubs.fixtures'
 import { LineupSlots } from './lineup-slots'
 
 describe('LineupSlots', () => {
+  it('deve mostrar os atributos que cada titular usa na vaga, como a API devolve', () => {
+    const goalkeeper = squadPlayerFixture({
+      duel: {
+        attack: { attribute: 'defending', value: 77, match_value: 77 },
+        defense: { attribute: 'defending', value: 77, match_value: 77 },
+      },
+    })
+    const fullBack = squadPlayerFixture({
+      id: 3,
+      name: 'Diego Ramos',
+      position: 'LAT',
+      condition: 'MAL_CONDICIONADO',
+      duel: {
+        attack: { attribute: 'dribbling', value: 74, match_value: 63 },
+        defense: { attribute: 'defending', value: 66, match_value: 56 },
+      },
+    })
+    render(
+      <LineupSlots
+        rows={[
+          { slot: { key: 'GK-1', sector: 'GK' }, player: goalkeeper, candidates: [goalkeeper] },
+          { slot: { key: 'DEF-1', sector: 'DEF' }, candidates: [] },
+          { slot: { key: 'DEF-2', sector: 'DEF' }, player: fullBack, candidates: [fullBack] },
+        ]}
+        duelRoles={[['defense'], ['defense'], ['attack', 'defense']]}
+        onSelect={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByRole('columnheader', { name: 'Atributos usados' })).toBeInTheDocument()
+    const [goalkeeperRow, emptyRow, fullBackRow] = screen.getAllByRole('row').slice(1)
+    expect(within(goalkeeperRow).getByTestId('duel-attributes')).toHaveTextContent('Defesa 77')
+    expect(within(emptyRow).queryByTestId('duel-attributes')).toBeNull()
+    // Figma: o atributo cadastrado, sem o efeito da condição
+    expect(within(fullBackRow).getByTestId('duel-attributes')).toHaveTextContent(
+      'Drible 74Defesa 66',
+    )
+  })
+
   it('deve mostrar titular e overall, e travar a vaga sem candidatos', () => {
     const goalkeeper = squadPlayerFixture()
     render(
@@ -11,6 +50,7 @@ describe('LineupSlots', () => {
           { slot: { key: 'GK-1', sector: 'GK' }, player: goalkeeper, candidates: [goalkeeper] },
           { slot: { key: 'MID-1', sector: 'MID' }, candidates: [] },
         ]}
+        duelRoles={[]}
         onSelect={vi.fn()}
       />,
     )
@@ -35,6 +75,7 @@ describe('LineupSlots', () => {
             error: 'Escolha o titular.',
           },
         ]}
+        duelRoles={[]}
         onSelect={vi.fn()}
       />,
     )
@@ -52,6 +93,7 @@ describe('LineupSlots', () => {
           { slot: { key: 'DEF-1', sector: 'DEF' }, candidates: [] },
           { slot: { key: 'DEF-2', sector: 'DEF' }, candidates: [] },
         ]}
+        duelRoles={[]}
         onSelect={vi.fn()}
       />,
     )

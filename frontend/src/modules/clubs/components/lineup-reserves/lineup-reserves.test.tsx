@@ -17,6 +17,21 @@ describe('LineupReserves', () => {
     expect(screen.getByText('Doente não pode ser escalado.')).toBeInTheDocument()
   })
 
+  it('deve esmaecer só quem não pode ser escalado', () => {
+    render(
+      <LineupReserves
+        reserves={[
+          squadPlayerFixture({ id: 1, name: 'Lucas Ferraz', condition: 'DOENTE' }),
+          squadPlayerFixture({ id: 2, name: 'Rui Prado', condition: 'APTO' }),
+        ]}
+        squadSize={6}
+      />,
+    )
+
+    expect(screen.getByText('Lucas Ferraz').closest('[data-blocked]')).toHaveClass('opacity-60')
+    expect(screen.getByText('Rui Prado').closest('[data-blocked]')).toBeNull()
+  })
+
   it('deve explicar quando todos estão escalados', () => {
     render(<LineupReserves reserves={[]} squadSize={2} />)
 

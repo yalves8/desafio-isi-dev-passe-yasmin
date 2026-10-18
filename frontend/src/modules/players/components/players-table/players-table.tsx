@@ -136,7 +136,9 @@ export function PlayersTable({ tabs, sort, list, actions, pagination }: PlayersT
             data-highlighted={player.id === list.highlightId || undefined}
             className="h-14 data-highlighted:bg-blue-50/70"
           >
-            <TableCell className="px-2 pl-4">
+            {/* A coluna do nome fica com o espaço que sobra (mínimo de 12rem) e trunca nomes longos:
+                sem isso ela cresce até caber o nome inteiro e a tabela ganha rolagem lateral */}
+            <TableCell className="w-full max-w-0 min-w-48 px-2 pl-4">
               <PlayerIdentity
                 id={player.id}
                 name={player.name}

@@ -1,6 +1,5 @@
 import { z } from 'zod';
-
-export const CONDITIONS = ['APTO', 'MAL_CONDICIONADO', 'DOENTE'] as const;
+import { CONDITIONS } from '../../../domain/condition.js';
 
 /**
  * Schema Zod de validação do payload HTTP para alteração da condição física (PATCH /api/v1/players/{id}/condition).

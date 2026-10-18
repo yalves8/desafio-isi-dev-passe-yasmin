@@ -127,6 +127,46 @@ describe('ClubDetailsPage', () => {
     expect(screen.getByRole('dialog', { name: 'Vender Felipe Moura?' })).toBeInTheDocument()
   })
 
+  it('deve mostrar "Sem conexão" e oferecer tentar de novo quando a venda não tem resposta', async () => {
+    const user = userEvent.setup()
+    const config = { headers: new AxiosHeaders() }
+    vi.mocked(playersService.sell)
+      .mockRejectedValueOnce(new AxiosError('Network Error', 'ERR_NETWORK', config, {}))
+      .mockResolvedValueOnce({
+        id: 11,
+        club_id: 1,
+        player_id: 2,
+        player_name: 'Felipe Moura',
+        type: 'VENDA',
+        value: 52,
+        fee: 0,
+        penalty: 5.2,
+        profit: 0,
+        cash_change: 46.8,
+        created_at: '2026-11-12T15:00:00-03:00',
+        purchase_value: 52,
+        remaining_days: 144,
+        penalty_rate: 10,
+        contract_status: 'RESCINDIDO',
+        club_cash: 98.38,
+      })
+    renderDetails()
+
+    await user.click(await screen.findByRole('button', { name: 'Vender Felipe Moura' }))
+    await user.click(screen.getByRole('button', { name: 'Confirmar venda' }))
+
+    const alert = await screen.findByRole('alert')
+    expect(alert).toHaveTextContent(
+      'Sem conexãoA venda não foi confirmada. Verifique a conexão e tente de novo.',
+    )
+    expect(alert).not.toHaveTextContent('A venda foi recusada')
+
+    await user.click(screen.getByRole('button', { name: 'Tentar de novo' }))
+
+    expect(playersService.sell).toHaveBeenCalledTimes(2)
+    expect(await screen.findByText('Venda concluída')).toBeInTheDocument()
+  })
+
   it('deve salvar a escalação com a formação e os 5 titulares', async () => {
     const user = userEvent.setup()
     vi.mocked(clubsService.updateLineup).mockResolvedValue(

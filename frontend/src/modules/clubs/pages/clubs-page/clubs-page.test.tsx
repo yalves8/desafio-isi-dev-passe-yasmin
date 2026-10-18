@@ -4,7 +4,7 @@ import { clubsService } from '@/api/clubs.service'
 import { renderPage } from '@/test/render'
 import { clubFixture } from '../../clubs.fixtures'
 import { ClubsPage } from './clubs-page'
-import { parseClubSort } from './clubs-page.utils'
+import { clubSortCodec } from './clubs-page.utils'
 
 vi.mock('@/api/clubs.service', () => ({ clubsService: { list: vi.fn(), create: vi.fn() } }))
 
@@ -51,10 +51,12 @@ describe('ClubsPage', () => {
   })
 })
 
-describe('parseClubSort', () => {
+describe('clubSortCodec', () => {
   it('deve voltar para "name" com valor inválido', () => {
-    expect(parseClubSort('net_worth_asc')).toBe('net_worth_asc')
-    expect(parseClubSort('xyz')).toBe('name')
-    expect(parseClubSort(null)).toBe('name')
+    expect(clubSortCodec.parse('net_worth_asc')).toBe('net_worth_asc')
+    expect(clubSortCodec.parse('xyz')).toBe('name')
+    expect(clubSortCodec.parse(null)).toBe('name')
+    expect(clubSortCodec.format('name')).toBeUndefined()
+    expect(clubSortCodec.format('net_worth_asc')).toBe('net_worth_asc')
   })
 })

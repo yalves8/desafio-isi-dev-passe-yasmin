@@ -1,16 +1,12 @@
 import { compareNames, removeAccents } from '../../common/utils/text.js';
-import { comparePositions } from '../../domain/enums/position.enum.js';
-
-/** Critérios de ordenação da listagem (RN07); até dois, o segundo desempata o primeiro */
-export type PlayerSortCriteria =
-  'name' | 'value_asc' | 'value_desc' | 'age_asc' | 'age_desc' | 'position';
+import { comparePositions, Position } from '../../domain/position.js';
 
 /** O que a busca, os filtros de valor e a ordenação da listagem usam de cada jogador */
 export interface ListedPlayer {
   id: number;
   name: string;
   age: number;
-  position: string;
+  position: Position;
   marketValue: number;
 }
 
@@ -33,32 +29,49 @@ export function isWithinValueRange(
   );
 }
 
-function compareBy(
-  criteria: PlayerSortCriteria,
-  a: ListedPlayer,
-  b: ListedPlayer,
-): number {
-  switch (criteria) {
-    case 'name':
-      return compareNames(a.name, b.name);
-    case 'value_asc':
-      return a.marketValue - b.marketValue;
-    case 'value_desc':
-      return b.marketValue - a.marketValue;
-    case 'age_asc':
-      return a.age - b.age;
-    case 'age_desc':
-      return b.age - a.age;
-    case 'position':
-      return comparePositions(a.position, b.position);
-  }
+/** Um critério de ordenação: o campo base (que não pode se repetir no `sort`) e a comparação */
+interface PlayerSort {
+  field: 'name' | 'value' | 'age' | 'position';
+  compare: (a: ListedPlayer, b: ListedPlayer) => number;
+}
+
+/**
+ * Critérios de ordenação da listagem (RN07), fonte única do domínio e da validação da query.
+ * Até dois por vez; o segundo desempata o primeiro.
+ */
+export const PLAYER_SORTS = {
+  name: { field: 'name', compare: (a, b) => compareNames(a.name, b.name) },
+  value_asc: {
+    field: 'value',
+    compare: (a, b) => a.marketValue - b.marketValue,
+  },
+  value_desc: {
+    field: 'value',
+    compare: (a, b) => b.marketValue - a.marketValue,
+  },
+  age_asc: { field: 'age', compare: (a, b) => a.age - b.age },
+  age_desc: { field: 'age', compare: (a, b) => b.age - a.age },
+  position: {
+    field: 'position',
+    compare: (a, b) => comparePositions(a.position, b.position),
+  },
+} as const satisfies Record<string, PlayerSort>;
+
+/** Critério de ordenação aceito: uma das chaves de `PLAYER_SORTS` */
+export type PlayerSortCriteria = keyof typeof PLAYER_SORTS;
+
+/** Diz se o texto é um critério de ordenação de jogadores (só as chaves próprias do mapa) */
+export function isPlayerSortCriteria(
+  value: string,
+): value is PlayerSortCriteria {
+  return Object.hasOwn(PLAYER_SORTS, value);
 }
 
 /** RN07: ordena pelos critérios pedidos; o empate é desfeito pelo nome e depois pelo id */
 export function comparePlayers(criteria: PlayerSortCriteria[]) {
   return (a: ListedPlayer, b: ListedPlayer): number => {
     for (const criterion of criteria) {
-      const diff = compareBy(criterion, a, b);
+      const diff = PLAYER_SORTS[criterion].compare(a, b);
       if (diff !== 0) return diff;
     }
     return compareNames(a.name, b.name) || a.id - b.id;

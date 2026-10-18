@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { Formation, Lineup, Player } from '@/api/types'
+import { CONDITION_RULES } from '@/modules/players'
 import type { LineupSelection } from '../../clubs.types'
 import {
   assignPlayers,
@@ -25,7 +26,7 @@ export function useLineupEditor({
     if (lineup.formation === null) {
       return assignPlayers(
         savedFormation,
-        squad.filter((p) => p.condition !== 'DOENTE'),
+        squad.filter((p) => CONDITION_RULES[p.condition].canStart),
       )
     }
     const ids = new Set(lineup.players.map((p) => p.id))
@@ -57,7 +58,7 @@ export function useLineupEditor({
     formation,
     rows,
     reserves: squad.filter((p) => !chosenIds.has(p.id)),
-    worn: starters.filter((p) => p.condition === 'MAL_CONDICIONADO'),
+    worn: starters.filter((p) => CONDITION_RULES[p.condition].worn),
     filled,
     hasChanges,
     canClose: canAnyFormationClose(squad),

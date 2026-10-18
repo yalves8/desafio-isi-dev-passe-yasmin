@@ -1,4 +1,5 @@
 import type { Player } from '@/api/types'
+import type { InlineError } from '@/hooks/use-inline-action'
 
 export interface SellPlayerDialogProps {
   player: Player
@@ -6,8 +7,8 @@ export interface SellPlayerDialogProps {
   /** Titular da escalação: avisa que ele sai dela e o clube fica sem poder jogar */
   isStarter: boolean
   isSelling: boolean
-  /** `message` da API quando a venda é recusada */
-  error?: string
+  /** Recusa da API (`message` dela) ou falha de rede, que pode ser enviada de novo */
+  error?: InlineError
   onClose: () => void
   onConfirm: () => void
 }

@@ -1,8 +1,7 @@
-import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { clubsService } from '@/api/clubs.service'
 import { matchesService } from '@/api/matches.service'
 import { useFetch } from '@/hooks/use-fetch'
+import { useLeagueClubs } from '@/hooks/use-league-clubs'
 import { useLeagueData } from '@/hooks/use-league-data'
 
 const RECENT_MATCHES = 5
@@ -17,10 +16,7 @@ export function useStandingsPage() {
   const matches = useFetch(`matches-all:${version}`, () => matchesService.list(), {
     keepPreviousData: true,
   })
-  const clubs = useFetch(`clubs:${version}`, () => clubsService.list('name'), {
-    keepPreviousData: true,
-  })
-  const clubsById = useMemo(() => new Map((clubs.data ?? []).map((c) => [c.id, c])), [clubs.data])
+  const { byId: clubsById } = useLeagueClubs()
   const rows = standings.data ?? []
 
   return {

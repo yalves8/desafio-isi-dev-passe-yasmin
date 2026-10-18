@@ -1,11 +1,11 @@
 import { useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
-import { clubsService } from '@/api/clubs.service'
 import { playersService } from '@/api/players.service'
 import type { Club, Condition, Player, PurchaseResult } from '@/api/types'
 import { useAction } from '@/hooks/use-action'
 import { useFetch } from '@/hooks/use-fetch'
+import { useLeagueClubs } from '@/hooks/use-league-clubs'
 import { useLeagueData } from '@/hooks/use-league-data'
 import { formatMoney } from '@/lib/format'
 import {
@@ -79,11 +79,8 @@ export function usePlayersPage() {
     { keepPreviousData: true },
   )
 
-  const clubs = useFetch(`clubs:${version}`, () => clubsService.list('name'), {
-    keepPreviousData: true,
-  })
-  const clubList = useMemo(() => clubs.data ?? [], [clubs.data])
-  const clubsById = useMemo(() => new Map(clubList.map((c) => [c.id, c])), [clubList])
+  const clubs = useLeagueClubs()
+  const { list: clubList, byId: clubsById } = clubs
   const clubOf = (player: Player): Club | undefined =>
     player.club_id === null ? undefined : clubsById.get(player.club_id)
 

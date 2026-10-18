@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { Pitch, PitchPlayer } from '@/components/data-display/pitch/pitch'
 import { cn } from '@/lib/utils'
+import { CONDITION_RULES } from '@/modules/players'
 import { ATTRIBUTE_LABEL } from '../../league.constants'
 import { startersFromDuels, type MatchStarter } from '../../league.utils'
 import type { MatchPitchProps } from './match-pitch.types'
@@ -64,7 +65,7 @@ export function MatchPitch({ match }: MatchPitchProps) {
               detail={starterDetail(starter)}
               tone={side === 'home' ? 'primary' : 'light'}
               size="lg"
-              worn={starter.condition === 'MAL_CONDICIONADO'}
+              worn={CONDITION_RULES[starter.condition].worn}
               scored={starter.scored}
             />
           </span>

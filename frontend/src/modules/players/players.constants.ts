@@ -18,6 +18,18 @@ export const POSITION_LABEL = Object.fromEntries(
   POSITION_OPTIONS.map((p) => [p.value, p.label]),
 ) as Record<Position, string>
 
+/** Setores do campo: goleiro, defesa, meio e ataque */
+export type Sector = 'GK' | 'DEF' | 'MID' | 'ATT'
+
+/** Setor de cada posição: ZAG e LAT jogam na defesa */
+export const POSITION_SECTOR: Record<Position, Sector> = {
+  GOL: 'GK',
+  ZAG: 'DEF',
+  LAT: 'DEF',
+  MEI: 'MID',
+  ATA: 'ATT',
+}
+
 export const CONDITION_OPTIONS: {
   value: Condition
   label: string
@@ -49,6 +61,36 @@ export const CONDITION_OPTIONS: {
 export const CONDITION_BY_VALUE = Object.fromEntries(
   CONDITION_OPTIONS.map((c) => [c.value, c]),
 ) as Record<Condition, (typeof CONDITION_OPTIONS)[number]>
+
+const ALL_CONDITIONS = CONDITION_OPTIONS.map((c) => c.value)
+
+/** O que cada condição física muda no jogo (as mesmas regras da API) */
+export const CONDITION_RULES: Record<
+  Condition,
+  {
+    /** Pode ser titular (RN19) */
+    canStart: boolean
+    /** Ao entrar nesta condição, sai da escalação (RN19) */
+    leavesLineup: boolean
+    /** Joga com 85% do atributo (RN20) */
+    worn: boolean
+    /** Condições para as quais pode passar; de DOENTE não se vai direto para APTO */
+    canBecome: readonly Condition[]
+  }
+> = {
+  APTO: { canStart: true, leavesLineup: false, worn: false, canBecome: ALL_CONDITIONS },
+  MAL_CONDICIONADO: { canStart: true, leavesLineup: false, worn: true, canBecome: ALL_CONDITIONS },
+  DOENTE: {
+    canStart: false,
+    leavesLineup: true,
+    worn: false,
+    canBecome: ['MAL_CONDICIONADO', 'DOENTE'],
+  },
+}
+
+export function canChangeCondition(from: Condition, to: Condition) {
+  return CONDITION_RULES[from].canBecome.includes(to)
+}
 
 /** As 6 ordenações aceitas pela API; `short` aparece no botão ("Ordenar: nome") */
 export const SORT_OPTIONS: { value: PlayerSort; label: string; short: string }[] = [

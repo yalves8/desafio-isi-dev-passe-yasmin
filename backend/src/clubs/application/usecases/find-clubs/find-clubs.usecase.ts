@@ -1,7 +1,7 @@
 import {
-  ClubSortEnum,
   compareClubsBySortCriteria,
-} from '../../../domain/enums/club-sort.enum.js';
+  DEFAULT_CLUB_SORT,
+} from '../../../domain/club-sort.js';
 import { summarizeClub } from '../../club-summary.js';
 import { IClubRepository } from '../../interfaces/repositories/club.repository.interface.js';
 import { FindClubsInput } from './find-clubs.input.js';
@@ -37,7 +37,7 @@ export class FindClubsUseCase {
    * @returns {Promise<FindClubsOutput>} Lista de clubes ordenados com os totais de patrimônio.
    */
   async execute(input?: FindClubsInput): Promise<FindClubsOutput> {
-    const sort = input?.sort ?? ClubSortEnum.NAME;
+    const sort = input?.sort ?? DEFAULT_CLUB_SORT;
     const rawClubs = await this.clubRepository.findAllWithSquad();
 
     const result = rawClubs.map(({ club, players }) =>

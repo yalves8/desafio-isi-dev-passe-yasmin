@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { MAX_ID, POSITIVE_INT_REGEX } from '../../../common/utils/id.js';
+import { parseQueryId } from '../../../common/utils/query-params.js';
 
 /**
  * Valida o filtro de GET /matches: `club_id` inteiro positivo só com dígitos, sem zeros à
@@ -17,12 +17,8 @@ export function parseMatchesQuery(query: Record<string, unknown>): {
   if (value === '') {
     throw new BadRequestException('Parâmetro club_id não pode ser vazio');
   }
-  if (
-    typeof value !== 'string' ||
-    !POSITIVE_INT_REGEX.test(value) ||
-    Number(value) > MAX_ID
-  ) {
+  if (typeof value !== 'string') {
     throw new BadRequestException('club_id deve ser um inteiro positivo');
   }
-  return { clubId: Number(value) };
+  return { clubId: parseQueryId('club_id', value) };
 }

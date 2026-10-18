@@ -1,6 +1,6 @@
-import { Condition } from '../../../../domain/market-value.js';
+import { Condition } from '../../../../domain/condition.js';
 import { DuelAttribute, MatchResult } from '../../../../domain/match-engine.js';
-import { Position } from '../../../../domain/player-rating.js';
+import { Position } from '../../../../domain/position.js';
 import { Formation } from '../../../../lineups/domain/formation.js';
 import { PlayerEntity } from '../../../../players/domain/entities/player.entity.js';
 import { PlayedScore } from '../../../domain/standings.js';

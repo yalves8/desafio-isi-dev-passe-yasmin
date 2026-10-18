@@ -1,9 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { clubsService } from '@/api/clubs.service'
 import type { Club } from '@/api/types'
-import { useAction } from '@/hooks/use-action'
+import { useInlineAction } from '@/hooks/use-inline-action'
 import {
   createClubSchema,
   type CreateClubFormInput,
@@ -18,17 +17,14 @@ export function useClubCreateDialog({ onCreated }: { onCreated: (club: Club) => 
     defaultValues: { name: '', acronym: '' },
   })
   // Nome ou sigla repetidos e o limite de 20 clubes só a API sabe: o 409 aparece no diálogo
-  const [apiError, setApiError] = useState<string>()
-  const save = useAction((input: CreateClubInput) => clubsService.create(input), {
+  const save = useInlineAction((input: CreateClubInput) => clubsService.create(input), {
     errorTitle: 'Não foi possível criar o clube',
-    toastOnError: false,
   })
+  const apiError = save.error?.message
 
   const onSubmit = form.handleSubmit(async (input) => {
-    setApiError(undefined)
     const result = await save.run(input)
     if (result.ok) onCreated(result.data)
-    else setApiError(result.error)
   })
 
   return {

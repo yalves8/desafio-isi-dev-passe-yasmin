@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { matchesService } from '@/api/matches.service'
 import type { Club, Match } from '@/api/types'
-import { useAction } from '@/hooks/use-action'
+import { useInlineAction } from '@/hooks/use-inline-action'
 import { refusedSide, validateClubs } from './new-match-dialog.utils'
 
 export function useNewMatchDialog({
@@ -15,26 +15,21 @@ export function useNewMatchDialog({
   const [awayId, setAwayId] = useState<number>()
   const [submitted, setSubmitted] = useState(false)
   // Escalação incompleta e clube inexistente só a API sabe: a recusa fica no diálogo (L04)
-  const [apiError, setApiError] = useState<string>()
-
-  const play = useAction(
+  const play = useInlineAction(
     (input: { home_club_id: number; away_club_id: number }) => matchesService.play(input),
-    {
-      errorTitle: 'Não foi possível jogar a partida',
-      toastOnError: false,
-    },
+    { errorTitle: 'Não foi possível jogar a partida' },
   )
+  const apiError = play.error?.message
   const errors = submitted ? validateClubs(homeId, awayId) : {}
   const byId = (id?: number) => clubs.find((c) => c.id === id)
 
   const onSubmit = async () => {
     setSubmitted(true)
-    setApiError(undefined)
+    play.clearError()
     const invalid = validateClubs(homeId, awayId)
     if (invalid.home || invalid.away) return
     const result = await play.run({ home_club_id: homeId!, away_club_id: awayId! })
     if (result.ok) onPlayed(result.data)
-    else setApiError(result.error)
   }
 
   return {
