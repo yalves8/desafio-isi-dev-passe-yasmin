@@ -15,11 +15,12 @@ import { ConditionBadge } from '@/modules/players'
 import { SECTORS } from '../../clubs.constants'
 import type { LineupSlotsProps } from './lineup-slots.types'
 
+// Proporções do Figma (C06), relativas à largura do card; "Atributos usados" fica com a sobra
 const COLUMNS: DataTableColumn[] = [
-  { label: 'Vaga' },
-  { label: 'Titular' },
-  { label: 'Condição' },
-  { label: 'Overall', numeric: true },
+  { label: 'Vaga', className: 'w-[16%]' },
+  { label: 'Titular', className: 'w-[29%]' },
+  { label: 'Condição', className: 'w-[21%]' },
+  { label: 'Overall', numeric: true, className: 'w-[8%]' },
   { label: 'Atributos usados' },
 ]
 
@@ -27,7 +28,7 @@ const COLUMNS: DataTableColumn[] = [
  * Uma linha por vaga: titular escolhido, condição, overall e os atributos que ele usa na partida.
  * Quem ataca ou defende em cada vaga e o valor de cada atributo vêm da API (RN20).
  */
-export function LineupSlots({ rows, duelRoles, onSelect }: LineupSlotsProps) {
+export function LineupSlots({ rows, duelRoles, duelValues, onSelect }: LineupSlotsProps) {
   // Setor com mais de uma vaga leva o número no nome ("Defesa 2"), para cada vaga ter nome único
   const repeated = (sector: string) => rows.filter((r) => r.slot.sector === sector).length > 1
   return (
@@ -36,8 +37,9 @@ export function LineupSlots({ rows, duelRoles, onSelect }: LineupSlotsProps) {
       rows={rows}
       rowKey={(row) => row.slot.key}
       empty={{ icon: Shirt, title: 'Nenhuma vaga na formação' }}
-      renderRow={({ slot, player, candidates, error }) => {
+      renderRow={({ slot, player, candidates, error, emptyText }) => {
         const roles = duelRoles[rows.findIndex((r) => r.slot.key === slot.key)] ?? []
+        const duel = player && duelValues.get(player.id)
         const sector = SECTORS[slot.sector]
         const id = `slot-${slot.key}`
         const number = repeated(slot.sector) ? slot.key.split('-')[1] : undefined
@@ -57,7 +59,7 @@ export function LineupSlots({ rows, duelRoles, onSelect }: LineupSlotsProps) {
                 <span className="text-xs text-muted-foreground">{sector.positions}</span>
               </label>
             </TableCell>
-            <TableCell className="w-60 py-2">
+            <TableCell className="py-2">
               <div className="flex flex-col gap-1">
                 <Select
                   value={player ? String(player.id) : ''}
@@ -72,7 +74,7 @@ export function LineupSlots({ rows, duelRoles, onSelect }: LineupSlotsProps) {
                     aria-describedby={error ? `${id}-message` : undefined}
                   >
                     <SelectValue
-                      placeholder={candidates.length === 0 ? sector.empty : 'Escolha o titular'}
+                      placeholder={candidates.length === 0 ? emptyText : 'Escolha o titular'}
                     />
                   </SelectTrigger>
                   <SelectContent>
@@ -91,10 +93,10 @@ export function LineupSlots({ rows, duelRoles, onSelect }: LineupSlotsProps) {
               {player?.overall}
             </TableCell>
             <TableCell className="pr-4">
-              {player?.duel && (
+              {duel && (
                 <span data-testid="duel-attributes" className="flex gap-4 tabular-nums">
                   {roles.map((role) => {
-                    const { attribute, value } = player.duel![role]
+                    const { attribute, value } = duel[role]
                     return (
                       <span key={role}>
                         <span className="text-muted-foreground">

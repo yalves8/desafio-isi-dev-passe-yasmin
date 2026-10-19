@@ -10,7 +10,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group"
       icons={{
         success: (
-          <CircleCheckIcon className="size-4" />
+          <CircleCheckIcon className="size-4 text-success" />
         ),
         info: (
           <InfoIcon className="size-4" />
@@ -34,8 +34,14 @@ const Toaster = ({ ...props }: ToasterProps) => {
         } as React.CSSProperties
       }
       toastOptions={{
+        // Figma (J13): ícone alinhado ao título, descrição em cinza e o X no canto superior direito
         classNames: {
-          toast: "cn-toast",
+          toast: "cn-toast !items-start !gap-3 !p-4 !pr-10 !shadow-lg",
+          icon: "!mt-0.5",
+          title: "!text-sm !font-medium",
+          description: "!mt-0.5 !text-sm !text-muted-foreground",
+          closeButton:
+            "!left-auto !right-3 !top-3 !size-5 !transform-none !border-0 !bg-transparent !text-muted-foreground hover:!text-foreground",
         },
       }}
       {...props}

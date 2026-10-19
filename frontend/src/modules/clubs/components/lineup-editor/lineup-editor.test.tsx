@@ -125,7 +125,45 @@ describe('LineupEditor', () => {
     expect(
       screen.getByText('Nenhum reserva: os 2 jogadores do elenco estão escolhidos.'),
     ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /salvar escalação/i })).toBeEnabled()
+    // Figma (Gama SC): sem jogadores para fechar uma formação, salvar fica travado
+    expect(screen.getByRole('button', { name: /salvar escalação/i })).toBeDisabled()
+  })
+
+  it('deve explicar quem falta quando a escalação salva ficou sem formação possível', () => {
+    // Figma: Felipe Moura vendido, Lucas Ferraz DOENTE no elenco
+    renderEditor({
+      squad: [goalkeeper, fullBack, midfielder, striker, sick],
+      lineup: lineupFixture({
+        formation: '2-1-1',
+        complete: false,
+        players: [goalkeeper, fullBack, midfielder, striker],
+      }),
+    })
+
+    expect(
+      screen.getByText(
+        'Um titular saiu da escalação: a 2-1-1 continua salva, com 4 titulares. Com o Lucas Ferraz DOENTE, sobram 3 jogadores de linha que podem ser escalados, e nenhuma formação fecha: o clube precisa comprar um jogador e escalar de novo.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /salvar escalação/i })).toBeDisabled()
+  })
+
+  it('deve dizer que não sobra goleiro quando o único disponível está DOENTE', () => {
+    const sickKeeper = player({ id: 7, name: 'Rui Prado', position: 'GOL', condition: 'DOENTE' })
+    renderEditor({
+      squad: [sickKeeper, centerBack, fullBack, midfielder, striker],
+      lineup: lineupFixture({
+        formation: '2-1-1',
+        complete: false,
+        players: [centerBack, fullBack, midfielder, striker],
+      }),
+    })
+
+    expect(
+      screen.getByText(
+        'Um titular saiu da escalação: a 2-1-1 continua salva, com 4 titulares. Com o Rui Prado DOENTE, não sobra goleiro que possa ser escalado, e nenhuma formação fecha: o clube precisa comprar um jogador e escalar de novo.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('deve mostrar a recusa da API e a escalação salva que ficou incompleta', () => {
@@ -139,6 +177,6 @@ describe('LineupEditor', () => {
     })
 
     expect(screen.getByRole('alert')).toHaveTextContent('A escalação foi recusada')
-    expect(screen.getByText(/A formação 2-1-1 continua salva, com 4 titulares/)).toBeInTheDocument()
+    expect(screen.getByText(/a 2-1-1 continua salva, com 4 titulares/)).toBeInTheDocument()
   })
 })

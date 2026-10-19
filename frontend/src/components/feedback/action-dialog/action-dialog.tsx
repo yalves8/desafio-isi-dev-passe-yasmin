@@ -47,7 +47,9 @@ export function ActionDialog({
         onInteractOutside={alert ? (e) => e.preventDefault() : undefined}
         onCloseAutoFocus={returnFocus}
         className={cn(
-          'max-h-[calc(100dvh-2rem)] gap-5 overflow-y-auto p-6',
+          // Filhos do grid com min-w-0: texto longo sem espaço (nome de jogador) não alarga o
+          // diálogo nem cria rolagem lateral
+          'max-h-[calc(100dvh-2rem)] gap-5 overflow-y-auto p-6 *:min-w-0',
           SIZES[size],
           className,
         )}
@@ -61,7 +63,7 @@ export function ActionDialog({
               <CircleCheck className="size-5" aria-hidden />
             </span>
           )}
-          <DialogTitle className="text-lg font-semibold">{title}</DialogTitle>
+          <DialogTitle className="text-lg font-semibold wrap-anywhere">{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
 

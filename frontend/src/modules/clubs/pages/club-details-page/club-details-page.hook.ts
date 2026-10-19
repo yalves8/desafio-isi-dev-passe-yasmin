@@ -29,6 +29,9 @@ export function useClubDetailsPage() {
   const lineup = useFetch(`lineup:${clubId}:${version}`, () => clubsService.getLineup(clubId), {
     keepPreviousData: true,
   })
+  const duels = useFetch(`duel-attributes:${clubId}:${version}`, () =>
+    clubsService.getDuelAttributes(clubId),
+  )
   const history = useFetch(`transactions-count:${clubId}:${version}`, () =>
     clubsService.getTransactions(clubId),
   )
@@ -67,7 +70,9 @@ export function useClubDetailsPage() {
   const saveLineup = async (formation: Formation, playerIds: number[]) => {
     const result = await lineupAction.run(formation, playerIds)
     if (result.ok) {
+      // Figma C08: o aviso de escalação salva aparece no topo, perto do card
       toast.success('Escalação salva', {
+        position: 'top-right',
         description: `${club.data?.name} na ${result.data.formation}, com os ${result.data.players.length} titulares devolvidos pela API.`,
       })
     }
@@ -94,6 +99,8 @@ export function useClubDetailsPage() {
     },
     lineup: {
       data: lineup.data,
+      // Sem os atributos (falha ou carregando), a coluna "Atributos usados" fica vazia
+      duels: duels.data,
       error: lineup.error,
       editorKey: lineup.data ? lineupEditorKey(lineup.data, squad) : '',
       isSaving: lineupAction.isPending,

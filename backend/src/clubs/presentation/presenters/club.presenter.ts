@@ -1,4 +1,4 @@
-import { DuelValue } from '../../../domain/match-engine.js';
+import { DUEL_ROLES, DuelValue } from '../../../domain/match-engine.js';
 import { formatBrasiliaDateTime } from '../../../common/utils/date.js';
 import { toPlayerResponse } from '../../../players/presentation/presenters/player.presenter.js';
 import {
@@ -8,6 +8,7 @@ import {
 import { ClubSummary } from '../../application/usecases/find-clubs/find-clubs.output.js';
 import {
   ClubDetailsResponse,
+  ClubDuelAttributesResponse,
   ClubResponse,
   SquadPlayerResponse,
 } from '../responses/club.response.js';
@@ -26,20 +27,11 @@ export function toClubResponse(club: ClubSummary): ClubResponse {
 
 function toSquadPlayerResponse(
   clubId: number,
-  { player, contract, duel }: SquadMember,
+  { player, contract }: SquadMember,
 ): SquadPlayerResponse {
-  const toDuelValue = ({ attribute, value, matchValue }: DuelValue) => ({
-    attribute,
-    value,
-    match_value: matchValue,
-  });
   return {
     ...toPlayerResponse(player),
     club_id: clubId,
-    duel: {
-      attack: toDuelValue(duel.attack),
-      defense: toDuelValue(duel.defense),
-    },
     contract: contract && {
       purchase_value: contract.purchaseValue.toNumber(),
       loyalty_until: formatBrasiliaDateTime(contract.loyaltyUntil),
@@ -56,5 +48,28 @@ export function toClubDetailsResponse(
   return {
     ...toClubResponse(club),
     players: club.squad.map((member) => toSquadPlayerResponse(club.id, member)),
+  };
+}
+
+function toDuelValueResponse({ attribute, value, matchValue }: DuelValue) {
+  return { attribute, value, match_value: matchValue };
+}
+
+/**
+ * Atributos de duelo do elenco (GET /clubs/{id}/duel-attributes): o papel de cada vaga da
+ * escalação e o que cada jogador usa ao atacar e ao defender (RN20). Fica fora de
+ * GET /clubs/{id} e GET /clubs/{id}/lineup para não mudar o formato do enunciado.
+ */
+export function toClubDuelAttributesResponse(
+  club: FindClubByIdOutput,
+): ClubDuelAttributesResponse {
+  return {
+    club_id: club.id,
+    roles: DUEL_ROLES,
+    players: club.squad.map(({ player, duel }) => ({
+      id: player.id,
+      attack: toDuelValueResponse(duel.attack),
+      defense: toDuelValueResponse(duel.defense),
+    })),
   };
 }

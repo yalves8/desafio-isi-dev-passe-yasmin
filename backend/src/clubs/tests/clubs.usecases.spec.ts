@@ -77,9 +77,15 @@ describe('Club Use Cases (Clean Architecture)', () => {
         new ClubEntity(1, 'Águias FC', 'águias fc', 'AGU', CASH_300),
       );
 
-      await expect(
-        createClubUseCase.execute({ name: 'águias fc', acronym: 'AGU' }),
-      ).rejects.toThrow(ConflictError);
+      const attempt = createClubUseCase.execute({
+        name: 'águias fc',
+        acronym: 'AGU',
+      });
+      await expect(attempt).rejects.toThrow(ConflictError);
+      // Figma: a mensagem cita o clube que já existe, com o nome gravado
+      await expect(attempt).rejects.toThrow(
+        'Já existe um clube com o nome “Águias FC”.',
+      );
     });
 
     it('deve recusar clube com sigla já cadastrada (409)', async () => {
@@ -100,7 +106,7 @@ describe('Club Use Cases (Clean Architecture)', () => {
           name: 'América Grandioso United',
           acronym: 'AGU',
         }),
-      ).rejects.toThrow(ConflictError);
+      ).rejects.toThrow('Já existe um clube com a sigla “AGU”.');
     });
   });
 

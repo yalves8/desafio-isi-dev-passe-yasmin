@@ -20,10 +20,12 @@ import { createClubSchema } from '../dtos/create-club.dto.js';
 import { parseQueryClubs } from '../dtos/query-clubs.dto.js';
 import {
   toClubDetailsResponse,
+  toClubDuelAttributesResponse,
   toClubResponse,
 } from '../presenters/club.presenter.js';
 import {
   ClubDetailsResponse,
+  ClubDuelAttributesResponse,
   ClubResponse,
 } from '../responses/club.response.js';
 
@@ -94,6 +96,22 @@ export class ClubsController {
     @Param('id', ParseIdPipe) id: number,
   ): Promise<ClubDetailsResponse> {
     return toClubDetailsResponse(
+      await this.findClubByIdUseCase.execute({ id }),
+    );
+  }
+
+  /**
+   * Endpoint com o papel de cada vaga da escalação e os atributos de duelo de cada jogador do
+   * elenco (RN20), para a tela de escalação mostrar "Atributos usados" sem recalcular regra.
+   *
+   * @param {number} id - Identificador do clube na URL validado pelo ParseIdPipe.
+   * @returns {Promise<ClubDuelAttributesResponse>} Papéis das vagas e atributos do elenco.
+   */
+  @Get(':id/duel-attributes')
+  async findDuelAttributes(
+    @Param('id', ParseIdPipe) id: number,
+  ): Promise<ClubDuelAttributesResponse> {
+    return toClubDuelAttributesResponse(
       await this.findClubByIdUseCase.execute({ id }),
     );
   }

@@ -19,6 +19,8 @@ export interface LineupRow {
   slot: LineupSlot
   player?: Player
   candidates: Player[]
+  /** Texto da vaga sem candidatos: falta a posição no elenco ou só jogador disponível */
+  emptyText?: string
   /** Vaga vazia ao tentar salvar */
   error?: string
 }

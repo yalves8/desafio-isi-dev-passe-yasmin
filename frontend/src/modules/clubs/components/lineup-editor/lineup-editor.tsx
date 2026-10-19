@@ -8,6 +8,7 @@ import { LineupPitch } from '../lineup-pitch/lineup-pitch'
 import { LineupReserves } from '../lineup-reserves/lineup-reserves'
 import { LineupSlots } from '../lineup-slots/lineup-slots'
 import { useLineupEditor } from './lineup-editor.hook'
+import { describeIncompleteLineup } from './lineup-editor.utils'
 import type { LineupEditorProps } from './lineup-editor.types'
 import { joinNames } from './lineup-editor.utils'
 
@@ -16,11 +17,13 @@ export function LineupEditor({
   clubName,
   squad,
   lineup,
+  duels,
   isSaving,
   saveError,
   onSave,
 }: LineupEditorProps) {
   const editor = useLineupEditor({ lineup, squad, onSave })
+  const duelValues = new Map(duels?.players.map((p) => [p.id, p]))
   const incompleteTitle = `Escalação incompleta: o ${clubName} não pode jogar partidas`
   const neverSaved = lineup.formation === null
 
@@ -65,12 +68,12 @@ export function LineupEditor({
             )}
             {!neverSaved && !lineup.complete && (
               <AlertMessage variant="warning" title={incompleteTitle}>
-                A formação {lineup.formation} continua salva, com {lineup.players.length}{' '}
-                {lineup.players.length === 1 ? 'titular' : 'titulares'}. Titular vendido ou que
-                ficou Doente sai da escalação e não volta sozinho.{' '}
-                {editor.canClose
-                  ? 'Escolha os titulares e salve de novo.'
-                  : 'Com os jogadores disponíveis, nenhuma formação fecha: o clube precisa comprar um jogador e escalar de novo.'}
+                {describeIncompleteLineup(
+                  lineup.formation!,
+                  lineup.players.length,
+                  squad,
+                  editor.canClose,
+                )}
               </AlertMessage>
             )}
             <div>
@@ -83,7 +86,12 @@ export function LineupEditor({
             <FormationPicker value={editor.formation} onChange={editor.changeFormation} />
           </div>
 
-          <LineupSlots rows={editor.rows} duelRoles={lineup.duel_roles} onSelect={editor.select} />
+          <LineupSlots
+            rows={editor.rows}
+            duelRoles={duels?.roles ?? []}
+            duelValues={duelValues}
+            onSelect={editor.select}
+          />
 
           {editor.worn.length > 0 && (
             <div className="px-5 pt-4">
@@ -106,7 +114,7 @@ export function LineupEditor({
             <Button variant="outline" size="md" onClick={editor.reset} disabled={isSaving}>
               Cancelar
             </Button>
-            <Button size="md" onClick={editor.submit} disabled={isSaving}>
+            <Button size="md" onClick={editor.submit} disabled={isSaving || !editor.canClose}>
               <Check /> {isSaving ? 'Salvando…' : 'Salvar escalação'}
             </Button>
           </div>

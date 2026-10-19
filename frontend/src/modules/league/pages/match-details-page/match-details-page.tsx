@@ -1,4 +1,5 @@
-import { HeartPulse, Volleyball } from 'lucide-react'
+import { HeartPulse } from 'lucide-react'
+import { SoccerBall } from '@/components/data-display/soccer-ball/soccer-ball'
 import { LegendItem } from '@/components/data-display/legend-item/legend-item'
 import { PageSkeleton } from '@/components/feedback/page-skeleton/page-skeleton'
 import { ErrorState } from '@/components/feedback/states'
@@ -61,7 +62,7 @@ export function MatchDetailsPage() {
             >
               Mal condicionado
             </LegendItem>
-            <LegendItem marker={<Volleyball className="size-4" aria-hidden />}>
+            <LegendItem marker={<SoccerBall className="size-4 text-zinc-900" aria-hidden />}>
               Gol no duelo
             </LegendItem>
           </p>

@@ -102,8 +102,8 @@ A validação de formato fica no `createClubSchema` (400) e a de conflito no `Cr
 | 4 | Sigla com exatamente 3 letras `A-Z` | `400` |
 | 5 | Sigla sem as três letras iguais; primeira letra = primeira letra do nome; letras em subsequência do nome (sem acento, sem diferenciar maiúsculas) | `400` |
 | 6 | Liga com menos de 20 clubes | `409` "A liga aceita no máximo 20 clubes" |
-| 7 | Nome normalizado (V4 + minúsculas, acentos mantidos) ainda não cadastrado | `409` "Clube com este nome já cadastrado" |
-| 8 | Sigla ainda não cadastrada | `409` "Clube com esta sigla já cadastrado" |
+| 7 | Nome normalizado (V4 + minúsculas, acentos mantidos) ainda não cadastrado | `409` "Já existe um clube com o nome “{nome gravado}”." |
+| 8 | Sigla ainda não cadastrada | `409` "Já existe um clube com a sigla “{sigla}”." |
 | 9 | Persiste com `caixa = 300.00` e `formacao = null` | `201` |
 
 Exemplo do enunciado: com "Águias FC" cadastrado, "  águias   fc " é recusado (409) e "Aguias FC" é aceito. A unicidade também é garantida no banco pelos índices `UNIQUE` em `nome_normalizado` e `sigla`.

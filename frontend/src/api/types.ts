@@ -35,8 +35,6 @@ export interface Player {
   overall: number
   club_id: number | null
   contract?: ContractDetails | null
-  /** Só no elenco de `GET /clubs/{id}`: atributo usado ao atacar e ao defender (RN20) */
-  duel?: Record<DuelRole, DuelValue>
 }
 
 /** Papel de um titular nos duelos da partida (RN20) */
@@ -88,8 +86,16 @@ export interface Lineup {
   formation: Formation | null
   complete: boolean
   players: Player[]
-  /** Papel de cada vaga nos duelos: goleiro e linha de trás para frente (RN20) */
-  duel_roles: DuelRole[][]
+}
+
+/** Atributo usado ao atacar e ao defender, por jogador do elenco (RN20) */
+export type DuelValues = Record<DuelRole, DuelValue>
+
+/** `GET /clubs/{id}/duel-attributes`: papel de cada vaga (goleiro e linha de trás para frente) */
+export interface ClubDuelAttributes {
+  club_id: number
+  roles: DuelRole[][]
+  players: ({ id: number } & DuelValues)[]
 }
 
 export type TransactionType = 'COMPRA' | 'VENDA'

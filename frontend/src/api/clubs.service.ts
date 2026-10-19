@@ -4,6 +4,7 @@ import type {
   Club,
   ClubSort,
   Formation,
+  ClubDuelAttributes,
   Lineup,
   TransactionFilters,
   TransactionsResponse,
@@ -32,6 +33,12 @@ export const clubsService = {
     const { data } = await api.post<Club>('/clubs', input)
     return data
   },
+  /** Papel de cada vaga e atributos de duelo do elenco, para "Atributos usados" (RN20) */
+  async getDuelAttributes(id: number): Promise<ClubDuelAttributes> {
+    const { data } = await api.get<ClubDuelAttributes>(`/clubs/${id}/duel-attributes`)
+    return data
+  },
+
   async getLineup(id: number): Promise<Lineup> {
     const { data } = await api.get<Lineup>(`/clubs/${id}/lineup`)
     return data

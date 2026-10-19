@@ -89,6 +89,7 @@ export function ClubDetailsPage() {
             clubName={club.data.name}
             squad={squad}
             lineup={lineup.data}
+            duels={lineup.duels}
             isSaving={lineup.isSaving}
             saveError={lineup.saveError}
             onSave={lineup.onSave}

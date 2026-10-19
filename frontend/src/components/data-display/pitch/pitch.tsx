@@ -1,4 +1,5 @@
-import { HeartPulse, Plus, Volleyball } from 'lucide-react'
+import { HeartPulse, Plus } from 'lucide-react'
+import { SoccerBall } from '@/components/data-display/soccer-ball/soccer-ball'
 import { getInitials } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { PitchPlayerProps, PitchProps } from './pitch.types'
@@ -88,11 +89,8 @@ export function PitchPlayer({
             </span>
           )}
           {scored && (
-            <span
-              title="Gol no duelo"
-              className="absolute -top-1 -right-1.5 flex size-4.5 items-center justify-center rounded-full bg-white text-zinc-900"
-            >
-              <Volleyball className="size-3.5" aria-label="Gol no duelo" />
+            <span title="Gol no duelo" className="absolute -top-1 -right-1.5 text-zinc-900">
+              <SoccerBall className="size-4.5" aria-label="Gol no duelo" />
             </span>
           )}
         </span>

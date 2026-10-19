@@ -9,7 +9,6 @@ import {
   LineupChangeState,
   StoredLineup,
 } from '../application/interfaces/repositories/lineup.repository.interface.js';
-import { DUEL_ROLES } from '../../domain/match-engine.js';
 import { GetLineupUseCase } from '../application/usecases/get-lineup/get-lineup.usecase.js';
 import { UpdateLineupUseCase } from '../application/usecases/update-lineup/update-lineup.usecase.js';
 import { fitsFormation, formationRequirement } from '../domain/formation.js';
@@ -100,7 +99,6 @@ describe('GetLineupUseCase', () => {
     expect(output.clubId).toBe(1);
     expect(output.formation).toBe('2-1-1');
     expect(output.complete).toBe(true);
-    expect(output.duelRoles).toEqual(DUEL_ROLES);
     expect(output.starters.map((p) => p.id)).toEqual([30, 32, 31, 33, 34]);
     expect(output.starters[2].getName()).toBe('Davi Lins');
   });
@@ -138,8 +136,6 @@ describe('GetLineupUseCase', () => {
       formation: null,
       complete: false,
       starters: [],
-      // Os papéis vêm mesmo sem escalação: a tela mostra os atributos enquanto se escala
-      duelRoles: DUEL_ROLES,
     });
   });
 

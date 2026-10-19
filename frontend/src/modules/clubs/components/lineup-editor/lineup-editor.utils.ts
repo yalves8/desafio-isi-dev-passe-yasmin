@@ -1,6 +1,6 @@
 import type { Formation, Player } from '@/api/types'
 import { CONDITION_RULES, POSITION_SECTOR } from '@/modules/players'
-import { DEFAULT_FORMATION, FORMATIONS } from '../../clubs.constants'
+import { DEFAULT_FORMATION, FORMATIONS, SECTORS } from '../../clubs.constants'
 import type { LineupRow, LineupSector, LineupSelection, LineupSlot } from '../../clubs.types'
 
 /** Vagas da formação: o goleiro e os jogadores de linha de trás para frente */
@@ -59,13 +59,18 @@ export function buildRows(
         CONDITION_RULES[p.condition].canStart &&
         (p.id === player?.id || !chosen.has(p.id)),
     )
+    // Figma: "Sem MEI no elenco" quando ninguém da posição existe; "Sem ZAG ou LAT" quando há,
+    // mas está em outra vaga ou DOENTE
+    const inSquad = squad.some((p) => POSITION_SECTOR[p.position] === slot.sector)
+    const { positions } = SECTORS[slot.sector]
+    const emptyText = inSquad ? `Sem ${positions}` : `Sem ${positions} no elenco`
     const error =
       showErrors && !player
         ? candidates.length > 0
           ? 'Escolha o titular.'
           : 'Nenhum jogador disponível para esta vaga: troque a formação.'
         : undefined
-    return { slot, player, candidates, error }
+    return { slot, player, candidates, error, emptyText }
   })
 }
 
@@ -84,4 +89,35 @@ export function canAnyFormationClose(squad: Player[]) {
 export function joinNames(names: string[]) {
   if (names.length <= 1) return names[0] ?? ''
   return `${names.slice(0, -1).join(', ')} e ${names[names.length - 1]}`
+}
+
+/**
+ * Texto do aviso de escalação salva incompleta (Figma C11): a formação que continua salva e, se
+ * nenhuma formação fecha, quem está DOENTE e o que sobra para escalar.
+ */
+export function describeIncompleteLineup(
+  formation: Formation,
+  starters: number,
+  squad: Player[],
+  canClose: boolean,
+) {
+  const left = 5 - starters
+  const lead = `${left === 1 ? 'Um titular saiu' : `${left} titulares saíram`} da escalação: a ${formation} continua salva, ${starters === 0 ? 'sem titulares' : `com ${starters} ${starters === 1 ? 'titular' : 'titulares'}`}.`
+  if (canClose) return `${lead} Escolha os titulares e salve de novo.`
+
+  const sick = squad.filter((p) => !CONDITION_RULES[p.condition].canStart).map((p) => p.name)
+  const available = squad.filter((p) => CONDITION_RULES[p.condition].canStart)
+  const keepers = available.filter((p) => POSITION_SECTOR[p.position] === 'GK').length
+  const fielders = available.length - keepers
+  const leftOver =
+    keepers === 0
+      ? 'não sobra goleiro que possa ser escalado'
+      : fielders === 1
+        ? 'sobra 1 jogador de linha que pode ser escalado'
+        : `sobram ${fielders} jogadores de linha que podem ser escalados`
+  const reason =
+    sick.length === 0
+      ? leftOver.charAt(0).toUpperCase() + leftOver.slice(1)
+      : `Com ${sick.length === 1 ? `o ${sick[0]} DOENTE` : `${joinNames(sick)} DOENTES`}, ${leftOver}`
+  return `${lead} ${reason}, e nenhuma formação fecha: o clube precisa comprar um jogador e escalar de novo.`
 }

@@ -1,4 +1,4 @@
-import type { Club, Lineup, Player, TransactionsResponse } from '@/api/types'
+import type { Club, ClubDuelAttributes, Lineup, Player, TransactionsResponse } from '@/api/types'
 
 export function clubFixture(overrides: Partial<Club> = {}): Club {
   return {
@@ -48,7 +48,6 @@ export function lineupFixture(overrides: Partial<Lineup> = {}): Lineup {
     formation: null,
     complete: false,
     players: [],
-    duel_roles: [['defense'], ['defense'], ['attack', 'defense'], ['attack'], ['attack']],
     ...overrides,
   }
 }
@@ -65,6 +64,18 @@ export function transactionsFixture(
       total_penalties: 0,
       total_profit: 0,
     },
+    ...overrides,
+  }
+}
+
+/** GET /clubs/{id}/duel-attributes: papéis das vagas (RN20) e atributos de duelo do elenco */
+export function duelAttributesFixture(
+  overrides: Partial<ClubDuelAttributes> = {},
+): ClubDuelAttributes {
+  return {
+    club_id: 1,
+    roles: [['defense'], ['defense'], ['attack', 'defense'], ['attack'], ['attack']],
+    players: [],
     ...overrides,
   }
 }

@@ -1,4 +1,4 @@
-import { Swords, Volleyball } from 'lucide-react'
+import { Goal, Swords } from 'lucide-react'
 import type { Duel, DuelPlayer } from '@/api/types'
 import { DataTable } from '@/components/data-display/data-table/data-table'
 import type { DataTableColumn } from '@/components/data-display/data-table/data-table.types'
@@ -98,7 +98,7 @@ export function DuelsTable({ match, clubsById }: DuelsTableProps) {
               <TableCell className="px-2 pr-4">
                 {duel.goal ? (
                   <Tag variant="success">
-                    <Volleyball className="size-3" aria-hidden /> Gol
+                    <Goal className="size-3" aria-hidden /> Gol
                   </Tag>
                 ) : (
                   <Tag>Sem gol</Tag>

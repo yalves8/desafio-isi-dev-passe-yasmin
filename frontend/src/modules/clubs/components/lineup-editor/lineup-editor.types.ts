@@ -1,4 +1,4 @@
-import type { Formation, Lineup, Player } from '@/api/types'
+import type { ClubDuelAttributes, Formation, Lineup, Player } from '@/api/types'
 
 export interface LineupEditorProps {
   clubName: string
@@ -6,6 +6,8 @@ export interface LineupEditorProps {
   squad: Player[]
   /** Escalação salva (GET /clubs/{id}/lineup) */
   lineup: Lineup
+  /** Papéis das vagas e atributos de duelo do elenco (GET /clubs/{id}/duel-attributes) */
+  duels?: ClubDuelAttributes
   isSaving: boolean
   /** `message` do 409/404 da última tentativa de salvar */
   saveError?: string

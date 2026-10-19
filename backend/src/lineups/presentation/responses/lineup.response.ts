@@ -1,4 +1,3 @@
-import { DuelRole } from '../../../domain/match-engine.js';
 import { PlayerResponse } from '../../../players/presentation/responses/player.response.js';
 import { Formation } from '../../domain/formation.js';
 
@@ -13,6 +12,4 @@ export interface LineupResponse {
   formation: Formation | null;
   complete: boolean;
   players: PlayerResponse[];
-  /** Papel de cada vaga nos duelos, na ordem goleiro e linha de trás para frente (RN20) */
-  duel_roles: readonly (readonly DuelRole[])[];
 }

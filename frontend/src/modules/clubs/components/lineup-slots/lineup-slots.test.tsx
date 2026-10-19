@@ -4,22 +4,30 @@ import { LineupSlots } from './lineup-slots'
 
 describe('LineupSlots', () => {
   it('deve mostrar os atributos que cada titular usa na vaga, como a API devolve', () => {
-    const goalkeeper = squadPlayerFixture({
-      duel: {
-        attack: { attribute: 'defending', value: 77, match_value: 77 },
-        defense: { attribute: 'defending', value: 77, match_value: 77 },
-      },
-    })
+    const goalkeeper = squadPlayerFixture()
     const fullBack = squadPlayerFixture({
       id: 3,
       name: 'Diego Ramos',
       position: 'LAT',
       condition: 'MAL_CONDICIONADO',
-      duel: {
-        attack: { attribute: 'dribbling', value: 74, match_value: 63 },
-        defense: { attribute: 'defending', value: 66, match_value: 56 },
-      },
     })
+    // GET /clubs/{id}/duel-attributes
+    const duelValues = new Map([
+      [
+        1,
+        {
+          attack: { attribute: 'defending', value: 77, match_value: 77 },
+          defense: { attribute: 'defending', value: 77, match_value: 77 },
+        },
+      ],
+      [
+        3,
+        {
+          attack: { attribute: 'dribbling', value: 74, match_value: 63 },
+          defense: { attribute: 'defending', value: 66, match_value: 56 },
+        },
+      ],
+    ] as const)
     render(
       <LineupSlots
         rows={[
@@ -28,6 +36,7 @@ describe('LineupSlots', () => {
           { slot: { key: 'DEF-2', sector: 'DEF' }, player: fullBack, candidates: [fullBack] },
         ]}
         duelRoles={[['defense'], ['defense'], ['attack', 'defense']]}
+        duelValues={duelValues}
         onSelect={vi.fn()}
       />,
     )
@@ -48,9 +57,10 @@ describe('LineupSlots', () => {
       <LineupSlots
         rows={[
           { slot: { key: 'GK-1', sector: 'GK' }, player: goalkeeper, candidates: [goalkeeper] },
-          { slot: { key: 'MID-1', sector: 'MID' }, candidates: [] },
+          { slot: { key: 'MID-1', sector: 'MID' }, candidates: [], emptyText: 'Sem MEI no elenco' },
         ]}
         duelRoles={[]}
+        duelValues={new Map()}
         onSelect={vi.fn()}
       />,
     )
@@ -61,7 +71,7 @@ describe('LineupSlots', () => {
 
     const midRow = screen.getByText('Meio').closest('tr')!
     expect(within(midRow).getByRole('combobox')).toBeDisabled()
-    expect(within(midRow).getByRole('combobox')).toHaveTextContent('Nenhum MEI disponível')
+    expect(within(midRow).getByRole('combobox')).toHaveTextContent('Sem MEI no elenco')
   })
 
   it('deve mostrar a mensagem junto à vaga vazia', () => {
@@ -76,6 +86,7 @@ describe('LineupSlots', () => {
           },
         ]}
         duelRoles={[]}
+        duelValues={new Map()}
         onSelect={vi.fn()}
       />,
     )
@@ -94,6 +105,7 @@ describe('LineupSlots', () => {
           { slot: { key: 'DEF-2', sector: 'DEF' }, candidates: [] },
         ]}
         duelRoles={[]}
+        duelValues={new Map()}
         onSelect={vi.fn()}
       />,
     )

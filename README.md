@@ -138,8 +138,9 @@ Prefixo `/api/v1`, exceto `/health`. A documentação completa está no Swagger 
 | DELETE | `/players/:id` | Exclusão lógica; só para jogador livre (409 se tiver clube) |
 | POST | `/clubs` | Cadastra clube (nome e sigla de 3 letras) |
 | GET | `/clubs` | Lista clubes. Query: `sort` (`name`, `net_worth_asc`, `net_worth_desc`) |
-| GET | `/clubs/:id` | Detalhe do clube com elenco; cada jogador traz `duel` (atributo de ataque e de defesa, bruto e com o efeito da condição, RN20) |
-| GET | `/clubs/:id/lineup` | Escalação atual: formação, `complete`, titulares na ordem do elenco (RN19) e `duel_roles`, o papel de cada vaga nos duelos (RN20) |
+| GET | `/clubs/:id` | Detalhe do clube com elenco |
+| GET | `/clubs/:id/duel-attributes` | Papel de cada vaga da escalação nos duelos (`roles`) e, por jogador do elenco, o atributo de ataque e o de defesa, bruto (`value`) e com o efeito da condição (`match_value`) (RN20); usado na coluna "Atributos usados" da escalação |
+| GET | `/clubs/:id/lineup` | Escalação atual: formação, `complete` e titulares na ordem do elenco (RN19) |
 | PUT | `/clubs/:id/lineup` | Substitui a escalação: `formation` e os 5 `player_ids` (1 GOL e os setores da formação; sem `DOENTE`) |
 | POST | `/matches` | Joga a partida na hora entre `home_club_id` e `away_club_id` (os dois com escalação completa) e grava placar, formações e os 6 duelos; `201` com `Location` (RN20) |
 | GET | `/matches` | Partidas da mais recente para a mais antiga, sem duelos. Query: `club_id` (mandante ou visitante) (RN21) |

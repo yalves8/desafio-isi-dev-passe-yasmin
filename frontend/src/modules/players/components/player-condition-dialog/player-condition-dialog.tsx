@@ -88,7 +88,7 @@ export function PlayerConditionDialog({
       </RadioGroup>
 
       {showLineupNotice && (
-        <AlertMessage variant="warning" title={`Se ${player.name} for titular`}>
+        <AlertMessage variant="warning" title={`${player.name} é titular`}>
           Ao passar a Doente, ele sai da escalação, e o {club?.name ?? 'clube'} só volta a jogar
           partidas depois de escalar de novo os 5 titulares.
         </AlertMessage>

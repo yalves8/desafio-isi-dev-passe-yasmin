@@ -6,6 +6,7 @@ import { playersService } from '@/api/players.service'
 import { renderPage } from '@/test/render'
 import {
   clubFixture,
+  duelAttributesFixture,
   lineupFixture,
   squadPlayerFixture as player,
   transactionsFixture,
@@ -17,6 +18,7 @@ vi.mock('@/api/clubs.service', () => ({
   clubsService: {
     get: vi.fn(),
     getLineup: vi.fn(),
+    getDuelAttributes: vi.fn(),
     updateLineup: vi.fn(),
     getTransactions: vi.fn(),
     exportTransactions: vi.fn(),
@@ -61,6 +63,30 @@ describe('ClubDetailsPage', () => {
       lineupFixture({ formation: '2-1-1', complete: true, players: squad }),
     )
     vi.mocked(clubsService.getTransactions).mockResolvedValue(transactionsFixture())
+    vi.mocked(clubsService.getDuelAttributes).mockResolvedValue(duelAttributesFixture())
+  })
+
+  it('deve mostrar na escalação os atributos usados que a API devolve', async () => {
+    vi.mocked(clubsService.getDuelAttributes).mockResolvedValue(
+      duelAttributesFixture({
+        players: [
+          {
+            id: 3,
+            attack: { attribute: 'dribbling', value: 74, match_value: 63 },
+            defense: { attribute: 'defending', value: 66, match_value: 56 },
+          },
+        ],
+      }),
+    )
+    renderDetails('/clubes/1?aba=escalacao')
+
+    const row = (await screen.findByText('Diego Ramos (LAT)')).closest('tr')!
+    await waitFor(() =>
+      expect(row.querySelector('[data-testid="duel-attributes"]')).toHaveTextContent(
+        'Drible 74Defesa 66',
+      ),
+    )
+    expect(clubsService.getDuelAttributes).toHaveBeenCalledWith(1)
   })
 
   it('deve mostrar o clube com os valores da API e o elenco', async () => {

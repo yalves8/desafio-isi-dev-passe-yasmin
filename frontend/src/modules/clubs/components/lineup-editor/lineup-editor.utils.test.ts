@@ -54,6 +54,19 @@ describe('assignPlayers', () => {
 })
 
 describe('buildRows', () => {
+  it('deve dizer, na vaga sem candidatos, se falta a posição no elenco ou só jogador livre', () => {
+    // Figma: "Sem MEI no elenco" quando ninguém da posição existe; "Sem ZAG ou LAT" quando
+    // existem, mas estão em outra vaga ou DOENTE
+    const rows = buildRows('2-1-1', { 'GK-1': 1, 'DEF-2': 3, 'ATT-1': 5 }, [
+      goalkeeper,
+      fullBack,
+      striker,
+    ])
+
+    expect(rows.find((r) => r.slot.key === 'DEF-1')!.emptyText).toBe('Sem ZAG ou LAT')
+    expect(rows.find((r) => r.slot.key === 'MID-1')!.emptyText).toBe('Sem MEI no elenco')
+  })
+
   it('não deve oferecer jogador DOENTE nem quem já está em outra vaga', () => {
     const rows = buildRows('1-2-1', { 'GK-1': 1, 'DEF-1': 2, 'MID-1': 4 }, squad)
     const secondMid = rows.find((r) => r.slot.key === 'MID-2')!

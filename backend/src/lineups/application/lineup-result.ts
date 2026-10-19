@@ -1,4 +1,3 @@
-import { DUEL_ROLES } from '../../domain/match-engine.js';
 import { compareSquadOrder } from '../../players/domain/squad-order.js';
 import { isLineupComplete } from '../domain/formation.js';
 import { StoredLineup } from './interfaces/repositories/lineup.repository.interface.js';
@@ -12,6 +11,5 @@ export function describeLineup(lineup: StoredLineup): LineupOutput {
     formation: lineup.formation,
     complete: isLineupComplete(lineup.formation, starters.length),
     starters,
-    duelRoles: DUEL_ROLES,
   };
 }

@@ -47,14 +47,18 @@ export class CreateClubUseCase {
     const existingName =
       await this.clubRepository.findByNormalizedName(normalizedName);
     if (existingName) {
-      throw new ConflictError('Clube com este nome já cadastrado');
+      throw new ConflictError(
+        `Já existe um clube com o nome “${existingName.name}”.`,
+      );
     }
 
     const existingAcronym = await this.clubRepository.findByAcronym(
       input.acronym,
     );
     if (existingAcronym) {
-      throw new ConflictError('Clube com esta sigla já cadastrado');
+      throw new ConflictError(
+        `Já existe um clube com a sigla “${existingAcronym.acronym}”.`,
+      );
     }
 
     const created = await this.clubRepository.create({

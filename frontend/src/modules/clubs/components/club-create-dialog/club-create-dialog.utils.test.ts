@@ -3,11 +3,13 @@ import { conflictField } from './club-create-dialog.utils'
 
 describe('conflictField', () => {
   it('deve apontar o nome quando a API recusa o nome repetido', () => {
-    expect(conflictField('Clube com este nome já cadastrado')).toBe('name')
+    expect(conflictField('Já existe um clube com o nome “Águias FC”.')).toBe('name')
+    // O nome citado não confunde o campo
+    expect(conflictField('Já existe um clube com o nome “Sigla Esporte Clube”.')).toBe('name')
   })
 
   it('deve apontar a sigla quando a API recusa a sigla repetida', () => {
-    expect(conflictField('Clube com esta sigla já cadastrado')).toBe('acronym')
+    expect(conflictField('Já existe um clube com a sigla “AGU”.')).toBe('acronym')
   })
 
   it('não deve apontar campo no limite de 20 clubes nem sem mensagem', () => {

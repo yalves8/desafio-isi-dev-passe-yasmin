@@ -25,14 +25,23 @@ export interface SquadPlayerResponse extends PlayerResponse {
     remaining_days: number;
     penalty_rate: number;
   } | null;
-  /** Atributo usado ao atacar e ao defender: bruto e com o efeito da condição (RN20) */
-  duel: Record<
-    DuelRole,
-    { attribute: DuelAttribute; value: number; match_value: number }
-  >;
 }
 
 /** Clube com o elenco na ordem da RN11 (2.2.2) */
 export interface ClubDetailsResponse extends ClubResponse {
   players: SquadPlayerResponse[];
+}
+
+/** Atributo de duelo: o cadastrado e o que entra no duelo, com o efeito da condição (RN20) */
+interface DuelValueResponse {
+  attribute: DuelAttribute;
+  value: number;
+  match_value: number;
+}
+
+/** Papel de cada vaga e atributos de duelo de cada jogador do elenco (RN20) */
+export interface ClubDuelAttributesResponse {
+  club_id: number;
+  roles: readonly (readonly DuelRole[])[];
+  players: ({ id: number } & Record<DuelRole, DuelValueResponse>)[];
 }

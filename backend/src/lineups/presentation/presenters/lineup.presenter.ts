@@ -9,6 +9,5 @@ export function toLineupResponse(lineup: LineupOutput): LineupResponse {
     formation: lineup.formation,
     complete: lineup.complete,
     players: lineup.starters.map(toPlayerResponse),
-    duel_roles: lineup.duelRoles,
   };
 }
