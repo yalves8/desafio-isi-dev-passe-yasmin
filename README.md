@@ -73,6 +73,7 @@ npm run prisma:reset
 | `PORT` | Porta da API | `3000` |
 | `DATABASE_URL` | Conexão PostgreSQL (obrigatória) | — |
 | `CORS_ORIGIN` | Origens permitidas | `http://localhost:5173` |
+| `TZ` | Fuso horário do processo Node | `America/Sao_Paulo` (no `.env.example` e no Docker) |
 
 As variáveis são validadas com zod na subida: se faltar `DATABASE_URL`, a API não sobe e informa o motivo.
 
