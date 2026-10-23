@@ -24,8 +24,6 @@ docker compose up -d --build
 ```
 As migrations rodam automaticamente na subida da API, e o banco começa vazio, sem jogadores, clubes, transações nem partidas.
 
-> **VPN corporativa:** clientes como o Cisco AnyConnect podem capturar as rotas `172.16.0.0/12` usadas pelas redes do Docker. Nesse caso, nem o host alcança os containers. Desconecte a VPN, ou rode o frontend fora do Docker (`npm run dev`).
-
 ### Sem Docker (desenvolvimento)
 ```bash
 # Banco de dados (na raiz do repositório): PostgreSQL 16 na porta 5433
@@ -71,7 +69,7 @@ npm run prisma:reset
 |---|---|---|
 | `NODE_ENV` | `development`, `test` ou `production` | `development` |
 | `PORT` | Porta da API | `3000` |
-| `DATABASE_URL` | Conexão PostgreSQL (obrigatória) | — |
+| `DATABASE_URL` | Conexão PostgreSQL (obrigatória, sem padrão no código) | `postgresql://postgres:postgres@localhost:5433/app?schema=public` no `.env.example`; no Docker, `postgresql://postgres:postgres@db:5432/app?schema=public` |
 | `CORS_ORIGIN` | Origens permitidas | `http://localhost:5173` |
 | `TZ` | Fuso horário do processo Node | `America/Sao_Paulo` (no `.env.example` e no Docker) |
 
